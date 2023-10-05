@@ -1,0 +1,46 @@
+package javawaveoptics.optics;
+
+import java.io.Serializable;
+
+import library.field.ComplexField2D;
+import library.optics.LightBeamCrossSection2D;
+
+/**
+ * Represents a beam of light. This is a wrapper class for LightBeamCrossSection2D.
+ * 
+ * @author Sean
+ */
+public class BeamCrossSection extends LightBeamCrossSection2D implements Serializable
+{
+	private static final long serialVersionUID = 8502008808412019997L;
+	
+	/*
+	 * Fields
+	 */
+
+	public BeamCrossSection(int width, int height, double physicalWidth, double physicalHeight, double wavelength)
+	{
+		super(width, height, physicalWidth, physicalHeight, wavelength);
+	}
+	
+	/**
+	 * Copy constructor. Takes a copy of the beam by value, so references to existing variables are removed.
+	 * This is useful for plot functionality, where you want a 'snapshot' of the beam at a certain point.
+	 * 
+	 * @param beam
+	 */
+	public BeamCrossSection(LightBeamCrossSection2D beam)
+	{
+		super(beam);
+	}
+	
+	public BeamCrossSection(ComplexField2D original, double wavelength)
+	{
+		super(original, wavelength);
+	}
+		
+	public BeamCrossSection()
+	{
+		this(256, 256, 1e-2, 1e-2, 632.8e-9);
+	}
+}

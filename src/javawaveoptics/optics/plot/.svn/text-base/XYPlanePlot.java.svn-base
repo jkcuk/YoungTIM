@@ -1,0 +1,283 @@
+package javawaveoptics.optics.plot;
+
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.Serializable;
+
+import javawaveoptics.optics.BeamCrossSection;
+import javawaveoptics.ui.LengthField;
+import javawaveoptics.ui.UIBitsAndBobs;
+
+import javax.swing.BoxLayout;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
+public class XYPlanePlot extends AbstractPlot implements Serializable, ActionListener, ChangeListener, PropertyChangeListener
+{
+	private static final long serialVersionUID = 7939859812038682256L;
+
+	/*
+	 * Fields
+	 */
+	
+	// additional propagation distance, Delta z
+	private double deltaZ = 0;
+	private BeamCrossSection beamPropagated = null;	// beam copy, propagated by Delta z
+	
+	// exposure compensation factor, 2^(exposure compensation value)
+	private double exposureCompensationValue = 0.0;
+	
+	/**
+	 * the plot type, i.e. one of the list in AbstractPlot
+	 */
+	private AreaPlotType plotType = AreaPlotType.INTENSITY;	
+		
+	/*
+	 * GUI edit controls
+	 */
+
+	private transient LengthField deltaZLengthField;
+	private transient JComboBox plotTypeComboBox;
+	private transient JSpinner exposureCompensationSpinner;
+	
+	public XYPlanePlot(String name, AreaPlotType plotType)
+	{
+		super(name);
+		this.plotType = plotType;
+	}
+	
+	public XYPlanePlot()
+	{
+		this("XY plane", AreaPlotType.INTENSITY);
+	}
+
+	@Override
+	public BufferedImage getPlotImage(BeamCrossSection beam)
+	{
+		if(deltaZ == 0.0)
+		{
+			beamPropagated = beam;
+		}
+		else
+		{
+			beamPropagated = new BeamCrossSection(beam);
+			beamPropagated.propagate(deltaZ);
+		}
+
+		return getAreaPlotImage(beam);
+	}
+	
+	/**
+	 * @param beam
+	 * @return	the image showing the 2D cross section
+	 */
+	public BufferedImage getAreaPlotImage(BeamCrossSection beam)
+	{	
+		int dataColumns = beamPropagated.getWidth();
+		int dataRows = beamPropagated.getHeight();
+			
+		BufferedImage image = new BufferedImage(dataColumns, dataRows, BufferedImage.TYPE_INT_RGB );
+
+		double exposureFactor = Math.pow(2, exposureCompensationValue);
+		
+		switch(plotType)
+		{
+		case INTENSITY:
+			double maxIntensity = beamPropagated.getMaxIntensity() / exposureFactor;
+			
+			for(int x = 0; x < dataColumns; x++)
+			{
+				for(int y = 0; y < dataRows; y++)
+				{
+					double intensity = beamPropagated.getIntensity(x, y);
+					
+					image.setRGB(x, dataRows - 1 - y, Color.HSBtoRGB(1, 0, (float)(Math.min(1.0, intensity/maxIntensity))));
+				}
+			}
+			break;
+		case PHASE_COLOUR:
+			for(int x = 0; x < dataColumns; x++)
+			{
+				for(int y = 0; y < dataRows; y++)
+				{
+					// phase, normalised to the range 0 to 1
+					double phase = Math.atan2(beamPropagated.getElementIm(x, y), beamPropagated.getElementRe(x, y)) / (2 * Math.PI) + 0.5;
+
+					image.setRGB(x, dataRows - 1 - y, Color.HSBtoRGB((float)phase, 1, 1));
+				}
+			}
+			break;
+		case PHASE_GRAYSCALE:
+			for(int x = 0; x < dataColumns; x++)
+			{
+				for(int y = 0; y < dataRows; y++)
+				{
+					// phase, normalised to the range 0 to 1
+					double phase = Math.atan2(beamPropagated.getElementIm(x, y), beamPropagated.getElementRe(x, y)) / (2 * Math.PI) + 0.5;
+
+					image.setRGB(x, dataRows - 1 - y, Color.HSBtoRGB(0, 0, (float)phase));
+				}
+			}
+			break;
+		case PHASE_AND_INTENSITY:
+			maxIntensity = beamPropagated.getMaxIntensity() / exposureFactor;
+
+			for(int x = 0; x < dataColumns; x++)
+			{
+				for(int y = 0; y < dataRows; y++)
+				{
+					float hue = (float) (Math.atan2(beamPropagated.getElementIm(x, y), beamPropagated.getElementRe(x, y)) / (2 * Math.PI) + 0.5);
+					float brightness = (float)Math.min(1.0, (beamPropagated.getIntensity(x, y) / maxIntensity));
+					
+					image.setRGB(x, dataRows - 1 - y, Color.HSBtoRGB(hue, 1, brightness));
+				}
+			}
+			break;
+		case IMAGINARY_PART:
+			double maxField = beamPropagated.getMaxAbsIm() / Math.sqrt(exposureFactor);
+			
+			for(int x = 0; x < dataColumns; x++)
+			{
+				for(int y = 0; y < dataRows; y++)
+				{
+					double im = beamPropagated.getElementIm(x, y);
+					
+					image.setRGB(x, dataRows - 1 - y, Color.HSBtoRGB(((im>0)?(float)0.5:0), 1, (float)Math.min(1.0, (Math.abs(im)/maxField))));
+				}
+			}
+			break;
+		case REAL_PART:
+		default:
+			maxField = beamPropagated.getMaxAbsRe() / Math.sqrt(exposureFactor);
+			
+			for(int x = 0; x < dataColumns; x++)
+			{
+				for(int y = 0; y < dataRows; y++)
+				{
+					double re = beamPropagated.getElementRe(x, y);
+					
+					image.setRGB(x, dataRows - 1 - y, Color.HSBtoRGB(((re>0)?(float)0.5:0), 1, (float)Math.min(1.0, (Math.abs(re)/maxField))));
+				}
+			}
+			break;
+		}
+
+		return image;
+	}
+	
+	@Override
+	public JComponent getControlPanelLeft()
+	{
+		if(plotTypeComboBox == null)
+		{
+			initialiseWidgets();
+		}
+		
+		JPanel controlPanelLeft = new JPanel();
+		controlPanelLeft.setLayout(new BoxLayout(controlPanelLeft, BoxLayout.X_AXIS));
+		controlPanelLeft.add(plotTypeComboBox);
+		controlPanelLeft.add(exposureCompensationSpinner);
+		
+		return controlPanelLeft;
+	}
+	
+	@Override
+	public JComponent getControlPanelRight()
+	{
+		if(plotTypeComboBox == null)
+		{
+			initialiseWidgets();
+		}
+		
+		JPanel controlPanelRight = new JPanel();
+		controlPanelRight.setLayout(new BoxLayout(controlPanelRight, BoxLayout.X_AXIS));
+		
+		// JCPanel deltaZPanel = UIBitsAndBobs.makeRow("\u0394z=", deltaZLengthField, true);
+		controlPanelRight.add(deltaZLengthField);
+		deltaZLengthField.setToolTipText("<html>Additional propagation distance in the longitudinal direction (\u0394z)</html>");	
+		
+		return controlPanelRight;
+	}
+	
+	protected void initialiseWidgets()
+	{
+		plotTypeComboBox = new JComboBox(AreaPlotType.values());
+		// plotTypeComboBox.setFont(ImagePanel.getControlPanelFont());
+		plotTypeComboBox.setToolTipText("Part of the complex field to plot");
+		plotTypeComboBox.setAlignmentX(Component.CENTER_ALIGNMENT);
+		plotTypeComboBox.addActionListener(this);
+		plotTypeComboBox.setSelectedItem(plotType);
+		plotTypeComboBox.setMaximumSize(plotTypeComboBox.getPreferredSize());
+		
+		exposureCompensationSpinner = UIBitsAndBobs.createExposureCompensationSpinner(exposureCompensationValue);
+		exposureCompensationSpinner.addChangeListener(this);
+
+		deltaZLengthField = new LengthField(this);
+		
+		// JSpinner.NumberEditor zValueEditor = new JSpinner.NumberEditor(deltaZLengthField.getValueSpinner(), "00.00");
+		JSpinner.DefaultEditor zValueEditor = (JSpinner.DefaultEditor)(deltaZLengthField.getValueSpinner().getEditor());
+		zValueEditor.getTextField().setColumns(3);
+		// zValueEditor.getTextField().setMaximumSize(editor.getTextField().getPreferredSize());
+		deltaZLengthField.getValueSpinner().setEditor(zValueEditor);
+		deltaZLengthField.setMaximumSize(deltaZLengthField.getPreferredSize());
+		// deltaZLengthField.setFont(ImagePanel.getControlPanelFont());	// doesn't work!
+		deltaZLengthField.setLengthInMetres(deltaZ);
+	}
+
+	@Override
+	public boolean getShowSettingsButton()
+	{
+		return false;
+	}
+	
+	@Override
+	public void actionPerformed(ActionEvent e)
+	{
+		Object source = e.getSource();
+
+		if (source == plotTypeComboBox)
+		{
+			plotType = (AreaPlotType)(plotTypeComboBox.getSelectedItem());
+
+			if(exposureCompensationSpinner != null)
+			{
+				// make the exposureCompensationSpinner invisible when it's not needed, i.e. in the phase-only plots
+				exposureCompensationSpinner.setEnabled((plotType != AreaPlotType.PHASE_COLOUR) && (plotType != AreaPlotType.PHASE_GRAYSCALE));
+			}
+			
+			// Fire an edit event, i.e. make sure plot is re-drawn
+			fireEditEvent();
+		}
+	}
+	
+	@Override
+	public void propertyChange(PropertyChangeEvent e)
+	{
+	    Object source = e.getSource();
+	    
+	    if (source == deltaZLengthField)
+	    {
+	        deltaZ = deltaZLengthField.getLengthInMetres();
+	        
+			// Fire an edit event, i.e. make sure plot is re-drawn
+			fireEditEvent();
+	    }
+	}
+	
+	@Override
+	public void stateChanged(ChangeEvent e)
+	{
+		exposureCompensationValue = ((Double)exposureCompensationSpinner.getValue()).doubleValue();
+
+		fireEditEvent();
+	}
+}

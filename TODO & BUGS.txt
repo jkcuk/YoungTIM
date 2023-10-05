@@ -1,0 +1,33 @@
+TODO
+
+* button that switches on cycling phases/fields in time
+* vortex detector?
+* make plots autoscale first time they're being drawn (the way I implemented this previously led to a bug:
+  First running the simulation and then showing the plane's panels didn't work, for some reason.)
+* make it possible to save data in the X section plot
+* add annular aperture (so that we can create diffraction-free beams)
+* use the AbstractPlot class's file save name
+* make the zoom spinner a "%"-type spinner (see http://www.java.net/node/651113 )
+* put sheared intensity cross-section in icon of plane; use AffineTransform's shear method
+* make it possible to set the startup optical element; right-click on "Go!" button to get a choice?
+* make it possible to simulate <n> round trips; dialog option in popup menu that appears by right-clicking "Go!" button?
+* add sensible normalisation to light source
+* check that Hologram (from file) makes sense...
+* add more tooltips
+* add vortex finder; show phase/intensity when hovering over plot
+* perhaps implement Joris's holes \cite{Berkhout-Beijersbergen-2008}
+* make it possible to add a Mach-Zender interferometer with nothing in it
+* add "turn into individual components" button to cylindrical-lens mode converter
+* add mechanism to replace optical elements with others
+* add the Gerchberg-Saxton algorithm to \texttt{Hologrammifier} (3rd-year project?)
+* add components that change the resolution (zero padding), zoom in on the centre, add zeros around the beam (to allow diffraction orders some room to separate), crop the beam, ...
+* instead of terminating tracing when an output beam is null, keep going (and so make sure that the plot panels in a later plane show --- correctly --- that there is no beam present)
+* during simulation, show current beam?  Perhaps this could be some form of debug mode... need to press a button to continue
+
+
+Known bugs
+
+* Graphs seem to be flickering strangely; re-draw less often?
+* Loading and saving of environments is still dicky
+* Disabled light source components' images show a red line across their whole width
+* Disabled components' red lines don't obey the scale factor

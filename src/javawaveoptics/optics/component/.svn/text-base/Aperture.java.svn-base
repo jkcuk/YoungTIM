@@ -1,0 +1,204 @@
+package javawaveoptics.optics.component;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.Serializable;
+import java.util.ArrayList;
+
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComboBox;
+import javax.swing.JPanel;
+
+import javawaveoptics.optics.BeamCrossSection;
+import javawaveoptics.optics.aperture.AbstractAperture;
+import javawaveoptics.optics.aperture.AnnularAperture;
+import javawaveoptics.optics.aperture.DoubleSlit;
+import javawaveoptics.optics.aperture.GaussianAperture;
+import javawaveoptics.optics.aperture.Grating;
+import javawaveoptics.optics.aperture.PolygonalAperture;
+import javawaveoptics.optics.aperture.Slit;
+import javawaveoptics.ui.UIBitsAndBobs;
+
+/**
+ * An aperture that can be one of a number of different types.
+ * Based on Sean's LightSource component
+ * 
+ * @author johannes
+ *
+ */
+public class Aperture extends AbstractSimpleOpticalComponent implements Serializable, ActionListener
+{
+	private static final long serialVersionUID = -8748873004884984777L;
+	
+	// aperture-type constants;
+	// must agree with the order in which components are added in initialiseApertures
+	public static final int
+		CIRCULAR_APERTURE = 0,
+		DOUBLE_SLIT = 1,
+		GRATING = 2,
+		POLYGON = 3,
+		SLIT = 4,
+		GAUSSIAN_APERTURE = 5;
+
+	/*
+	 * Fields
+	 */
+
+	// List of light sources
+	private ArrayList<AbstractAperture> apertures;
+	
+	// Selected light source
+	private AbstractAperture selectedAperture;
+	
+	/*
+	 * GUI edit controls
+	 */
+	
+	private transient JPanel apertureEditPanel;
+	private transient JComboBox apertureTypeComboBox;
+
+	
+	public Aperture(String name)
+	{
+		super(name);
+		
+		initialiseApertures();
+	}
+	
+	public Aperture()
+	{
+		this("Aperture");
+	}
+
+	@Override
+	public String getComponentTypeName()
+	{
+		return "Aperture";
+	}
+
+	@Override
+	protected void createEditPanel()
+	{
+		super.createEditPanel();
+		
+		/*
+		 * Aperture-type drop down box
+		 */
+		
+		apertureTypeComboBox.addActionListener(this);
+		apertureTypeComboBox.setActionCommand("Aperture selected");
+		
+		// Create aperture and its edit controls
+		drawApertureEditControls();
+		
+		editPanel.add(UIBitsAndBobs.makeRow("Aperture type", apertureTypeComboBox, true));
+		editPanel.add(apertureEditPanel);
+	}
+	
+	@Override
+	protected void initialiseWidgets()
+	{
+		super.initialiseWidgets();
+		
+		// aperture edit controls
+		apertureEditPanel = new JPanel();		// The edit controls for the selected aperture type
+		apertureTypeComboBox = new JComboBox();	// The combo box for selecting a aperture type
+		
+		// Set the combo box model from list of aperture types
+		apertureTypeComboBox.setModel(new DefaultComboBoxModel(apertures.toArray()));
+		
+		// Set beam selection
+		apertureTypeComboBox.setSelectedItem(selectedAperture);
+	}
+
+//	private transient boolean inPropertyChange = false;
+//	
+//	@Override
+//	public void propertyChange(PropertyChangeEvent e)
+//	{
+//		if(!inPropertyChange)
+//		{
+//			inPropertyChange = true;
+//
+//			Object source = e.getSource();
+//
+//			// nothing to do here, at least for the moment
+//			
+//			// Fire an edit panel event
+//			if(editListener != null) editListener.editMade();
+//
+//			inPropertyChange = false;
+//		}
+//	}
+
+	@Override
+	public void actionPerformed(ActionEvent event)
+	{
+//		if(!inPropertyChange)
+//		{
+//			inPropertyChange = true;
+
+		    String command = event.getActionCommand();
+		    	
+		    if(command.equals("Aperture selected"))
+		    {
+		    	// A new aperture type has been selected
+		    		
+		    	selectedAperture = (AbstractAperture)apertureTypeComboBox.getSelectedItem();
+		    		
+		    	drawApertureEditControls();
+		    }
+			
+//			inPropertyChange = false;
+//		}
+	}
+
+	private void initialiseApertures()
+	{
+		apertures = new ArrayList<AbstractAperture>();
+
+		// the order in which the apertures are added here must agree with the aperture-type constants defined at the top!
+		apertures.add(new AnnularAperture());
+		apertures.add(new DoubleSlit());
+		apertures.add(new Grating());
+		apertures.add(new PolygonalAperture());
+		apertures.add(new Slit());
+		apertures.add(new GaussianAperture());
+		
+		selectedAperture = apertures.get(0);
+	}
+
+	@Override
+	public BeamCrossSection fromInputBeamCalculateOutputBeam(BeamCrossSection inputBeam)
+	{
+		if(inputBeam != null)
+		{
+			return selectedAperture.fromInputBeamCalculateOutputBeam(inputBeam);
+		}
+		
+		return inputBeam;
+	}
+
+	private void drawApertureEditControls()
+	{
+		apertureEditPanel.removeAll();
+		apertureEditPanel.add(selectedAperture.getEditPanel());
+		
+		apertureEditPanel.revalidate();
+		apertureEditPanel.repaint();
+	}
+
+	@Override
+	public String getFormattedName()
+	{
+		return getName();
+	}
+
+	public AbstractAperture getSelectedAperture() {
+		return selectedAperture;
+	}
+
+	public void setApertureType(int apertureType) {
+		selectedAperture = apertures.get(apertureType);
+	}
+}

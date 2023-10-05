@@ -1,0 +1,1 @@
+package library.util;public class OutOfBoundsError extends Error{	private static final long serialVersionUID = 9068675592026461400L;	public OutOfBoundsError(String message)	{		super(message);	}}

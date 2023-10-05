@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/maths/ODE
+END
+RungeKutta.java
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/maths/ODE/RungeKutta.java
+END
+Derivatives.java
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/maths/ODE/Derivatives.java
+END
+Euler.java
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/maths/ODE/Euler.java
+END
+RungeKuttaFehlberg.java
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/maths/ODE/RungeKuttaFehlberg.java
+END
+RungeKuttaCashKarp.java
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/maths/ODE/RungeKuttaCashKarp.java
+END

@@ -1,0 +1,46 @@
+package javawaveoptics.ui.workbench;
+
+import javax.swing.JPanel;
+
+import javawaveoptics.optics.component.AbstractOpticalComponent;
+import javawaveoptics.optics.environment.AbstractOpticalEnvironment;
+
+public abstract class AbstractWorkbench extends JPanel
+{
+	private static final long serialVersionUID = -566483615143699989L;
+	
+	// The optical environment to be used
+	protected AbstractOpticalEnvironment opticalEnvironment;
+	
+	/**
+	 * Defines a workbench GUI component.
+	 * 
+	 * @param opticalEnvironment
+	 */
+	public AbstractWorkbench(AbstractOpticalEnvironment opticalEnvironment)
+	{
+		this.opticalEnvironment = opticalEnvironment;
+	}
+
+	/**
+	 * (Re)draws the workbench in its current state.
+	 */
+	//public abstract void drawWorkbench();
+	
+	public abstract AbstractOpticalComponent getStartComponent();
+	
+	public AbstractOpticalEnvironment getOpticalEnvironment()
+	{
+		return opticalEnvironment;
+	}
+
+	public void setOpticalEnvironment(AbstractOpticalEnvironment opticalEnvironment)
+	{
+		this.opticalEnvironment = opticalEnvironment;
+	}
+	
+	/**
+	 * @return	true if the Load and Save buttons should be shown, false otherwise
+	 */
+	public abstract boolean showLoadAndSaveButtons();
+}

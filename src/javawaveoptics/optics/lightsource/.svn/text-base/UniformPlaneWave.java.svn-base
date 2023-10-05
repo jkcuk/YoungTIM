@@ -1,0 +1,74 @@
+package javawaveoptics.optics.lightsource;
+
+import java.io.Serializable;
+
+import javax.swing.JPanel;
+
+import javawaveoptics.optics.BeamCrossSection;
+
+/**
+ * Provides a uniform beam output with corresponding edit functionality.
+ * 
+ * @author Sean
+ */
+public class UniformPlaneWave extends AbstractLightSource implements Serializable
+{
+	private static final long serialVersionUID = -5361806058271368977L;
+	
+	/*
+	 * Fields
+	 */
+	
+	// None
+	
+	/*
+	 * GUI edit controls
+	 */
+	
+	// None
+	
+	/**
+	 * 
+	 * 
+	 * @param width
+	 * @param height
+	 * @param physicalWidth
+	 * @param physicalHeight
+	 * @param wavelength
+	 */
+	public UniformPlaneWave()
+	{
+		super("Uniform plane wave");
+	}
+	
+	@Override
+	public String getLightSourceTypeName()
+	{
+		return "Uniform plane wave";
+	}
+	
+	public BeamCrossSection getBeamOutput(double physicalWidth, double physicalHeight, double wavelength, int plotWidth, int plotHeight)
+	{
+		BeamCrossSection beam = new BeamCrossSection(plotWidth, plotHeight, physicalWidth, physicalHeight, wavelength);
+		
+		double[] data = beam.getData();
+		
+		for(int x = 0; x < plotWidth; x++)
+		{
+			for(int y = 0; y < plotHeight; y++)
+			{
+				data[2 * (y * plotWidth + x)] = 1;		// Intensity
+				//data[2 * (y * width + x) + 1] = 0;	// Phase (not needed?)
+			}
+		}
+		
+		return beam;
+	}
+
+	@Override
+	protected void createEditPanel()
+	{
+		// super.createEditPanel();
+		editPanel = new JPanel();	// don't draw the titled border with nothing in it --- looks crap
+	}
+}

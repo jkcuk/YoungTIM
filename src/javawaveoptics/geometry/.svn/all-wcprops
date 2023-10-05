@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/javawaveoptics/geometry
+END
+AbstractSurface3D.java
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/p/javawaveoptics/code/!svn/ver/162/trunk/Young%20TIM/src/javawaveoptics/geometry/AbstractSurface3D.java
+END
+Hemisphere3D.java
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/p/javawaveoptics/code/!svn/ver/162/trunk/Young%20TIM/src/javawaveoptics/geometry/Hemisphere3D.java
+END
+Vector2D.java
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/p/javawaveoptics/code/!svn/ver/162/trunk/Young%20TIM/src/javawaveoptics/geometry/Vector2D.java
+END
+Vector3D.java
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/p/javawaveoptics/code/!svn/ver/167/trunk/Young%20TIM/src/javawaveoptics/geometry/Vector3D.java
+END
+ZPlane3D.java
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/p/javawaveoptics/code/!svn/ver/162/trunk/Young%20TIM/src/javawaveoptics/geometry/ZPlane3D.java
+END
+Point2D.java
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/p/javawaveoptics/code/!svn/ver/162/trunk/Young%20TIM/src/javawaveoptics/geometry/Point2D.java
+END
+Point3D.java
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/javawaveoptics/geometry/Point3D.java
+END

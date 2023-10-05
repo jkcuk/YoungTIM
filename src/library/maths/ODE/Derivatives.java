@@ -1,0 +1,1 @@
+package library.maths.ODE;public interface Derivatives{	// this method changes the values of the array dfdt to the	// partial time derivatives df_x/dt at time t and for values f_x	// given by the array f[] 	public void calculateDerivatives(double t, double f[], double dfdt[]);}

@@ -1,0 +1,325 @@
+package javawaveoptics.optics.component;
+
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.geom.CubicCurve2D;
+import java.awt.geom.Ellipse2D;
+import java.awt.image.BufferedImage;
+import java.io.Serializable;
+import java.util.ArrayList;
+
+import javax.swing.JButton;
+
+import javawaveoptics.optics.BeamCrossSection;
+import javawaveoptics.optics.ComponentOutput;
+import javawaveoptics.ui.ClickableInputOutputShape;
+import javawaveoptics.ui.ClickableInterface;
+import javawaveoptics.utility.SimulationException;
+
+/**
+ * Defines a hologram.
+ * 
+ * A hologram has two inputs: one defines the hologram, the other the incident beam.
+ * The hologram then simply multiplies the two inputs together, i.e interprets the complex amplitudes of one of
+ * the beams as the complex factors by which the hologram multiplies the complex amplitudes of a transmitted beam.
+ * 
+ * Based on Sean's BeamSplitter class (which adds and subtracts the two inputs).
+ * 
+ * @author Johannes
+ */
+public class Hologram extends AbstractOpticalComponent implements Serializable, ActionListener, ClickableInterface
+{	
+	private static final long serialVersionUID = 6046936266177807875L;
+
+	/*
+	 * Fields
+	 */
+	
+	// The padding given to the beam wires drawn on the image, i.e. the number of pixels
+	// from the top that the 0th wire will be drawn to and the number of pixels from the
+	// bottom the nth wire will be drawn to.
+	// NOTE: This is the unscaled padding value!
+	private static final int beamWireYPadding = 25;
+	
+	// Similarly, the x-direction padding. The 0th input will be placed at beamWireXPadding,
+	// and the nth input will be placed at (width - beamWireXPadding).
+	// NOTE: This is the unscaled padding value!
+	private static final int beamWireXPadding = 50;
+	
+	// List of clickable shapes for inputs and outputs
+	private transient ArrayList<ClickableInputOutputShape> inputClickableShapes;
+	
+	/*
+	 * GUI edit controls
+	 */
+
+	// Swap inputs button
+	private transient JButton swapInputsButton;
+
+	public Hologram(String name)
+	{
+		super(name, 2, 1);
+	}
+	
+	/**
+	 * Null constructor. Creates a beam splitter with default values. This requires
+	 * no parameters.
+	 */
+	public Hologram()
+	{
+		this("Hologram");
+	}
+	
+	@Override
+	public String getComponentTypeName()
+	{
+		return "Hologram";
+	}
+
+	@Override
+	protected ArrayList<BeamCrossSection> simulate(ArrayList<BeamCrossSection> inputs)
+	throws SimulationException
+	{
+		if(!componentEnabled)
+		{
+			return inputs;
+		}
+
+		// Retrieve the inputs
+		BeamCrossSection input0 = inputs.get(0);
+		BeamCrossSection input1 = inputs.get(1);
+		
+		// Create an ArrayList that holds the outputs
+		ArrayList<BeamCrossSection> outputs = new ArrayList<BeamCrossSection>();
+		
+		// Create (null by default) output beam object
+		BeamCrossSection output = null;
+		
+		// Check if inputs are null or not, and deal with them appropriately
+		if((input0 == null) && (input1 == null))
+		{
+			// no input is connected
+			System.err.println("Hologram::simulate: Warning: both inputs to " + name + " are null.");
+		}
+		else
+		{
+			// check if both inputs non-null
+			if((input0 != null) && (input1 != null))
+			{
+				// yes, both inputs are non-null
+				// now check that they are compatible!
+				if(
+					(input0.getWidth() != input1.getWidth()) ||
+					(input0.getHeight() != input1.getHeight()) ||
+					(input0.getPhysicalWidth() != input1.getPhysicalWidth()) ||
+					(input0.getPhysicalHeight() != input1.getPhysicalHeight()) ||
+					(input0.getWavelength() != input1.getWavelength())
+				)
+				{
+//					System.out.println(
+//							" " + input0.getWidth() + " " + input1.getWidth() +
+//							" " + input0.getHeight() + " " + input1.getHeight() +
+//							" " + input0.getPhysicalWidth() + " " + input1.getPhysicalWidth() +
+//							" " + input0.getPhysicalHeight() + " " + input1.getPhysicalHeight() +
+//							" " + input0.getWavelength() + " " + input1.getWavelength());
+					// they are not compatible!
+					throw new SimulationException("Hologram::simulate", "The inputs to " + name + " are incompatible.");
+				}
+			}
+			else
+			{
+				// one of the inputs is null, the other one isn't
+				
+				// find the non-null input
+				BeamCrossSection nonNullInput = (input0 == null) ? input1 : input0;
+				
+				// create a dark beam that's compatible with the non-null input
+				BeamCrossSection darkInput = new BeamCrossSection(nonNullInput.getWidth(), nonNullInput.getHeight(), nonNullInput.getPhysicalWidth(), nonNullInput.getPhysicalHeight(), nonNullInput.getWavelength());
+				
+				// set the null input to the dark beam
+				if(input0 == null)
+				{
+					// input 0 was the null input
+					input0 = darkInput;
+				}
+				else
+				{
+					// input 1 was the null input
+					input1 = darkInput;
+				}
+			}
+		
+			// Copy inputs into new outputs, ready to be manipulated
+			output = new BeamCrossSection(input0);
+		
+			// calculate the element-by-element product with the second input
+			output.multiply(input1);
+		}
+		
+		// add outputs to the list
+		outputs.add(output);
+		
+		return outputs;
+	}
+
+	@Override
+	protected void createEditPanel()
+	{
+		super.createEditPanel();
+		
+		/*
+		 * Swap inputs and outputs buttons
+		 */
+		
+		// Add an action listener to the buttons
+		swapInputsButton.addActionListener(this);
+		
+		// Set action commands
+		swapInputsButton.setActionCommand("Swap Inputs");
+
+		editPanel.add(swapInputsButton);
+	}
+	
+	@Override
+	protected void initialiseWidgets()
+	{
+		super.initialiseWidgets();
+		
+		// Swap inputs button
+		swapInputsButton = new JButton("Swap inputs");
+	}
+	
+	/**
+	 * Overrides the default functionality of getComponentImage().
+	 * Cut-down version of BeamSplitter::getComponentImage()
+	 */
+	@Override
+	public BufferedImage getComponentImage()
+	{		
+		// Get default component background image
+		BufferedImage backgroundImage = super.getComponentImage();
+		
+		/*
+		 * Create a scaled copy of the image
+		 */
+		
+		// Get the scaled dimensions
+		int componentImageHeight = backgroundImage.getHeight();
+		int componentImageWidth = backgroundImage.getWidth();
+		
+		// Create default image of the correct size
+		BufferedImage image = new BufferedImage(componentImageWidth, componentImageHeight, BufferedImage.TYPE_INT_RGB);
+		
+		/*
+		 * Draw the 'light wires'
+		 */
+		
+		// Create a graphics object - this allows us to do some drawing
+		Graphics2D g = image.createGraphics();
+		
+		// Draw the background image as the background to our 'wired' image
+		g.drawImage(backgroundImage, 0, 0, null);
+				
+		// Scale and set the stroke size
+		g.setStroke(new BasicStroke((float) scaleFactor * 3.0f));
+		
+		// Scale the padding
+		int scaledBeamWireYPadding = (int) (scaleFactor * (double) beamWireYPadding);
+		int scaledBeamWireXPadding = (int) (scaleFactor * (double) beamWireXPadding);
+		
+		// Create lists of input/output shapes
+		inputClickableShapes = new ArrayList<ClickableInputOutputShape>();
+		
+		// Add input 'wires'
+		for(int a = 0; a < componentInputs.length; a++)
+		{
+			if(a == 0)
+			{
+				g.setColor(Color.gray);
+			}
+			else
+			{
+				// Set up 'pen' colour
+				g.setColor(Color.red);
+			}
+			
+			// Set the y-position of the current beam wire so that it is distributed within the available height equally
+			int yPosition = scaledBeamWireYPadding + ((componentImageHeight - 2 * scaledBeamWireYPadding) / (componentInputs.length - 1)) * a;
+			
+			if(a == opticalTrainInputIndex)
+			{
+				// System.out.println("opticalTrainInputIndex = a = " + opticalTrainInputIndex);
+				
+				CubicCurve2D curve = new CubicCurve2D.Double();
+				
+				// curve.setCurve(0, 75, 50 / 3, 75, 100 / 3, yPosition, 50, yPosition);
+				curve.setCurve(0, componentImageHeight / 2, scaledBeamWireXPadding / 3, componentImageHeight / 2, 2 * scaledBeamWireXPadding / 3, yPosition, scaledBeamWireXPadding, yPosition);
+				
+				g.draw(curve);
+			}
+			else
+			{
+				// Draw a circle
+				Ellipse2D circle = new Ellipse2D.Double(scaledBeamWireXPadding - 10, yPosition - 5, 10, 10);
+				
+				inputClickableShapes.add(new ClickableInputOutputShape(circle, a));
+				
+				g.draw(circle);
+			}
+		}
+		
+		return image;
+	}
+	
+	@Override
+	public void dealWithImageMouseEvent(MouseEvent event)
+	{
+		Point point = event.getPoint();
+
+		// System.out.println("Click at " + point + ", on screen = (" + event.getXOnScreen() + ", " + event.getYOnScreen() + ")");
+				
+		for(int a = 0; a < componentInputs.length; a++)
+		{
+			for(ClickableInputOutputShape clickableShape : inputClickableShapes)
+			{
+				if(clickableShape.getInputOutputNumber() == a)
+				{
+					Rectangle shape = clickableShape.getShape().getBounds();
+					
+					// System.out.println("shape for input " + a + ": " + shape);
+					
+					if(shape.contains(point))
+					{
+						System.out.println("Setting index of visible input of \"" + getName() + "\" to " + a + ".");
+						opticalTrainInputIndex = a;
+					}
+					
+					break;
+				}
+			}
+		}
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent event)
+	{
+		String command = event.getActionCommand();
+		
+		if(command.equals("Swap Inputs"))
+		{
+			ComponentOutput input0 = componentInputs[0];
+			ComponentOutput input1 = componentInputs[1];
+			
+			componentInputs[0] = input1;
+			componentInputs[1] = input0;
+			
+			editListener.redraw();
+		}
+	}
+}

@@ -1,0 +1,1 @@
+package library.util;public class SizeMismatchError extends Error{	private static final long serialVersionUID = -5268516726305941645L;	public SizeMismatchError(String message)	{		super(message);	}}

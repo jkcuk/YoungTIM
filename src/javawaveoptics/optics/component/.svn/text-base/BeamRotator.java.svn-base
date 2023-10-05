@@ -1,0 +1,158 @@
+package javawaveoptics.optics.component;
+
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.Serializable;
+
+import javax.swing.JCheckBox;
+import javax.swing.JFormattedTextField;
+
+import javawaveoptics.optics.BeamCrossSection;
+import javawaveoptics.ui.UIBitsAndBobs;
+
+public class BeamRotator extends AbstractSimpleOpticalComponent implements Serializable, PropertyChangeListener, ItemListener
+{	
+	private static final long serialVersionUID = 5424504744184150913L;
+	
+	/*
+	 * Fields
+	 */
+
+	// Angle to rotate
+	double rotationAngle;
+	
+	// Whether or not to clip the rotated image
+	boolean clip;
+	
+	/*
+	 * GUI edit controls
+	 */
+	
+	// Angle edit control
+	private transient JFormattedTextField rotationAngleTextField;
+	
+	// Clip edit control
+	private transient JCheckBox editClipCheckBox;
+	
+	public BeamRotator(String name, double rotationAngle, boolean clip)
+	{
+		super(name);
+		
+		this.rotationAngle = rotationAngle;
+		this.clip = clip;
+	}
+	
+	public BeamRotator()
+	{
+		this("Beam rotator", 0, true);
+	}
+	
+	@Override
+	public String getComponentTypeName()
+	{
+		return "Beam rotator";
+	}
+	
+	@Override
+	public BeamCrossSection fromInputBeamCalculateOutputBeam(BeamCrossSection inputBeam)
+	{
+		if(inputBeam != null)
+		{			
+			inputBeam.rotate(rotationAngle, clip);
+		}
+		
+		return inputBeam;
+	}
+
+	@Override
+	protected void createEditPanel()
+	{
+		super.createEditPanel();
+		
+		/*
+		 * Edit angle control
+		 */
+		
+		editPanel.add(UIBitsAndBobs.makeRow("Rotation angle", rotationAngleTextField, "¡", true));
+		
+		/*
+		 * Edit clip control
+		 */
+		
+		editPanel.add(UIBitsAndBobs.makeRow("Clip field?", editClipCheckBox, true));
+	}
+	
+	@Override
+	protected void initialiseWidgets()
+	{
+		super.initialiseWidgets();
+		
+		rotationAngleTextField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
+		rotationAngleTextField.setValue(new Double(rotationAngle));
+		
+		// Clip edit control
+		editClipCheckBox = new JCheckBox();
+		editClipCheckBox.setSelected(clip);
+		editClipCheckBox.addItemListener(this);		
+	}
+	
+	@Override
+	public void propertyChange(PropertyChangeEvent e)
+	{
+	    Object source = e.getSource();
+	    
+	    if (source == rotationAngleTextField)
+	    {
+	        rotationAngle = ((Number)rotationAngleTextField.getValue()).doubleValue();
+	    }
+		    
+		// Fire an edit panel event
+		editListener.editMade();
+	}
+
+	@Override
+	public void itemStateChanged(ItemEvent e)
+	{
+		Object source = e.getSource();
+		
+		if(source.equals(editClipCheckBox))
+		{
+			if(e.getStateChange() == ItemEvent.SELECTED)
+			{
+				clip = true;
+			}
+			else
+			{
+				clip = false;
+			}
+		}
+	}
+	
+	@Override
+	public String getFormattedName()
+	{
+		return getName() + " (" + Double.toString(rotationAngle) + "¡)";
+	}
+
+	public double getRotationAngle()
+	{
+		return rotationAngle;
+	}
+
+	public void setRotationAngle(double rotationAngle)
+	{
+		this.rotationAngle = rotationAngle;
+	}
+
+	public boolean isClip()
+	{
+		return clip;
+	}
+
+	public void setClip(boolean clip)
+	{
+		this.clip = clip;
+	}
+}

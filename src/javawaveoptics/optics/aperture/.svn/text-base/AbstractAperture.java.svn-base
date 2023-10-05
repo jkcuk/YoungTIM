@@ -1,0 +1,98 @@
+package javawaveoptics.optics.aperture;
+
+import java.io.Serializable;
+
+import javawaveoptics.optics.BeamCrossSection;
+import javawaveoptics.ui.UIBitsAndBobs;
+
+import javax.swing.BoxLayout;
+import javax.swing.JPanel;
+
+/**
+ * Defines a generic aperture component. All apertures require input parameters which specify the
+ * nature of the aperture. This class provides abstract functionality to produce an edit panel
+ * and to modify a Beam object when required by the simulation.
+ * 
+ * @author Sean
+ */
+public abstract class AbstractAperture implements Serializable
+{
+	private static final long serialVersionUID = 4407094041085526129L;
+
+	/*
+	 * Fields
+	 */
+	
+	protected String name = "Abstract aperture";
+	
+	/*
+	 * GUI edit controls
+	 */
+	
+	// Edit panel
+	protected transient JPanel editPanel;
+		
+	/**
+	 * Constructor.
+	 * 
+	 * @param name		Name to give this beam type
+	 */
+	public AbstractAperture(String name)
+	{
+		this.name = name;
+	}
+	
+	public abstract String getApertureTypeName();
+	
+	/**
+	 * Modify the beam
+	 * @param inputBeam
+	 * @return
+	 */
+	public abstract BeamCrossSection fromInputBeamCalculateOutputBeam(BeamCrossSection inputBeam);
+	
+	/**
+	 * Returns the edit panel associated with this aperture
+	 * 
+	 * @return
+	 */
+	public JPanel getEditPanel()
+	{		
+		if(editPanel == null)
+		{
+			createEditPanel();
+		}
+		
+		return editPanel;
+	}
+	
+	/**
+	 * Creates the edit panel for this aperture.
+	 */
+	protected void createEditPanel()
+	{
+		// (Re)initialise edit panel
+		editPanel = new JPanel();
+		
+		/*
+		 * GUI initialisation
+		 */
+		
+		editPanel.setLayout(new BoxLayout(editPanel, BoxLayout.Y_AXIS));
+		editPanel.setBorder(UIBitsAndBobs.getTitledBorder(getApertureTypeName() + " parameters"));
+				
+		// Initialise the edit controls
+		initialiseWidgets();
+	}
+	
+	protected void initialiseWidgets()
+	{
+		// Nothing to initialise here...
+		// This should be overridden in child classes
+	}
+	
+	public String toString()
+	{
+		return name;
+	}
+}

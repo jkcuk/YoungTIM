@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/p/javawaveoptics/code/!svn/ver/278/trunk/Young%20TIM/src/library/optics
+END
+LightBeamCrossSection1D.java
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/p/javawaveoptics/code/!svn/ver/274/trunk/Young%20TIM/src/library/optics/LightBeamCrossSection1D.java
+END
+LightBeamCrossSection2D.java
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/p/javawaveoptics/code/!svn/ver/279/trunk/Young%20TIM/src/library/optics/LightBeamCrossSection2D.java
+END
+DiscreteIntensityList1D.java
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/optics/DiscreteIntensityList1D.java
+END
+LightBeamOnSurface2D.java
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/optics/LightBeamOnSurface2D.java
+END
+PhaseList2D.java
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/optics/PhaseList2D.java
+END
+WaveTrace1DParameters.java
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/optics/WaveTrace1DParameters.java
+END
+DiscretePhaseList1D.java
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/optics/DiscretePhaseList1D.java
+END
+IntensityList2D.java
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/optics/IntensityList2D.java
+END
+WaveTrace1DParametersDialog.java
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/optics/WaveTrace1DParametersDialog.java
+END

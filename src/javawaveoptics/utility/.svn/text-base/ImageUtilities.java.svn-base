@@ -1,0 +1,129 @@
+package javawaveoptics.utility;
+
+import java.awt.Color;
+import java.awt.image.BufferedImage;
+
+public class ImageUtilities
+{
+	/**
+	 * Loads the specified image into a data array of length 2 * width * height, with
+	 * each row being placed side by side in ascending order, and with each pixel being
+	 * represented by two consecutive numbers: the real and imaginary parts, respectively.
+	 * 
+	 * The image itself is analysed for its intensity and phase by calculating the
+	 * real and imaginary parts.
+	 * The brightness of each image pixel is interpreted as intensity, its hue as phase.
+
+	 * 
+	 * @param image							The image to load
+	 * @return								A double precision floating point data array
+	 * @throws IllegalArgumentException		The specified image must be valid otherwise this exception is thrown
+	 */
+	public static double[] image2BeamTypeArray(BufferedImage image) throws IllegalArgumentException
+	{
+		if(image != null)
+		{
+			int width = image.getWidth();
+			int height = image.getHeight();
+			
+			double[] data = new double[2 * width * height];
+			
+			// Set the real parts (intensity)
+			for(int x = 0; x < width; x++)
+			{
+				for(int y = 0; y < height; y++)
+				{
+					// Fetch the RGB components of the pixel
+					Color colour = new Color(image.getRGB(x, y));
+					
+					// Calculate phase angle and amplitude
+					float[] hsb = Color.RGBtoHSB(colour.getRed(), colour.getGreen(), colour.getBlue(), null);
+					double phaseAngle = 2 * Math.PI * (hsb[0] - 0.5);
+					double amplitude = Math.sqrt(hsb[2]);
+					
+					// Set real part
+					data[2 * ((height-1-y) * width + x)] = amplitude * Math.cos(phaseAngle);
+					
+					// Set imaginary part
+					data[2 * ((height-1-y) * width + x) + 1] = amplitude * Math.sin(phaseAngle);
+				}
+			}
+			
+			return data;
+		}
+		else
+		{
+			// The specified image is null OR it is an invalid image format			
+			throw new IllegalArgumentException("The specified BufferedImage is null.");
+		}
+	}
+
+	/**
+	 * The brightness of each image pixel (and not the square root of the brightness!) is interpreted as
+	 * the multiplication factor, its hue gets converted to phase.
+	 * @param image
+	 * @return
+	 * @throws IllegalArgumentException
+	 */
+	public static double[] image2HologramTypeArray(BufferedImage image) throws IllegalArgumentException
+	{
+		if(image != null)
+		{
+			int width = image.getWidth();
+			int height = image.getHeight();
+			
+			double[] data = new double[2 * width * height];
+			
+			// Set the real parts (intensity)
+			for(int x = 0; x < width; x++)
+			{
+				for(int y = 0; y < height; y++)
+				{
+					// Fetch the RGB components of the pixel
+					Color colour = new Color(image.getRGB(x, y));
+					
+					// Calculate phase angle and amplitude
+					float[] hsb = Color.RGBtoHSB(colour.getRed(), colour.getGreen(), colour.getBlue(), null);
+					double phaseAngle = 2 * Math.PI * (hsb[0] - 0.5);
+					double amplitude = hsb[2];
+					
+					// Set real part
+					data[2 * ((height-1-y) * width + x)] = amplitude * Math.cos(phaseAngle);
+					
+					// Set imaginary part
+					data[2 * ((height-1-y) * width + x) + 1] = amplitude * Math.sin(phaseAngle);
+				}
+			}
+			
+			return data;
+		}
+		else
+		{
+			// The specified image is null OR it is an invalid image format			
+			throw new IllegalArgumentException("The specified BufferedImage is null.");
+		}
+	}
+
+	/**
+	 * bilinear interpolation --- see http://en.wikipedia.org/wiki/Bilinear_interpolation
+	 * @param i
+	 * @param j
+	 * @param i1
+	 * @param i2
+	 * @param j1
+	 * @param j2
+	 * @param q11
+	 * @param q12
+	 * @param q21
+	 * @param q22
+	 * @return
+	 */
+	public static double interpolate(double i, double j, int i1, int i2, int j1, int j2, double q11, double q12, double q21, double q22)
+	{		
+		return 
+			q11 * (i2 - i) * (j2 - j) +
+			q21 * (i - i1) * (j2 - j) +
+			q12 * (i2 - i) * (j - j1) +
+			q22 * (i - i1) * (j - j1);
+	}
+}

@@ -1,0 +1,65 @@
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/p/javawaveoptics/code/!svn/ver/274/trunk/Young%20TIM/src/javawaveoptics/optics/environment
+END
+DoubleSlitOpticalEnvironment.java
+K 25
+svn:wc:ra_dav:version-url
+V 125
+/p/javawaveoptics/code/!svn/ver/264/trunk/Young%20TIM/src/javawaveoptics/optics/environment/DoubleSlitOpticalEnvironment.java
+END
+OpticalEnvironmentFactory.java
+K 25
+svn:wc:ra_dav:version-url
+V 122
+/p/javawaveoptics/code/!svn/ver/279/trunk/Young%20TIM/src/javawaveoptics/optics/environment/OpticalEnvironmentFactory.java
+END
+FractalStripLaserOpticalEnvironment.java
+K 25
+svn:wc:ra_dav:version-url
+V 132
+/p/javawaveoptics/code/!svn/ver/279/trunk/Young%20TIM/src/javawaveoptics/optics/environment/FractalStripLaserOpticalEnvironment.java
+END
+AbstractOpticalEnvironment.java
+K 25
+svn:wc:ra_dav:version-url
+V 123
+/p/javawaveoptics/code/!svn/ver/253/trunk/Young%20TIM/src/javawaveoptics/optics/environment/AbstractOpticalEnvironment.java
+END
+LimitedExampleOpticalEnvironment.java
+K 25
+svn:wc:ra_dav:version-url
+V 129
+/p/javawaveoptics/code/!svn/ver/259/trunk/Young%20TIM/src/javawaveoptics/optics/environment/LimitedExampleOpticalEnvironment.java
+END
+DoubleSlitOpticalEnvironmentRestricted.java
+K 25
+svn:wc:ra_dav:version-url
+V 135
+/p/javawaveoptics/code/!svn/ver/257/trunk/Young%20TIM/src/javawaveoptics/optics/environment/DoubleSlitOpticalEnvironmentRestricted.java
+END
+AutostereogramOpticalEnvironment.java
+K 25
+svn:wc:ra_dav:version-url
+V 129
+/p/javawaveoptics/code/!svn/ver/162/trunk/Young%20TIM/src/javawaveoptics/optics/environment/AutostereogramOpticalEnvironment.java
+END
+FractalLaserOpticalEnvironment.java
+K 25
+svn:wc:ra_dav:version-url
+V 127
+/p/javawaveoptics/code/!svn/ver/279/trunk/Young%20TIM/src/javawaveoptics/optics/environment/FractalLaserOpticalEnvironment.java
+END
+KatiesOpticalEnvironment.java
+K 25
+svn:wc:ra_dav:version-url
+V 121
+/p/javawaveoptics/code/!svn/ver/259/trunk/Young%20TIM/src/javawaveoptics/optics/environment/KatiesOpticalEnvironment.java
+END
+DovePrismInterferometerOpticalEnvironment.java
+K 25
+svn:wc:ra_dav:version-url
+V 138
+/p/javawaveoptics/code/!svn/ver/217/trunk/Young%20TIM/src/javawaveoptics/optics/environment/DovePrismInterferometerOpticalEnvironment.java
+END

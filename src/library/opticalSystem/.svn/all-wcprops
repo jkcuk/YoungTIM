@@ -1,0 +1,155 @@
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/opticalSystem
+END
+LightBeamInOpticalSystem1D.java
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/opticalSystem/LightBeamInOpticalSystem1D.java
+END
+SpecialOpticalElement1D.java
+K 25
+svn:wc:ra_dav:version-url
+V 108
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/opticalSystem/SpecialOpticalElement1D.java
+END
+Plane1D.java
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/opticalSystem/Plane1D.java
+END
+ElementTypesProvider.java
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/opticalSystem/ElementTypesProvider.java
+END
+PlotPlane1D.java
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/opticalSystem/PlotPlane1D.java
+END
+ImperfectSideBySideLenses1D.java
+K 25
+svn:wc:ra_dav:version-url
+V 112
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/opticalSystem/ImperfectSideBySideLenses1D.java
+END
+CustomOpticalElement1D.java
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/opticalSystem/CustomOpticalElement1D.java
+END
+SlitAperture1D.java
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/opticalSystem/SlitAperture1D.java
+END
+BasicOpticalElement1D.java
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/opticalSystem/BasicOpticalElement1D.java
+END
+SideBySideLenses1D.java
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/opticalSystem/SideBySideLenses1D.java
+END
+GaussianGainProfile1D.java
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/opticalSystem/GaussianGainProfile1D.java
+END
+OpticalSystem1DDialog.java
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/opticalSystem/OpticalSystem1DDialog.java
+END
+OpticalElement1DDialog.java
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/opticalSystem/OpticalElement1DDialog.java
+END
+AsymmetricSlitAperture1D.java
+K 25
+svn:wc:ra_dav:version-url
+V 109
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/opticalSystem/AsymmetricSlitAperture1D.java
+END
+ResonatorBeginning1D.java
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/opticalSystem/ResonatorBeginning1D.java
+END
+OpticalSystem1D.java
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/opticalSystem/OpticalSystem1D.java
+END
+BeamInitialisationElement1D.java
+K 25
+svn:wc:ra_dav:version-url
+V 112
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/opticalSystem/BeamInitialisationElement1D.java
+END
+FoldedResonatorEnd1D.java
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/opticalSystem/FoldedResonatorEnd1D.java
+END
+OpticalElement1D.java
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/opticalSystem/OpticalElement1D.java
+END
+Hologram1D.java
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/opticalSystem/Hologram1D.java
+END
+SideBySideLensSuperposition1D.java
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/opticalSystem/SideBySideLensSuperposition1D.java
+END
+EndOfOpticalSystemError.java
+K 25
+svn:wc:ra_dav:version-url
+V 108
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/opticalSystem/EndOfOpticalSystemError.java
+END
+UnfoldedResonatorEnd1D.java
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/opticalSystem/UnfoldedResonatorEnd1D.java
+END
+Beam1DInitialisationDialog.java
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/opticalSystem/Beam1DInitialisationDialog.java
+END
+Lens1D.java
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/opticalSystem/Lens1D.java
+END

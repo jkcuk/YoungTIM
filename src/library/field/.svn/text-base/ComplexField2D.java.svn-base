@@ -1,0 +1,324 @@
+/* */
+
+
+package library.field;
+
+
+import java.io.*;
+
+import javawaveoptics.utility.MathsUtilities;
+
+import library.list.*;
+import library.maths.*;
+
+
+public class ComplexField2D extends ComplexArray2D
+implements Serializable
+{
+	private static final long serialVersionUID = 8939867739239381237L;
+	
+	// inherited from ComplexArray2D:
+	// protected int width, height;
+	// protected double data[];
+
+	// physical size represented by the width x height array
+	protected double physicalWidth, physicalHeight;	// in meters
+	
+	
+	//////////////////
+	// constructors //
+	//////////////////
+	
+	// store dimensions and reserve memory for a new complex field
+	public ComplexField2D(int width, int height, double physicalWidth, double physicalHeight)
+	{
+		super(width, height);
+		
+		this.physicalWidth = physicalWidth;
+		this.physicalHeight = physicalHeight;
+	}
+
+	// this constructor "wraps" a ComplexField2D around the array data[], which is interpreted
+	// as representing a complex array of dimensions width x height
+	public ComplexField2D(
+		int width, int height, double physicalWidth, double physicalHeight, double data[])
+	{
+		super(width, height, data);
+		
+		this.physicalWidth = physicalWidth;
+		this.physicalHeight = physicalHeight;
+	}
+	
+	// COPIES the argument
+	public ComplexField2D(ComplexField2D f)
+	{
+		// copy the ComplexArray2D characteristics...
+		super(f);
+		
+		// ... and the ComplexField2D characteristics
+		physicalWidth = f.physicalWidth;
+		physicalHeight = f.physicalHeight;
+	}
+	
+	
+	
+	/////////////////////////
+	// setters and getters //
+	/////////////////////////
+	
+	public double getPhysicalWidth() {
+		return physicalWidth;
+	}
+
+	public void setPhysicalWidth(double physicalWidth) {
+		this.physicalWidth = physicalWidth;
+	}
+
+	public double getPhysicalHeight() {
+		return physicalHeight;
+	}
+
+	public void setPhysicalHeight(double physicalHeight) {
+		this.physicalHeight = physicalHeight;
+	}
+
+
+	
+	/////////////////////////////////////////////////////////////
+	// transformation (real) space <-> k space (Fourier space) //
+	/////////////////////////////////////////////////////////////
+	
+	public void toKSpace()
+	{
+		// do a Fourier transform ...
+		FT(+1);
+		
+		// ... and divide every element by 1/sqrt(width*height) to conserve power
+		multiply(1.0 / Math.sqrt(width*height));
+	}
+	
+	public void toSpace()
+	{
+		// do an inverse Fourier transform ...
+		FT(-1);
+		
+		// ... and divide every element by 1/sqrt(width*height) to conserve power
+		multiply(1.0 / Math.sqrt(width*height));
+	}
+
+	
+	//////////////
+	// position //
+	//////////////
+
+	// calculate the x coordinate corresponding to index i in the data matrix
+	public double getX(int i)
+	{
+		return (physicalWidth / width * (i - (width-1)/2.0));
+	}
+	
+	public int getI(double x)
+	{
+		// TODO check that this rounds correctly
+		return (int)(x * width / physicalWidth + 0.5*(width-1));
+	}
+
+	// calculate the y coordinate corresponding to index j in the data matrix
+	public double getY(int j)
+	{
+		return (physicalHeight / height * (j - (height-1)/2.0));
+	}
+
+	public int getJ(double y)
+	{
+		// TODO check that this rounds correctly
+		return (int)(y * height / physicalHeight + 0.5*(height-1));
+	}
+
+	// physical separation in the x direction between the points represented by
+	// neighbouring values in the data matrix
+	public double getDeltaX()
+	{
+		return (physicalWidth / width);
+	}
+
+	// physical separation in the y direction between the points represented by
+	// neighbouring values in the amplitude matrix
+	public double getDeltaY()
+	{
+		return (physicalHeight / height);
+	}
+
+
+	///////////////////////////
+	// k (wave vector) space //
+	///////////////////////////
+	
+	// wave vector
+	// functions that calculate the components of wave vectors corresponding to
+	// matrix elements in the Fourier transform
+
+	// x component of the wave vector corresponding to element (i,j) in the
+	// Fourier transform of the amplitude matrix
+	public double getKX(int i)
+	{
+		return
+			( 2*Math.PI*(((i+(width-1)/2.0) % width) - (width-1)/2.0) ) /
+			(getDeltaX()*width);
+	}
+
+	// y component of the wave vector corresponding to element (i,j) in the
+	// Fourier transform of the amplitude matrix
+	public double getKY(int j)
+	{
+		return 
+	  		( 2*Math.PI*(((j+(height-1)/2.0) % height) - (height-1)/2.0) ) /
+			(getDeltaY()*height);
+	}
+	
+	
+	////////////////////
+	// initialisation //
+	////////////////////
+	
+	public void makeGaussian(double w, double xCentre, double yCentre)
+	{
+		double ww = w*w;
+		
+		for(int i=0; i<width; i++)
+		{
+			double xx = MyMath.sqr(getX(i) - xCentre);
+			
+			for(int j=0; j<height; j++)
+			{
+				double yy = MyMath.sqr(getY(j) - yCentre);
+
+				setElement(i, j, 
+					Math.exp(-(xx + yy) / ww)
+				);
+			}
+		}
+	}
+	
+	public void makeLaguerreGaussian(int l, int p, double waist, double xCentre, double yCentre)
+	{
+		double waistSquared = waist * waist;
+		
+		double laguerreNormalisation = MathsUtilities.laguerreNormalisation(l, p, waist);
+		
+		for(int i = 0; i < width; i++)
+		{
+			double x = getX(i) - xCentre;
+			double xSquared = x * x;
+			
+			for(int j = 0; j < height; j++)
+			{
+				double y = getY(j) - yCentre;
+				double ySquared = y * y;
+				
+				double positionParameter = (xSquared + ySquared) / waistSquared;
+				
+				double lgModAmplitude =
+					laguerreNormalisation * 
+					Math.pow
+						(
+							2 * positionParameter,
+							Math.abs(l) / 2.0
+						) *
+					MathsUtilities.laguerreL
+						(
+							p,
+							Math.abs(l),
+							2 * positionParameter
+						) *
+					Math.exp
+						(
+							-positionParameter
+						)
+					;
+				
+				double phase = l * Math.atan2(y, x);
+				
+				Complex lg = Complex.product(lgModAmplitude, new Complex(Math.cos(phase), Math.sin(phase)));
+				
+				setElement(i, j, lg);
+			}
+		}
+	}
+	
+	public void makeHermiteGaussian(int n, int m, double w0, double xCentre, double yCentre)
+	{
+		double HGNormalisation = 1;	// TODO MathsUtilities.HGNormalisation(n, m, w0);
+		
+		for(int i = 0; i < width; i++)
+		{
+			double x = getX(i) - xCentre;
+			double 
+				xOverW0 = x / w0,
+				xOverW0Squared = xOverW0 * xOverW0;
+			
+			for(int j = 0; j < height; j++)
+			{
+				double y = getY(j) - yCentre;
+				double
+					yOverW0 = y / w0,
+					yOverW0Squared = yOverW0 * yOverW0;
+				
+				double rOverW0Squared = xOverW0Squared + yOverW0Squared;
+				
+				double u =
+					HGNormalisation * 
+					MathsUtilities.hermiteH(n, MathsUtilities.SQRT2 * xOverW0) *
+					MathsUtilities.hermiteH(m, MathsUtilities.SQRT2 * yOverW0) *
+					Math.exp(-rOverW0Squared);
+
+				setElement(i, j, new Complex(u, 0));
+			}
+		}
+	}
+	
+	
+	//////////////
+	// do stuff //
+	//////////////
+	
+	public void phaseConjugate()
+	{
+		for(int j = 0; j < height; j++)
+		{			
+			for(int i = 0; i < width; i++)
+			{
+				// imaginary part is simply minus times what it used to be
+				data[getIndexIm(i,j)] = -data[getIndexIm(i,j)];
+			}
+		}
+	}
+	
+	public void phaseConjugateElement(int i, int j)
+	{
+		data[getIndexIm(i,j)] = -data[getIndexIm(i,j)];		
+	}
+
+	
+	///////////
+	// power //
+	///////////
+	
+	// arbitrary units
+	public double getPower()
+	{
+		double power = 0.0;
+		
+		for(int i=0; i<width; i++)
+			for(int j=0; j<height; j++)
+				power += getElement(i, j).getAbsSqr();
+		
+		// the abs squared of the field is a density per unit area (in the case of the
+		// electric field the power density, in the case of the wave function the
+		// probability density);
+		// when integrating over the abs squared one should therefore multiply the
+		// abs square of the individual matrix elements by the corresponding area, which
+		// is getDeltaX() * getDeltaY(); here this is done at the end
+		return power * getDeltaX() * getDeltaY();
+	}
+}

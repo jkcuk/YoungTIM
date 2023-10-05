@@ -1,0 +1,148 @@
+package javawaveoptics.optics.component;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.Serializable;
+
+import javax.swing.JCheckBox;
+
+import javawaveoptics.optics.BeamCrossSection;
+
+/**
+ * Defines a Fourier lens.
+ * It Fourier-transforms the beam, and scales the physical size.
+ * 
+ * @author Johannes
+ */
+public class FourierLens extends Lens implements Serializable, ActionListener
+{
+	private static final long serialVersionUID = 3106562811262178023L;
+
+	/*
+	 * Fields
+	 */
+	
+	// if true the focal length is chosen such that the represented physical size remains the same
+	private boolean keepPhysicalDimensions = false;
+	
+	/*
+	 * GUI edit controls
+	 */
+	
+	protected transient JCheckBox keepPhysicalDimensionsCheckBox;
+	
+	public FourierLens(String name, double focalLength)
+	{
+		super(name, focalLength);
+	}
+	
+	/**
+	 * Null constructor. Creates a Fourier lens with default values. This requires no
+	 * parameters.
+	 */
+	public FourierLens()
+	{
+		this("Fourier lens", 1);
+	}
+
+	@Override
+	public String getComponentTypeName()
+	{
+		return "Fourier lens";
+	}
+
+	@Override
+	public BeamCrossSection fromInputBeamCalculateOutputBeam(BeamCrossSection inputBeam)
+	{
+		if(inputBeam != null)
+		{
+			// first, apply phase factors so that the Fourier transform is shifted by half an element in x and y
+			// (so that the FT is centred in between elements)
+			inputBeam.applyCyclicRotationPhaseFactors(-0.5, -0.5);
+			
+			// area of a "pixel" before FT
+			double pixelAreaBefore = inputBeam.getDeltaX() * inputBeam.getDeltaY();
+			
+			/*
+			 * do the Fourier transform
+			 */
+	
+			inputBeam.inverseFourierTransform();
+			
+			inputBeam.correctInverseFFTPhase();
+			
+			inputBeam.swapQuadrants();
+
+			if(!keepPhysicalDimensions)
+			{
+				// if the physical dimensions are allowed to change, change them but keep the power constant
+
+				// scaling of the Fourier-transformed beam
+				inputBeam.setPhysicalWidth(getFocalLength()*inputBeam.getWavelength()*inputBeam.getWidth()/inputBeam.getPhysicalWidth());
+				inputBeam.setPhysicalHeight(getFocalLength()*inputBeam.getWavelength()*inputBeam.getHeight()/inputBeam.getPhysicalHeight());
+
+				// area of a "pixel" after FT
+				double pixelAreaAfter = inputBeam.getDeltaX() * inputBeam.getDeltaY();
+
+				// make sure power is not changed due to altered physical dimensions
+				inputBeam.multiply(Math.sqrt(pixelAreaBefore / pixelAreaAfter));
+			}
+		}
+		
+		return inputBeam;
+	}
+	
+	@Override
+	protected void createEditPanel()
+	{
+		super.createEditPanel();
+		
+		/*
+		 * Edit focal length control
+		 */
+		
+		editPanel.add(keepPhysicalDimensionsCheckBox);
+	}
+
+	@Override
+	protected void initialiseWidgets()
+	{
+		super.initialiseWidgets();
+		
+		keepPhysicalDimensionsCheckBox = new JCheckBox("Constant physical dimensions");
+		keepPhysicalDimensionsCheckBox.setSelected(keepPhysicalDimensions);
+		keepPhysicalDimensionsCheckBox.addActionListener(this);
+		keepPhysicalDimensionsCheckBox.setToolTipText("<html>If selected, <i>f</i> is set such that the physical dimensions of the beam remain constant.</html>");
+	}
+	
+	@Override
+	public void readWidgets()
+	{
+		super.readWidgets();
+		
+    	if(keepPhysicalDimensionsCheckBox != null) setKeepPhysicalDimensions(keepPhysicalDimensionsCheckBox.isSelected());
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e)
+	{
+	    Object source = e.getSource();
+	    
+	    if (source == keepPhysicalDimensionsCheckBox)
+	    {
+	    	setKeepPhysicalDimensions(keepPhysicalDimensionsCheckBox.isSelected());
+			focalLengthPanel.setVisible(!keepPhysicalDimensions);
+	    }
+	    
+		// Fire an edit panel event
+		editListener.editMade();
+	}
+
+	public boolean isKeepPhysicalDimensions() {
+		return keepPhysicalDimensions;
+	}
+
+	public void setKeepPhysicalDimensions(boolean keepPhysicalDimensions) {
+		this.keepPhysicalDimensions = keepPhysicalDimensions;
+	}
+}

@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svnroot/jtransforms/!svn/ver/10/trunk/lib/ext
+END
+cobertura.jar
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svnroot/jtransforms/!svn/ver/10/trunk/lib/ext/cobertura.jar
+END
+asm-3.0.jar
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svnroot/jtransforms/!svn/ver/10/trunk/lib/ext/asm-3.0.jar
+END
+junit-4.8.2.jar
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svnroot/jtransforms/!svn/ver/10/trunk/lib/ext/junit-4.8.2.jar
+END
+log4j-license.txt
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svnroot/jtransforms/!svn/ver/10/trunk/lib/ext/log4j-license.txt
+END
+asm-tree-3.0.jar
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svnroot/jtransforms/!svn/ver/10/trunk/lib/ext/asm-tree-3.0.jar
+END
+jakarta-oro-license.txt
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svnroot/jtransforms/!svn/ver/10/trunk/lib/ext/jakarta-oro-license.txt
+END
+log4j-1.2.9.jar
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svnroot/jtransforms/!svn/ver/10/trunk/lib/ext/log4j-1.2.9.jar
+END
+hamcrest-core-1.2.jar
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svnroot/jtransforms/!svn/ver/10/trunk/lib/ext/hamcrest-core-1.2.jar
+END
+jakarta-oro-2.0.8.jar
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svnroot/jtransforms/!svn/ver/10/trunk/lib/ext/jakarta-oro-2.0.8.jar
+END

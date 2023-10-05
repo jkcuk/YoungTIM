@@ -1,0 +1,108 @@
+package javawaveoptics.ui;
+
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
+
+/**
+ * Defines a component for editing lengths.
+ * 
+ * @author Johannes
+ */
+public class LengthField extends JCPanel implements PropertyChangeListener, ActionListener, ChangeListener
+{
+	private static final long serialVersionUID = -6094767353973244920L;
+
+	private transient PropertyChangeListener propertyChangeListener;
+	
+	private transient JSpinner valueSpinner;	// the number part
+	// private transient JFormattedTextField valueTextField;	// the number part
+	private transient LengthUnitsComboBox unitsComboBox;	// the units part
+	
+	public LengthField(PropertyChangeListener propertyChangeListener)
+	{
+		super();
+		setLayout(new FlowLayout());
+		
+//		valueTextField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
+//		add(valueTextField);
+        SpinnerNumberModel valueSpinnerModel = new SpinnerNumberModel(0.0, -1000, 1e12, 1); // TODO: is 1e12 high enough for all intents and purposes? This means the maximum is 1e12km
+		valueSpinner = new JSpinner(valueSpinnerModel);
+		((JSpinner.DefaultEditor)valueSpinner.getEditor()).getTextField().setColumns(4);
+		valueSpinner.setMaximumSize(valueSpinner.getPreferredSize());
+		valueSpinner.addChangeListener(this);
+		add(valueSpinner);
+		
+		unitsComboBox = new LengthUnitsComboBox();
+		unitsComboBox.addActionListener(this);
+		add(unitsComboBox);
+
+		// valueSpinner.setValue(0.0);
+		// valueTextField.setValue(new Double(0));
+		
+		this.propertyChangeListener = propertyChangeListener;
+	}	
+
+	public void setLengthInMetres(double lengthInMetres)
+	{
+		double value = unitsComboBox.setSuitableUnitForLengthInMetres(lengthInMetres);
+		valueSpinner.setValue(value);
+		// valueTextField.setValue(new Double(value));
+	}
+	
+	public double getLengthInMetres()
+	{
+		// System.out.println("LengthField::getLengthInMetres: valueSpinner.getValue() = " + valueSpinner.getValue());
+		double value = ((Double)valueSpinner.getValue()).doubleValue();
+		// double value = ((Number)valueTextField.getValue()).doubleValue();
+		return  value * unitsComboBox.getMultiplicationFactor();
+	}
+	
+	public String getLengthString()
+	{
+		return valueSpinner.getValue().toString() + unitsComboBox.getUnitString();
+		// return valueTextField.getText() + unitsComboBox.getUnitString();
+	}
+	
+	public JSpinner getValueSpinner() {
+		return valueSpinner;
+	}
+
+	public void setValueSpinner(JSpinner valueSpinner) {
+		this.valueSpinner = valueSpinner;
+	}
+
+	private void informPropertyChangeListener()
+	{
+		if(propertyChangeListener != null)
+		{
+			propertyChangeListener.propertyChange(new PropertyChangeEvent(this, "value", 0, getLengthInMetres()));
+		}		
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent e)
+	{
+		informPropertyChangeListener();
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e)
+	{
+		propertyChangeListener.propertyChange(new PropertyChangeEvent(this, "value", 0, getLengthInMetres()));
+	}
+	
+	@Override
+	public void stateChanged(ChangeEvent e)
+	{
+		informPropertyChangeListener();
+	}
+}

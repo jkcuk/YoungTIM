@@ -1,0 +1,1364 @@
+/* WaveTrace Version 1.1
+   initially translated into C from the Mathematica program WaveTrace.nb which simulates
+   the propagation of monochromatic light beams, later translated into Java
+
+
+version history
+
+	1.0	translation of the Mathematica program WaveTrace.nb into C
+
+	1.1	implementation of wave tracing of evanescent waves
+	    it is this version that was first translated into Java
+
+
+classes or interfaces that this class depends on:
+
+	class complex (defined in complex.java)
+
+	class Fourier (defined in Fourier.java)
+
+	interface xyList (defined in DensityPlotFrame.java)
+
+
+example for using this class:
+
+	LightBeamCrossSection2D b;
+	
+	// define new cross section of physical size 1mm x 1mm (1e-3m x 1e-3m),
+	// represented by a 512 x 512 element matrix, of a light beam of wavelength
+	// 633nm (633e-9m) 
+	b = new LightBeamCrossSection2D(512, 512, 1e-3, 1e-3, 633e-9);
+	
+	// initialise with a uniform amplitude cross section...
+	for(int x=0; x<b.width; x++) {
+		for(int y=0; y<b.height; y++) {
+			b.setAmplitude(x,y,new complex(1.0,0));
+		}
+	}
+	// ... and plot it in a 200 x 200 window
+	PlotFrame pf = new PlotFrame(b, "z = 0", 200, 200);
+	pf.setWindowListener(new WindowDisposingAdapter());
+	pf.setVisible(true);
+	
+	// pass the beam through a circular aperture of radius 0.3mm...
+	b.passThroughCircularAperture(0.3e-3);
+	// ... and plot what comes through
+	pf = new PlotFrame(b, "z = 0, after aperture", 200, 200);
+	pf.setWindowListener(new WindowDisposingAdapter());
+	pf.setVisible(true);
+	
+	// propagate the beam's cross section into a plane a distance 1mm behind the aperture...
+	b.propagate(1e-3);
+	// ... and plot the new beam cross section
+	pf = new PlotFrame(b, "z = 1mm", 200, 200);
+	pf.setWindowListener(new WindowDisposingAdapter());
+	pf.setVisible(true);
+*/
+
+package library.optics;
+
+
+import java.io.*;
+
+import javax.swing.JProgressBar;
+
+import javawaveoptics.geometry.Point2D;
+import javawaveoptics.geometry.Vector2D;
+import javawaveoptics.optics.component.AbstractOpticalComponent;
+import javawaveoptics.utility.ImageUtilities;
+import javawaveoptics.utility.MathsUtilities;
+
+import library.field.*;
+import library.maths.*;
+
+
+public class LightBeamCrossSection2D extends ComplexField2D
+implements Serializable
+{
+	private static final long serialVersionUID = 7132486198035635281L;
+	
+	// inherited from ComplexArray2D:
+	// protected int width, height;
+	// protected double data[];
+
+	// inherited from ComplexField2D:
+	// protected double physicalWidth, physicalHeight;	// in meters
+
+	// wavelength of the light represented (monochromatic!)
+	protected double wavelength;	// in meters
+	
+	// program will output a warning message when it detects that some of the
+	// elements in the amplitude matrix represent evanescent components of the beam
+	private boolean evanescentComponentsPresent = false;
+	
+	// private DoubleFFT_2D fourierTransformer;
+
+
+	/////////////////
+	// constructor //
+	/////////////////
+	
+	public LightBeamCrossSection2D(
+		int width, int height, double physicalWidth, double physicalHeight,
+		double wavelength )
+	{
+		super(width, height, physicalWidth, physicalHeight);
+				
+		// store wavelength
+		this.wavelength = wavelength;
+	}
+	
+	/**
+	 * Copy constructor
+	 * 
+	 * Takes an existing LightBeamCrossSection2D and creates a copy of it in its current state.
+	 * 
+	 * @param crossSection		LightBeamCrossSection2D object to copy
+	 * 
+	 * @author Sean
+	 */
+	public LightBeamCrossSection2D(LightBeamCrossSection2D crossSection)
+	{		
+		super(crossSection);
+		
+		this.wavelength = crossSection.getWavelength();
+	}
+	
+	public LightBeamCrossSection2D(ComplexField2D original, double wavelength)
+	{
+		super(original);
+		
+		this.wavelength = wavelength;
+	}
+	
+	////////////////////////////////////
+	// methods for accessing the data //
+	////////////////////////////////////
+	
+	public double getWavelength() {
+		return wavelength;
+	}
+
+	public void setWavelength(double wavelength) {
+		this.wavelength = wavelength;
+	}
+	
+	public void setAmplitude(int i, int j, Complex amplitude)
+	{
+		setElement(i, j, amplitude);
+//		data[getIndexRe(i, j)] = amplitude.re;
+//		data[getIndexIm(i, j)] = amplitude.im;
+	}
+	
+	public Complex getAmplitude(int i, int j)
+	{
+		return getElement(i, j);
+//		return new Complex(data[getIndexRe(i, j)], data[getIndexIm(i, j)]);
+	}
+	
+	
+//	/**
+//	 * Why on earth is the return type Complex?
+//	 * @param i
+//	 * @param j
+//	 * @return
+//	 */
+//	public Complex getIntensity(int i, int j)
+//	{
+//		// sum of the squares of the real and imaginary parts of the amplitude
+//		return new Complex(
+//			MyMath.sqr(data[getIndexRe(i, j)]) +
+//			MyMath.sqr(data[getIndexIm(i, j)]),
+//			0.0	// imaginary part
+//		);
+//	}
+	
+	public double getIntensity(int i, int j)
+	{
+		// sum of the squares of the real and imaginary parts of the amplitude
+		return MyMath.sqr(data[getIndexRe(i, j)]) + MyMath.sqr(data[getIndexIm(i, j)]);
+	}
+	
+	/**
+	 * Returns maximum intensity present in the data.
+	 * 
+	 * @return
+	 */
+	public double getMaxIntensity()
+	{
+		double maxIntensity = 0;
+		
+		for(int x = 0; x < width; x++)
+		{
+			for(int y = 0; y < height; y++)
+			{
+				double intensity = getIntensity(x, y);
+				
+				if(intensity > maxIntensity)
+				{
+					maxIntensity = intensity;
+				}
+			}
+		}
+		
+		return maxIntensity;
+	}
+
+	
+	/**
+	 * Returns maximum real part present in the data.
+	 * 
+	 * @return
+	 */
+	public double getMaxAbsRe()
+	{
+		double maxAbsRe = 0;
+		
+		for(int x = 0; x < width; x++)
+		{
+			for(int y = 0; y < height; y++)
+			{
+				double absRe = Math.abs(getElementRe(x, y));
+				
+				if(absRe > maxAbsRe)
+				{
+					maxAbsRe = absRe;
+				}
+			}
+		}
+		
+		return maxAbsRe;
+	}
+
+	/**
+	 * Returns maximum imaginary part present in the data.
+	 * 
+	 * @return
+	 */
+	public double getMaxAbsIm()
+	{
+		double maxAbsIm = 0;
+		
+		for(int x = 0; x < width; x++)
+		{
+			for(int y = 0; y < height; y++)
+			{
+				double absIm = Math.abs(getElementIm(x, y));
+				
+				if(absIm > maxAbsIm)
+				{
+					maxAbsIm = absIm;
+				}
+			}
+		}
+		
+		return maxAbsIm;
+	}
+
+	
+	//////////////////////////////////////////////////
+	// method that simulates free-space propagation //
+	//////////////////////////////////////////////////
+	
+	/**
+	 * this function models propagation of an amplitude matrix from one plane
+	 * to another, parallel plane;
+	 * it replaces data by the amplitude matrix corresponding to a plane
+	 * a distance deltaZ (in meters) behind the original plane
+	 * @param deltaZ	the propagation distance
+	 */
+	public void propagate(double deltaZ)
+	{
+		double
+			kZ, kzdeltaz, coskzdeltaz, sinkzdeltaz, expikzdeltaz,
+			re, im, powerFactor;
+  
+		// number of matrix elements in the two dimensions; for use by Fourier.Transform
+		int nn[] = {height, width};
+
+		// 1. Fourier transform the amplitude matrix
+		Fourier.transform(+1,	// +1 means do a Fourier transform, not an inverse FT
+			2,	// number of dimensions
+			nn,	// number of elements in those dimensions
+			data );
+  
+		// 2. multiply each element with exp(i kz deltaZ)
+		// this is also a good time to divide each element by
+		// width * height, such that power is conserved!
+  
+		powerFactor = 1.0/(width * height);
+  
+		for(int j = 0; j < height; j++)
+		{
+			for(int i = 0; i < width; i++)
+			{
+				kZ = getWaveVectorZ(i, j);
+				if(kZ >= 0)
+				{
+					// Fourier component (i,j) represents a 'normal' wave
+
+					kzdeltaz = kZ * deltaZ;
+					coskzdeltaz = Math.cos(kzdeltaz);
+					sinkzdeltaz = Math.sin(kzdeltaz);
+	      
+					re = data[getIndexRe(i,j)];
+					im = data[getIndexIm(i,j)];
+	      
+					// real part of (re + i im) exp(i kz*deltaZ)
+					data[getIndexRe(i,j)] =
+						powerFactor * (re * coskzdeltaz - im * sinkzdeltaz);
+
+					// imaginary part of (re + i im) exp(i kz*deltaZ)
+					data[getIndexIm(i,j)] =
+						powerFactor * (re * sinkzdeltaz + im * coskzdeltaz);
+				}
+				else
+				{
+					// Fourier component (i,j) represents evanescent wave;
+					// this was indicated by waveVectorZ returning a
+					// negative number, which is the negative value of
+					// the imaginary part of the wave number in the z
+					// direction
+					expikzdeltaz = Math.exp(-Math.abs(kZ) * deltaZ);
+					// for purely imaginary values of kz, the argument
+					// in the exponential function in the factor
+					// exp(i kz * deltaZ) becomes real and the factor
+					// becomes just an exponential function
+					data[getIndexRe(i, j)] *= expikzdeltaz * powerFactor;
+					data[getIndexIm(i, j)] *= expikzdeltaz * powerFactor;
+				}
+			}
+		}
+  
+		// 3. inverse Fourier transform the whole lot
+		Fourier.transform(-1,	// 1 means do an INVERSE Fourier transform
+			2,	// number of dimensions
+			nn,	// number of elements in those dimensions
+			data );
+	}
+	
+	
+	/////////////////////////////
+	// beam-propagation method //
+	/////////////////////////////
+	
+	/**
+	 * this function models propagation of an amplitude matrix from one plane
+	 * to another, parallel plane, but not in one step, like the propagate method;
+	 * instead, it takes steps of size stepSize and applies an absorbing boundary around
+	 * the array after each step.
+	 * Like propagate, it replaces data by the amplitude matrix corresponding to a plane
+	 * a distance deltaZ (in meters) behind the original plane.
+	 * @param deltaZ	the propagation distance
+	 * @param stepSize	the proposed step size; the actual step size will be that or slightly smaller
+	 * @param widthOfBoundary	the width of the absorbing boundary
+	 */
+	public void propagateBPM(double deltaZ, double stepSize, int widthOfBoundary, JProgressBar progressBar, AbstractOpticalComponent opticalComponent)
+	{  
+		if(progressBar != null) progressBar.setValue(0);
+
+		// make sure stepSize has the same sign as deltaZ
+		if(deltaZ >= 0) stepSize = Math.abs(stepSize);
+		else stepSize = -Math.abs(stepSize);
+		
+		// number of matrix elements in the two dimensions; for use by Fourier.Transform
+		int nn[] = {height, width};
+		
+		// pre-calculate the transmittivity arrays
+		double[] xTransmittivityArray, yTransmittivityArray;
+		
+		if(width > 2*widthOfBoundary)
+		{
+			xTransmittivityArray = get1DAbsorbingBoundaryTransmittivityArray(width, widthOfBoundary);
+		}
+		else
+		{
+			xTransmittivityArray = new double[width];
+			for(int i=0; i<width; i++)
+			{
+				xTransmittivityArray[i] = 1.;
+			}
+		}
+		
+		if(height > 2*widthOfBoundary)
+		{
+			yTransmittivityArray = get1DAbsorbingBoundaryTransmittivityArray(height, widthOfBoundary);
+		}
+		else
+		{
+			yTransmittivityArray = new double[height];
+			for(int i=0; i<height; i++)
+			{
+				yTransmittivityArray[i] = 1.;
+			}
+		}
+		
+		// find a suitable actual step size
+		int noOfSteps = (int)Math.ceil(deltaZ / stepSize);
+		double actualStepSize;
+		if(noOfSteps == 0)
+			actualStepSize = 0;
+		else
+			actualStepSize = deltaZ / noOfSteps;
+		
+		if(progressBar != null) progressBar.setMaximum(noOfSteps);
+		System.out.println("LightBeamCrossSection2D::propagateBPM: number of steps: "+noOfSteps+", actual step size: "+actualStepSize);
+		
+		// pre-calculate the numbers exp(i k_z delta z)
+		double[][][] expIKzDeltaZs = getExpIKzDeltaZArray(width, height, actualStepSize);
+		
+		double powerFactor = 1.0/(width * height);
+		
+		for(int n = 0; n < noOfSteps; n++)
+		{
+			// update progress bar
+			if(progressBar != null) progressBar.setValue(n);
+			if(opticalComponent != null) opticalComponent.setCalculationFractionComplete(((double)n)/(double)noOfSteps);
+			
+			// System.out.println("LightBeamCrossSection2D::propagateBPM: step: "+n);
+			
+			/*
+			 * First apply the absorbing boundary
+			 */
+			for(int i=0; i<width; i++)
+				for(int j=0; j<height; j++)
+				{
+					double t = xTransmittivityArray[i] * yTransmittivityArray[j];
+					data[getIndexRe(i,j)] *= t;
+					data[getIndexIm(i,j)] *= t;
+				}
+
+			/*
+			 * Then, take a step of size actualStepSize
+			 */
+			
+			// 1. Fourier transform the amplitude matrix
+			Fourier.transform(
+					+1,	// +1 means do a Fourier transform, not an inverse FT
+					2,	// number of dimensions
+					nn,	// number of elements in those dimensions
+					data
+				);
+  
+			// 2. multiply each element with exp(i kz deltaZ)
+			// this is also a good time to divide each element by
+			// width * height, such that power is conserved!
+  
+			multiplyByExpIKZDeltaZ(expIKzDeltaZs, powerFactor);
+			
+			// 3. inverse Fourier transform the whole lot
+			Fourier.transform(
+					-1,	// 1 means do an INVERSE Fourier transform
+					2,	// number of dimensions
+					nn,	// number of elements in those dimensions
+					data
+				);
+		}
+	}
+
+	public void propagateBPM(double deltaZ, double stepSize, int widthOfBoundary)
+	{
+		propagateBPM(deltaZ, stepSize, widthOfBoundary, null, null);
+	}
+	
+	public double[] get1DAbsorbingBoundaryTransmittivityArray(int noOfElements, int widthOfBoundary)
+	{
+		if(2*widthOfBoundary > noOfElements) System.out.println("LightBeamCrossSection2D::get1DAbsorbingBoundaryTransmittivityArray: Warning: absorbing boundaries overlap in the centre");
+		
+		double[] t = new double[noOfElements];
+		
+		// set the values in the middle
+		for(int i=widthOfBoundary; i < noOfElements - widthOfBoundary; i++)
+		{
+			t[i] = 1.0;
+		}
+		
+		// set the values in the boundary
+		for(int i=0; i<widthOfBoundary; i++)
+		{
+			double
+				d = (0.5 - 0.5*Math.cos((double)i / widthOfBoundary * Math.PI)),
+				d2 = d*d;
+			t[i] = d2;
+			t[noOfElements - 1 - i] = d2;
+		}
+		
+		return t;
+	}
+	
+	/**
+	 * Calculates the array of the complex numbers exp(i k_z delta z).
+	 * This is in the form of a 3D array, where f[i][j][p] is the real (p=0) or imaginary (p=1) part
+	 * of the number exp(i k_z delta z) corresponding to element number (i, j).
+	 * @param width
+	 * @param height
+	 * @param deltaZ
+	 * @return
+	 */
+	public double[][][] getExpIKzDeltaZArray(int width, int height, double deltaZ)
+	{
+		double[][][] f = new double[width][height][2];
+		
+		for(int j = 0; j < height; j++)
+		{
+			for(int i = 0; i < width; i++)
+			{
+				double kZ = getWaveVectorZ(i, j);
+				
+				if(kZ >= 0)
+				{
+					// Fourier component (i,j) represents a 'normal' wave
+
+					double kzdeltaz = kZ * deltaZ;
+					f[i][j][0] = Math.cos(kzdeltaz);	// real part of factor
+					f[i][j][1] = Math.sin(kzdeltaz);	// imaginary part of factor
+				}
+				else
+				{
+					// Fourier component (i,j) represents evanescent wave;
+					// this was indicated by waveVectorZ returning a
+					// negative number, which is the negative value of
+					// the imaginary part of the wave number in the z
+					// direction
+					f[i][j][0] = Math.exp(-Math.abs(kZ) * deltaZ);
+					f[i][j][1] = 0;
+				}
+			}
+		}
+		
+		return f;
+	}
+	
+	private void multiplyByExpIKZDeltaZ(double[][][] expIKzDeltaZs, double powerFactor)
+	{
+		for(int j = 0; j < height; j++)
+		{
+			for(int i = 0; i < width; i++)
+			{
+				double re = data[getIndexRe(i,j)];
+				double im = data[getIndexIm(i,j)];
+	      
+				// real part of (re + i im) exp(i kz*deltaZ)
+				data[getIndexRe(i,j)] =
+					powerFactor * (re * expIKzDeltaZs[i][j][0] - im * expIKzDeltaZs[i][j][1]);
+
+				// imaginary part of (re + i im) exp(i kz*deltaZ)
+				data[getIndexIm(i,j)] =
+					powerFactor * (re * expIKzDeltaZs[i][j][1] + im * expIKzDeltaZs[i][j][0]);
+			}
+		}
+	}
+
+
+	////////////////////////////////////////////////////
+	// method that models passage through a thin lens //
+	////////////////////////////////////////////////////
+	
+	// lens of focal length f, centred at (xCentre, yCentre)
+	public void passThroughLens(double f, double xCentre, double yCentre)
+	{
+		double phaseShift, cosPhaseShift, sinPhaseShift, re, im;
+  
+		for(int j = 0; j < height; j++)
+		{
+			double
+				y = getY(j) - yCentre, 
+				y2 = y*y;
+			
+			for(int i = 0; i < width; i++)
+			{
+				double
+					x = getX(i) - xCentre,
+					x2 = x*x;
+				
+				// locally shift the phase of the amplitude cross-section
+				phaseShift = getLensPhase(f, x2 + y2);
+				cosPhaseShift = Math.cos(phaseShift);
+				sinPhaseShift = Math.sin(phaseShift);
+				re = data[getIndexRe(i,j)];
+				im = data[getIndexIm(i,j)];
+	  
+				// real part of (re + i im) exp(i phaseShift)
+				data[getIndexRe(i,j)] = re * cosPhaseShift - im * sinPhaseShift;
+				// imaginary part of (re + i im) exp(i phaseShift)
+				data[getIndexIm(i,j)] = re * sinPhaseShift + im * cosPhaseShift;
+			}
+		}
+	}
+	
+	// lens of focal length f, centred at (0, 0)
+	public void passThroughLens(double f)
+	{
+		passThroughLens(f, 0, 0);
+	}
+
+	public void passThroughCylindricalLens(double f, double axisAngleWithXAxis)
+	{
+		double phaseShift, cosPhaseShift, sinPhaseShift, re, im;
+		double sinAxisAngleWithXAxis = Math.sin(axisAngleWithXAxis);
+		double cosAxisAngleWithXAxis = Math.cos(axisAngleWithXAxis);
+  
+		for(int j = 0; j < height; j++)
+		{
+			double ySin = getY(j) * sinAxisAngleWithXAxis;
+			
+			for(int i = 0; i < width; i++)
+			{
+				double xCos = getX(i) * cosAxisAngleWithXAxis;
+				
+				double r = xCos - ySin;	// distance from axis
+				
+				// locally shift the phase of the amplitude cross-section
+				phaseShift = getLensPhase(f, r*r);
+				cosPhaseShift = Math.cos(phaseShift);
+				sinPhaseShift = Math.sin(phaseShift);
+				re = data[getIndexRe(i,j)];
+				im = data[getIndexIm(i,j)];
+	  
+				// real part of (re + i im) exp(i phaseShift)
+				data[getIndexRe(i,j)] = re * cosPhaseShift - im * sinPhaseShift;
+				// imaginary part of (re + i im) exp(i phaseShift)
+				data[getIndexIm(i,j)] = re * sinPhaseShift + im * cosPhaseShift;
+			}
+		}
+	}
+
+	// needed by passThroughLens:
+	// phase introduced by a thin lens of focal length f, a distance
+	// r = sqrt(r^2) from the optic axis
+	public double getLensPhase(double f, double rSquared)
+	{
+		return -(2*Math.PI/wavelength) * rSquared / (2*f);
+	}
+	
+	// needed by passThroughLens:
+	// phase introduced by a thin lens of focal length f, a distance
+	// r = sqrt(r^2) from the optic axis
+	public static double getLensPhase(double f, double rSquared, double wavelength)
+	{
+		return -(2*Math.PI/wavelength) * rSquared / (2*f);
+	}
+
+	/////////////////////////////////////////////
+	// method that fourier transforms the beam //
+	/////////////////////////////////////////////
+	
+	public void fourierTransform()
+	{
+		doFourierTransform(1);
+	}
+	
+	public void inverseFourierTransform()
+	{
+		doFourierTransform(-1);
+	}
+	
+	private void doFourierTransform(int isign)
+	{
+		int numberOfElements[] =
+			{height, width};
+			// {width, height};
+		
+		// FFT
+		Fourier.transform(isign, 2, numberOfElements, data);
+		
+		// make sure power is conserved
+		multiply(Math.sqrt(1.0 / width / height));
+	}
+
+	////////////////////////////////////////////////////////////
+	// method that models passage through a circular aperture //
+	////////////////////////////////////////////////////////////
+
+	/**
+	 * Pass through circular aperture of radius r, offset by [xCentre, yCentre] from the centre.
+	 */
+	public void passThroughCircularAperture(double r, double xCentre, double yCentre)
+	{
+		passThroughAnnularAperture(r, 0, xCentre, yCentre);
+	}
+
+	
+	/**
+	 * Pass through annular aperture of outer radius R, inner radius r, offset by [xCentre, yCentre] from the centre.
+	 */
+	public void passThroughAnnularAperture(double R, double r, double xCentre, double yCentre)
+	{
+		double
+			RApertureSquared = MyMath.sqr(R),
+			rApertureSquared = MyMath.sqr(r);
+		// System.out.println("r^2 = "+ rApertureSquared + ", centre = (" + xCentre + "," + yCentre + ")");
+		
+		for(int j = 0; j < height; j++)
+		{
+			double yDistanceFromCentreSquared = MyMath.sqr(getY(j) - yCentre);
+			
+			for(int i = 0; i < width; i++)
+			{
+				double rSquared = MyMath.sqr(getX(i) - xCentre) + yDistanceFromCentreSquared;
+				
+				if((rSquared > RApertureSquared) || (rSquared < rApertureSquared))
+				{
+					// System.out.println("("+i+","+j+"), (" + getX(i) + "," + getY(j) + "): " + rSquared + ">" + rApertureSquared);
+					data[getIndexRe(i,j)] = 0.0;
+					data[getIndexIm(i,j)] = 0.0;
+				}
+				// else System.out.println("("+i+","+j+"), (" + getX(i) + "," + getY(j) + "): " + rSquared + "<=" + rApertureSquared + " --- not setting to zero!");
+
+			}
+		}
+	}
+	
+	/**
+	 * Pass through circular aperture of radius r centred on the beam.
+	 * 
+	 * @param r
+	 */
+	public void passThroughCircularAperture(double r)
+	{
+		passThroughCircularAperture(r, 0, 0);
+	}
+	
+	public void passThroughGaussianAperture(double sigma, double xCentre, double yCentre)
+	{
+		double sigma2 = sigma*sigma;
+		
+		for(int i=0; i<width; i++)
+		{
+			double xx = MyMath.sqr(getX(i) - xCentre);
+			
+			for(int j=0; j<height; j++)
+			{
+				double
+					yy = MyMath.sqr(getY(j) - yCentre),
+					factor = Math.exp(-(xx + yy) / sigma2);
+
+				data[getIndexRe(i,j)] *= factor;
+				data[getIndexIm(i,j)] *= factor;
+			}
+		}
+	}
+
+
+	/**
+	 * @param distanceFromCentre	distance of knife edge from centre
+	 * @param angleWithX	angle of knife edge with x direction
+	 * @param xCentre	x coordinate of slit centre
+	 * @param yCentre	y coordinate of slit centre
+	 */
+	public void passPastKnifeEdge(double distanceFromCentre, double angleWithX, double xCentre, double yCentre)
+	{
+		double
+			cos = Math.cos(angleWithX),
+			sin = Math.sin(angleWithX);
+		
+		for(int i = 0; i < width; i++)
+		{
+			double xCos = (getX(i) - xCentre)*cos;
+				
+			for(int j = 0; j < height; j++)
+			{
+				double ySin = (getY(j) - yCentre)*sin;
+
+				if(xCos + ySin > distanceFromCentre)
+				{
+					// outside the slit, set the amplitude to zero
+					data[getIndexRe(i,j)] = 0.0;
+					data[getIndexIm(i,j)] = 0.0;
+				}
+			}
+		}
+	}
+
+	////////////////////////////////////////////////////////////
+	// method that models passage through a slit aperture //
+	////////////////////////////////////////////////////////////
+	
+	/**
+	 * @param slitWidth	slit width
+	 * @param angleWithX	angle of slit with x direction
+	 * @param xCentre	x coordinate of slit centre
+	 * @param yCentre	y coordinate of slit centre
+	 */
+	public void passThroughSlitAperture(double slitWidth, double angleWithX, double xCentre, double yCentre)
+	{
+		double
+			cos = Math.cos(angleWithX),
+			sin = Math.sin(angleWithX),
+			halfWidth = 0.5*Math.abs(slitWidth);
+		
+		for(int i = 0; i < width; i++)
+		{
+			double xCos = (getX(i) - xCentre)*cos;
+				
+			for(int j = 0; j < height; j++)
+			{
+				double ySin = (getY(j) - yCentre)*sin;
+
+				if(Math.abs(xCos + ySin) > halfWidth)
+				{
+					// outside the slit, set the amplitude to zero
+					data[getIndexRe(i,j)] = 0.0;
+					data[getIndexIm(i,j)] = 0.0;
+				}
+			}
+		}
+	}
+
+	/**
+	 * Pass through slit aperture of width w centred on the beam.
+	 * 
+	 * @param w
+	 */
+	public void passThroughSlitAperture(double w)
+	{
+		passThroughSlitAperture(w, 0, 0, 0);
+	}
+
+	/**
+	 * @param slitSeparation	slit separation
+	 * @param slitWidth	slit width
+	 * @param angleWithX	angle of slits with x direction
+	 * @param xCentre	x coordinate of centre of double slit
+	 * @param yCentre	y coordinate of centre of double slit
+	 */
+	public void passThroughDoubleSlitAperture(double slitSeparation, double slitWidth, double angleWithX, double xCentre, double yCentre)
+	{
+		// System.out.println("passing through double slit of width "+width+" and separation "+separation + angleWithY + xCentre + yCentre);
+		
+		double
+			cos = Math.cos(angleWithX),
+			sin = Math.sin(angleWithX),
+			halfWidth = 0.5*Math.abs(slitWidth),
+			halfSeparation = 0.5*Math.abs(slitSeparation);
+		
+		for(int i = 0; i < width; i++)
+		{
+			double xCos = (getX(i) - xCentre)*cos;
+				
+			for(int j = 0; j < height; j++)
+			{
+				double ySin = (getY(j) - yCentre)*sin;
+
+				if(Math.abs(Math.abs(xCos + ySin) - halfSeparation) > halfWidth)
+				{
+					// outside the slit, set the amplitude to zero
+					data[getIndexRe(i,j)] = 0.0;
+					data[getIndexIm(i,j)] = 0.0;
+				}
+			}
+		}
+	}
+
+	public void passThroughGrating(double slitSeparation, double slitWidth, double angleWithX, double xCentre, double yCentre)
+	{
+		double
+			cos = Math.cos(angleWithX),
+			sin = Math.sin(angleWithX),
+			halfWidth = 0.5*Math.abs(slitWidth),
+			separation = Math.abs(slitSeparation);
+
+		for(int i = 0; i < width; i++)
+		{
+			double xCos = (getX(i) - xCentre)*cos;
+
+			for(int j = 0; j < height; j++)
+			{
+				double ySin = (getY(j) - yCentre)*sin;
+
+				double r = Math.abs(xCos + ySin) % separation;
+				if((halfWidth < r) && (r <= separation - halfWidth))
+				{
+					// outside the slits, set the amplitude to zero
+					data[getIndexRe(i,j)] = 0.0;
+					data[getIndexIm(i,j)] = 0.0;
+				}
+			}
+		}
+	}
+
+	/**
+	 * Pass light beam through a dove prism array. The specified prism width is a power of 2
+	 * and so enforces an integer number of prisms in the cross section.
+	 * 
+	 * @param prismWidth
+	 * 
+	 * @author Sean
+	 */
+	public void passThroughDovePrismArray(int prismWidth)
+	{
+		if(!MathsUtilities.isPowerOfTwo(prismWidth))
+		{
+			System.err.println("Error: the dove prism width specified (" + prismWidth + ") is not a power of 2.");
+			
+			return;
+		}
+		
+		if(prismWidth > width)
+		{
+			System.err.println("Error: the dove prism width specified (" + prismWidth + ") is greater than the width of the beam cross section itself.");
+			
+			return;
+		}
+		
+		double[] newData = new double[2 * width * height];
+		int prismWidth2 = prismWidth / 2;
+		
+		for(int i = 0; i < width; i++)
+		{
+			// Calculate the index to retrieve the 'pixel' from
+			// int iSource = ((i / prismWidth) + 1) * prismWidth - (i % prismWidth) - 1;
+			int iSource = ((i+prismWidth2)/prismWidth) * prismWidth - (i+prismWidth2) % prismWidth + prismWidth2 - 1;
+			// System.out.println("i="+i+", iSource="+iSource);
+//			int iSource = 
+//				MathsUtilities.groovierMod(
+//						(
+//								(prismWidth * (((i - width / 2) / prismWidth) + 1) - 1)
+//								- (MathsUtilities.groovierMod(i - width / 2, prismWidth))
+//								+ width / 2
+//						),
+//						width
+//					);
+			
+			if(iSource < 0 || iSource > (width - 1))
+			{
+				// This i index doesn't exist - use the value 0 instead
+				
+				for(int j = 0; j < height; j++)
+				{
+					try
+					{
+						// Set real and imaginary parts
+						newData[getIndexRe(i, j)] = 0;
+						newData[getIndexIm(i, j)] = 0;
+					}
+					catch(Exception e)
+					{
+						e.printStackTrace();
+					}
+				}
+			}
+			else
+			{
+				// The i index exists - get its value for each [i, j] pair
+				
+				for(int j = 0; j < height; j++)
+				{
+					try
+					{
+						// Set real and imaginary parts
+						newData[getIndexRe(i, j)] = data[getIndexRe(iSource, j)];
+						newData[getIndexIm(i, j)] = data[getIndexIm(iSource, j)];
+					}
+					catch(Exception e)
+					{
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+		
+		// Update data
+		data = newData;
+	}
+	
+	/**
+	 * Pass light beam through a dove prism.  Simply flips left and right.
+	 * 
+	 * @author Johannes
+	 */
+	public void passThroughDovePrism()
+	{
+		for(int i = 0; i < width/2; i++)
+		{
+			// swap column i with column (width-1 - i)
+
+			for(int j = 0; j < height; j++)
+			{
+				// store the complex amplitude of element (i, j)
+				double tempRe = data[getIndexRe(i, j)];
+				double tempIm = data[getIndexIm(i, j)];
+				
+				// set the complex amplitude of element (i, j) to that of element (width-1 - i, j)
+				data[getIndexRe(i, j)] = data[getIndexRe(width - 1 - i, j)];
+				data[getIndexIm(i, j)] = data[getIndexIm(width - 1 - i, j)];
+				
+				// finally, set the complex amplitude of element (width-1 - i, j) to that stored
+				data[getIndexRe(width - 1 - i, j)] = tempRe;
+				data[getIndexIm(width - 1 - i, j)] = tempIm;
+			}
+		}
+	}
+
+	/**
+	 * Flips left/right and up/down.
+	 * 
+	 * @author Johannes
+	 */
+	public void flipLeftRightAndUpDown()
+	{
+		for(int i = 0; i < width/2; i++)
+		{
+			// swap column i with column (width-1 - i)
+
+			for(int j = 0; j < height; j++)
+			{
+				// store the complex amplitude of element (i, j)
+				double tempRe = data[getIndexRe(i, j)];
+				double tempIm = data[getIndexIm(i, j)];
+				
+				// set the complex amplitude of element (i, j) to that of element (width-1 - i, j)
+				data[getIndexRe(i, j)] = data[getIndexRe(width - 1 - i, height - 1 - j)];
+				data[getIndexIm(i, j)] = data[getIndexIm(width - 1 - i, height - 1 - j)];
+				
+				// finally, set the complex amplitude of element (width-1 - i, j) to that stored
+				data[getIndexRe(width - 1 - i, height - 1 - j)] = tempRe;
+				data[getIndexIm(width - 1 - i, height - 1 - j)] = tempIm;
+			}
+		}
+	}
+
+	/**
+	 * Scales the beam cross section to the new width and height. Crops the beam
+	 * if newWidth < width and/or newHeight < height. Otherwise adds 0s (darkness)
+	 * around the original beam so that it is then of size [newWidth, newHeight].
+	 * 
+	 * @param newWidth
+	 * @param newHeight
+	 */
+	public void changeDimensions(int newWidth, int newHeight)
+	{
+		// Check if we need to do any changes
+		if(newWidth != width || newHeight != height)
+		{
+			// Define new data array
+			double[] newData = new double[2 * newWidth * newHeight];
+			
+			// Work out difference between new and old dimensions
+			int widthDifference = newWidth - width;
+			int heightDifference = newHeight - height;
+			
+			for(int i = 0; i < width; i++)
+			{
+				for(int j = 0; j < height; j++)
+				{
+					// Check if [i, j] is within the boundaries of the new cross section
+					if
+					(
+							((i + widthDifference / 2) >= 0) &&
+							((i + widthDifference / 2) < newWidth) &&
+							((j + heightDifference / 2) >= 0) &&
+							((j + heightDifference / 2) < newHeight)
+					)
+					{
+						// This pixel is to be present in the scaled instance
+						try
+						{							
+							// Set real and imaginary parts
+							newData[2 * ((j + (widthDifference / 2)) * newWidth + (i + (widthDifference / 2)))] = data[getIndexRe(i, j)];
+							newData[2 * ((j + (widthDifference / 2)) * newWidth + (i + (widthDifference / 2))) + 1] = data[getIndexIm(i, j)];
+						}
+						catch(Exception e)
+						{
+							e.printStackTrace();
+						}
+					}
+				}
+			}
+			
+			// Update data, width and height
+			data = newData;
+			width = newWidth;
+			height = newHeight;
+		}
+	}
+
+
+	/////////////////////////////////////////////////////////////////////
+	// method that calculates the power in the amplitude cross section //
+	/////////////////////////////////////////////////////////////////////
+	
+	// relative units
+	public double getPowerInBeam()
+	{
+		double powerDensity = 0;
+  
+		for(int j = 0; j < height; j++)
+		{
+			for(int i = 0; i < width; i++)
+			{
+				powerDensity += 
+					MyMath.sqr(data[getIndexRe(i,j)]) +
+					MyMath.sqr(data[getIndexIm(i,j)]);
+			}
+		}
+  
+		return powerDensity * getDeltaX() * getDeltaY();
+	}
+
+	
+	//////////////////////////////////////
+	// the methods that do all the work //
+	//////////////////////////////////////
+
+	// z component of the wave vector corresponding to element (i,j) in the
+	// Fourier transform of the amplitude matrix
+	private double getWaveVectorZ(int i, int j)
+	{
+		double sqrkXY, sqrk;
+
+		sqrk   = MyMath.sqr(2*Math.PI/wavelength);
+		sqrkXY = MyMath.sqr(getKX(i)) + MyMath.sqr(getKY(j));
+  
+  		if(sqrkXY <= sqrk)
+    	{
+    		return Math.sqrt(sqrk - sqrkXY) ;
+    	}
+		else
+		{
+			// Fourier components in a monochromatic beam of wave number k for which
+			//   k_x^2 + k_y^2 > k^2
+			// represent evanescent components
+			if(!evanescentComponentsPresent)
+			{
+				System.out.println(
+					"\nYour array size is so large that the Nyquist wave number, i.e.\n" +
+		 			"the greatest wave number represented in the Fourier representation\n" +
+		 			"of the data array, is greater than the wave number of the light.\n" +
+		 			"Fourier components which represent wave numbers greater than that\n" +
+		 			"of the light represent evanescent waves.\n" +
+		 			"WARNING: The propagation of an evanescent component over a negative\n" +
+		 			"distance leads to exponential growth!\n"
+		 		);
+				evanescentComponentsPresent = true;
+			}
+			// the function returns the imaginary part of the
+			// z component of the wave vector.  To indicate that
+			// it should be treated like an imaginary number, the
+			// negative value is returned
+			return -Math.sqrt(sqrkXY - sqrk);
+		}
+	}
+	
+	/**
+	 * Rotates the beam by the supplied angle, counter clockwise. Interpolates
+	 * quantities using bilinear interpolation.
+	 * 
+	 * @param clipping		Whether the rotated matrix should be clipped to fit the original
+	 * 						matrix dimensions, or should be expanded to fit the new data. The
+	 * 						former is true and the latter is false.
+	 * @return
+	 * 
+	 * @author Sean
+	 */
+	public void rotate(double angle, boolean clipping)
+	{
+		int newWidth;
+		int newHeight;
+		
+		int oldCrossSectionStartPointI;
+		int oldCrossSectionStartPointJ;
+		
+		if(clipping)
+		{
+			// Maintain original size
+			newWidth = width;
+			newHeight = height;
+			
+			oldCrossSectionStartPointI = 0;
+			oldCrossSectionStartPointJ = 0;
+		}
+		else
+		{
+			// Resize to fit beam
+			// currently "oversizing" in many cases, but at least beam always fits
+			// TODO: implement properly, e.g. by rotating the corners by the specified angle and checking what size grid is required to accommodate them
+			// Multiplication by 2 guarantees a power of 2
+			newWidth = newHeight = 2 * ((width>=height)?width:height);
+			// newWidth = 2 * width;
+			// newHeight = 2 * height;
+			
+			// Set old cross section's start points in terms of the new cross section
+			oldCrossSectionStartPointI = (newWidth - width) / 2 - 1;
+			oldCrossSectionStartPointJ = (newHeight - height) / 2 - 1;
+		}
+		
+		// Create the rotated cross section array from the calculated width and height
+		double[] rotatedData = new double[2 * newWidth * newHeight];
+		
+		// Define the centre of the rotated cross section
+		Point2D centre = new Point2D((newWidth - 1) / 2.0, (newHeight - 1) / 2.0);
+		
+		double sinAngle = Math.sin(Math.toRadians(-angle));
+		double cosAngle = Math.cos(Math.toRadians(-angle));
+		
+		for(int i = 0; i < newWidth; i++)
+		{
+			for(int j = 0; j < newHeight; j++)
+			{
+				// Define a vector to this point
+				Vector2D vector = new Vector2D(new Point2D(i - centre.getI(), j - centre.getJ()));
+				
+				// Rotate the vector about the centre
+				vector.rotate(cosAngle, sinAngle);
+				
+				// Get the end point of the vector
+				Point2D sourcePoint = new Point2D(vector.getPoint().getI() + centre.getI(), vector.getPoint().getJ() + centre.getJ());
+				
+				double reInterpolated;
+				double imInterpolated;
+				
+				// Check if the source point originated on the original cross section (using original width and height)
+				if(
+					sourcePoint.getI() < oldCrossSectionStartPointI ||
+					sourcePoint.getI() > oldCrossSectionStartPointI + width ||
+					sourcePoint.getJ() < oldCrossSectionStartPointJ ||
+					sourcePoint.getJ() > oldCrossSectionStartPointJ + height
+				)
+				{					
+					// Outwith original cross section boundaries - don't interpolate
+					
+					reInterpolated = 0;
+					imInterpolated = 0;
+				}
+				else
+				{					
+					// Interpolate the rotated point
+					
+					// interpolation 'box' 1D coordinates
+					int i1 = (int) sourcePoint.getI() - oldCrossSectionStartPointI;
+					int i2 = i1 + 1;
+					int j1 = (int) sourcePoint.getJ() - oldCrossSectionStartPointJ;
+					int j2 = j1 + 1;
+					
+					// value of field at points around the interpolation point
+					double q11;
+					double q12;
+					double q21;
+					double q22;
+					
+					try
+					{
+						q11 = data[getIndexRe(i1, j1)];
+					}
+					catch(ArrayIndexOutOfBoundsException e)
+					{
+						q11 = 0;
+					}
+					
+					try
+					{
+						q12 = data[getIndexRe(i1, j2)];
+					}
+					catch(ArrayIndexOutOfBoundsException e)
+					{
+						q12 = 0;
+					}
+					
+					try
+					{
+						q21 = data[getIndexRe(i2, j1)];
+					}
+					catch(ArrayIndexOutOfBoundsException e)
+					{
+						q21 = 0;
+					}
+					
+					try
+					{
+						q22 = data[getIndexRe(i2, j2)];
+					}
+					catch(ArrayIndexOutOfBoundsException e)
+					{
+						q22 = 0;
+					}
+					
+					// real part interpolation
+					reInterpolated = ImageUtilities.interpolate(
+							sourcePoint.getI() - oldCrossSectionStartPointI,
+							sourcePoint.getJ() - oldCrossSectionStartPointJ,
+							i1,
+							i2,
+							j1,
+							j2,
+							q11,
+							q12,
+							q21,
+							q22
+						);
+					
+					try
+					{
+						q11 = data[getIndexIm(i1, j1)];
+					}
+					catch(ArrayIndexOutOfBoundsException e)
+					{
+						q11 = 0;
+					}
+					
+					try
+					{
+						q12 = data[getIndexIm(i1, j2)];
+					}
+					catch(ArrayIndexOutOfBoundsException e)
+					{
+						q12 = 0;
+					}
+					
+					try
+					{
+						q21 = data[getIndexIm(i2, j1)];
+					}
+					catch(ArrayIndexOutOfBoundsException e)
+					{
+						q21 = 0;
+					}
+					
+					try
+					{
+						q22 = data[getIndexIm(i2, j2)];
+					}
+					catch(ArrayIndexOutOfBoundsException e)
+					{
+						q22 = 0;
+					}
+					
+					// imaginary part interpolation
+					imInterpolated = ImageUtilities.interpolate(
+							sourcePoint.getI() - oldCrossSectionStartPointI,
+							sourcePoint.getJ() - oldCrossSectionStartPointJ,
+							i1,
+							i2,
+							j1,
+							j2,
+							q11,
+							q12,
+							q21,
+							q22
+						);
+				}
+				
+				try
+				{
+					// Set interpolated real and imaginary parts
+					rotatedData[2 * (j * newWidth + i)] = reInterpolated;
+					rotatedData[2 * (j * newWidth + i) + 1] = imInterpolated;
+				}
+				catch(Exception e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		// Update dimensions, if necessary
+		if(!clipping)
+		{
+			width = newWidth;
+			height = newHeight;
+		}
+		
+		// Update data
+		data = rotatedData;
+	}
+}

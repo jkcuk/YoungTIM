@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/p/javawaveoptics/code/!svn/ver/278/trunk/Young%20TIM/src/javawaveoptics/utility
+END
+MathsUtilities.java
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/p/javawaveoptics/code/!svn/ver/175/trunk/Young%20TIM/src/javawaveoptics/utility/MathsUtilities.java
+END
+ImageUtilities.java
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/p/javawaveoptics/code/!svn/ver/271/trunk/Young%20TIM/src/javawaveoptics/utility/ImageUtilities.java
+END
+ImageableLightSourceInterface.java
+K 25
+svn:wc:ra_dav:version-url
+V 115
+/p/javawaveoptics/code/!svn/ver/162/trunk/Young%20TIM/src/javawaveoptics/utility/ImageableLightSourceInterface.java
+END
+TIMFileFilter.java
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/p/javawaveoptics/code/!svn/ver/162/trunk/Young%20TIM/src/javawaveoptics/utility/TIMFileFilter.java
+END
+ComponentImageNanny.java
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/p/javawaveoptics/code/!svn/ver/278/trunk/Young%20TIM/src/javawaveoptics/utility/ComponentImageNanny.java
+END
+SimulationException.java
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/p/javawaveoptics/code/!svn/ver/281/trunk/Young%20TIM/src/javawaveoptics/utility/SimulationException.java
+END
+RotatableInterface.java
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/p/javawaveoptics/code/!svn/ver/162/trunk/Young%20TIM/src/javawaveoptics/utility/RotatableInterface.java
+END
+ImageableInterface.java
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/p/javawaveoptics/code/!svn/ver/217/trunk/Young%20TIM/src/javawaveoptics/utility/ImageableInterface.java
+END
+BitmapFileFilter.java
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/p/javawaveoptics/code/!svn/ver/162/trunk/Young%20TIM/src/javawaveoptics/utility/BitmapFileFilter.java
+END

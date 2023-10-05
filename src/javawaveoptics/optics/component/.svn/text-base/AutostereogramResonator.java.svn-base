@@ -1,0 +1,91 @@
+package javawaveoptics.optics.component;
+
+import java.io.Serializable;
+
+import javawaveoptics.geometry.AbstractSurface3D;
+import javawaveoptics.geometry.Point3D;
+import javawaveoptics.geometry.ZPlane3D;
+import javawaveoptics.optics.BeamCrossSection;
+import library.optics.LightBeamOnSurface2D;
+
+/**
+ * Defines an autostereogram resonator.
+ * 
+ * @author Sean
+ * @author Johannes
+ */
+public class AutostereogramResonator extends AbstractSimpleOpticalComponent implements Serializable
+{
+	private static final long serialVersionUID = -3870952553860829809L;
+
+	/*
+	 * Fields
+	 */
+
+	private AbstractSurface3D
+		autostereogramPlane,	// one of the mirrors of the resonator; needs to be a plane (?)
+		otherMirrorSurface;		// the other mirror, which should have some 3Dness (the autostereogram is of this surface, hopefully!)
+	
+	private Point3D
+		leftEyePosition,
+		rightEyePosition;
+	
+	public AutostereogramResonator(String name)
+	{
+		super(name);
+		
+		autostereogramPlane = new ZPlane3D(0.);
+		otherMirrorSurface = new ZPlane3D(5e-3);
+//		otherMirrorSurface = new Hemisphere3D(
+//				1e-3,	// radius
+//				new Point3D(0, 0, 2e-3)	// centre
+//			);
+		
+		leftEyePosition = new Point3D(-2e-3, 0e-3, -1);
+		rightEyePosition = new Point3D(2e-3, 0e-3, -1);
+	}
+	
+	/**
+	 * Null constructor.
+	 * This requires no parameters.
+	 */
+	public AutostereogramResonator()
+	{
+		this("Autostereogram resonator");
+	}
+	
+	@Override
+	public String getComponentTypeName()
+	{
+		return "Autostereogram resonator";
+	}
+	
+	@Override
+	public BeamCrossSection fromInputBeamCalculateOutputBeam(BeamCrossSection inputBeam)
+	{
+		if(inputBeam != null)
+		{
+			// first create a LightBeamOnSurface2D from inputBeam
+			LightBeamOnSurface2D beam = new LightBeamOnSurface2D(autostereogramPlane, inputBeam);
+			
+			// pass through a phase hologram (in the plane of the autostereogram) that images the two
+			// eye positions into one another
+			beam.passThroughImagingHologram(leftEyePosition, rightEyePosition);
+			
+			// propagate to the other mirror surface
+			beam.propagate(otherMirrorSurface);
+			
+			// pass through another phase hologram (this time on the other mirror surface) that again
+			// images the two eye positions into one another
+			beam.passThroughImagingHologram(leftEyePosition, rightEyePosition);
+			
+			// propagate back to the autostereogram plane
+			beam.propagate(autostereogramPlane);
+			
+			// create a Beam from the LightBeamOnSurface2D
+			inputBeam = beam.toBeam();
+		}
+		
+		return inputBeam;
+	}
+}

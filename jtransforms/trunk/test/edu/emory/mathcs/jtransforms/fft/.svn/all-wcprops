@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svnroot/jtransforms/!svn/ver/23/trunk/test/edu/emory/mathcs/jtransforms/fft
+END
+DoubleFFT_2DTest.java
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/svnroot/jtransforms/!svn/ver/23/trunk/test/edu/emory/mathcs/jtransforms/fft/DoubleFFT_2DTest.java
+END
+DoubleFFT_3DTest.java
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/svnroot/jtransforms/!svn/ver/23/trunk/test/edu/emory/mathcs/jtransforms/fft/DoubleFFT_3DTest.java
+END
+FloatFFT_1DTest.java
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/svnroot/jtransforms/!svn/ver/23/trunk/test/edu/emory/mathcs/jtransforms/fft/FloatFFT_1DTest.java
+END
+FloatFFT_2DTest.java
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/svnroot/jtransforms/!svn/ver/23/trunk/test/edu/emory/mathcs/jtransforms/fft/FloatFFT_2DTest.java
+END
+FloatFFT_3DTest.java
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/svnroot/jtransforms/!svn/ver/23/trunk/test/edu/emory/mathcs/jtransforms/fft/FloatFFT_3DTest.java
+END
+RealFFTUtils_2DTest.java
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/svnroot/jtransforms/!svn/ver/19/trunk/test/edu/emory/mathcs/jtransforms/fft/RealFFTUtils_2DTest.java
+END
+RealFFTUtils_3DTest.java
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/svnroot/jtransforms/!svn/ver/22/trunk/test/edu/emory/mathcs/jtransforms/fft/RealFFTUtils_3DTest.java
+END
+FloatingPointEqualityChecker.java
+K 25
+svn:wc:ra_dav:version-url
+V 110
+/svnroot/jtransforms/!svn/ver/20/trunk/test/edu/emory/mathcs/jtransforms/fft/FloatingPointEqualityChecker.java
+END
+DoubleFFT_1DTest.java
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/svnroot/jtransforms/!svn/ver/23/trunk/test/edu/emory/mathcs/jtransforms/fft/DoubleFFT_1DTest.java
+END

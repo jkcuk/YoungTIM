@@ -1,0 +1,318 @@
+package javawaveoptics.optics.component;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.Serializable;
+import java.util.ArrayList;
+
+import javax.swing.Box;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+
+import javawaveoptics.optics.BeamCrossSection;
+import javawaveoptics.optics.ComponentInput;
+import javawaveoptics.optics.ComponentOutput;
+import javawaveoptics.ui.Counter;
+import javawaveoptics.ui.UIBitsAndBobs;
+import javawaveoptics.utility.ImageableInterface;
+import javawaveoptics.utility.ImageableLightSourceInterface;
+
+/**
+ * Defines an image of a plane elsewhere in the optical environment. This is useful for using the output
+ * from a plane as an input to another component which is not itself placed directly after that plane.
+ * 
+ * @author Sean
+ */
+public class ImageOfPlaneNonInitialising extends AbstractLightSourceComponent
+implements Serializable, ActionListener, ImageableLightSourceInterface // PropertyChangeListener
+{
+	private static final long serialVersionUID = 3422471733231443931L;
+	
+	/*
+	 * Fields
+	 */
+	
+	// List of planes in the optical environment
+	private ArrayList<ImageableInterface> imageableComponents;
+	
+	// The selected plane to image
+	private ImageableInterface selectedImageableComponent;
+	
+	// where to start looking for planes; usually "this", but can also be another component
+	private AbstractOpticalComponent searchTreeStartComponent;
+	
+	// counter --- how often has this imaged?  handy for counting round trips in resonators
+	// private int imageCounter = 0;
+
+	/*
+	 * GUI edit controls
+	 */
+	
+	private transient JComboBox imageComponentComboBox;
+	
+	// private transient JFormattedTextField imageCounterTextField;
+	
+	private transient Counter roundTripCounter;
+
+
+	public ImageOfPlaneNonInitialising(String name)
+	{
+		super(name);
+		
+		searchTreeStartComponent = this;
+		roundTripCounter = new Counter(0, false, false, true);
+	}
+	
+	public ImageOfPlaneNonInitialising()
+	{
+		this("Image");
+	}
+
+	@Override
+	public String getComponentTypeName()
+	{
+		return "Image of a plane";
+	}
+
+	@Override
+	public BeamCrossSection getOutputLightBeam()
+	{
+		if((selectedImageableComponent != null) && (selectedImageableComponent != Plane.NO_PLANE))
+		{
+			// Cast selected plan to class Plane to allow access to getCopyOfBeam()
+			ImageableInterface object = (ImageableInterface) selectedImageableComponent;
+//			imageCounter++;
+//			if(imageCounterTextField != null)
+//			{
+//				imageCounterTextField.setValue(new Integer(imageCounter));
+//			}
+			roundTripCounter.increment();
+		
+			return object.getCopyOfBeam();
+		}
+		else
+		{
+			return null;
+		}
+	}
+	
+	/**
+	 * Overrides the default behaviour of the parent class so that the list of planes
+	 * to image is updated before the edit panel is viewed.
+	 */
+	@Override
+	public JComponent getEditPanel()
+	{
+		// First check whether or not the edit panel has been instantiated. If it has
+		// been, then the plane combo box might be out of date and must therefore
+		// be refreshed.
+		if(editPanel != null)
+		{			
+			// first update the combo box to list all...
+			initialiseImageComponentComboBox();
+		}
+		
+		// Return the edit panel, complete with up-to-date combo box.
+		return super.getEditPanel();
+	}
+	
+	@Override
+	protected void createEditPanel()
+	{
+		super.createEditPanel();
+		
+		/*
+		 * Beam type drop down box
+		 */
+		editPanel.add(UIBitsAndBobs.makeRow("Object", imageComponentComboBox, true));
+		
+		// editPanel.add(UIBitsAndBobs.makeRow("Round trip counter", imageCounterTextField, true));
+		editPanel.add(UIBitsAndBobs.makeRow("Round trip counter", roundTripCounter, true));
+		
+		editPanel.add(new JLabel("You may need to click \"Go!\" twice..."));
+		
+		editPanel.add(Box.createVerticalGlue());
+	}
+	
+	@Override
+	protected void initialiseWidgets()
+	{
+		super.initialiseWidgets();
+		
+		imageComponentComboBox = new JComboBox();
+		initialiseImageComponentComboBox();
+		imageComponentComboBox.addActionListener(this);
+		imageComponentComboBox.setActionCommand("Input Selected");
+
+		// imageCounterTextField = UIBitsAndBobs.makeIntFormattedTextField(this);
+		// imageCounterTextField.setValue(new Integer(0));
+		
+		// already initialised above
+		// roundTripCounter = new Counter(0, false, false, true);
+	}
+
+	@Override
+	public void readWidgets()
+	{
+		super.readWidgets();
+
+		// Set the new selected image component output
+		if(imageComponentComboBox != null) selectedImageableComponent = (ImageableInterface)imageComponentComboBox.getSelectedItem();
+	}
+	
+	/**
+	 * Adds output beams which are imageable to the combo box of image components
+	 * recursively. This class is able to be run as a thread.
+	 * 
+	 * @author Sean
+	 */
+	private void initialiseImageComponentComboBox()
+	{
+		// Disable the combo box while we update it
+		imageComponentComboBox.setEnabled(false);
+				
+		// (Re)create the image components list
+		imageableComponents = new ArrayList<ImageableInterface>();
+		
+		// add a component that represents "None"
+		imageableComponents.add(Plane.NO_PLANE);
+							
+		// Add output(s) of the output attached to this component to the outputBeams list, recursively
+		addImageableComponentToListRecursively(searchTreeStartComponent, null);
+				
+		// Set the combo box model from list of components
+		imageComponentComboBox.setModel(new DefaultComboBoxModel(imageableComponents.toArray()));
+				
+		// Set the selected item
+		//
+		// We set the selected item only if it is present in the list. Otherwise we
+		// have nothing selected. This prevents the default behaviour of Java
+		// selecting the next item in the list, which can give undesired results.
+		//
+		// Note: we don't use indices here as the list may have items added before the index in question.
+		// Instead we use a reference to the selected BeamInput object itself, which there should only be
+		// one of.
+		if(imageableComponents.contains(selectedImageableComponent))
+		{
+			imageComponentComboBox.setSelectedItem(selectedImageableComponent);
+		}
+		else
+		{
+			imageComponentComboBox.setSelectedIndex(-1);
+		}
+		
+		// Re-enable the combo box now that we've updated it
+		imageComponentComboBox.setEnabled(true);
+	}
+	
+	private void addImageableComponentToListRecursively(AbstractOpticalComponent component, AbstractOpticalComponent parent)
+	{
+		if(component != null)
+		{
+			// if this component is imageable, add it to the list
+			if(component instanceof ImageableInterface)
+			{
+				// Add this component to the list
+				imageableComponents.add((ImageableInterface)component);
+			}
+			
+			// now go through all the component's inputs and outputs and follow them up
+			if(component.getComponentOutputs() != null)
+			{
+				for(ComponentInput output : component.getComponentOutputs())
+				{
+					if(output != null)
+					{
+						AbstractOpticalComponent nextComponent = output.getComponent();
+						
+						if(nextComponent != parent)
+						{
+							addImageableComponentToListRecursively(nextComponent, component);
+						}
+					}
+				}
+			}
+			
+			if(component.getComponentInputs() != null)
+			{
+				for(ComponentOutput input : component.getComponentInputs())
+				{
+					if(input != null)
+					{
+						AbstractOpticalComponent nextComponent = input.getComponent();
+						
+						if(!nextComponent.equals(parent))
+						{
+							addImageableComponentToListRecursively(nextComponent, component);
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	@Override
+	public void actionPerformed(ActionEvent event)
+	{
+		String command = event.getActionCommand();
+		
+		if(command.equals("Input Selected"))
+		{
+			// Set the new selected image component output
+			selectedImageableComponent = (ImageableInterface)imageComponentComboBox.getSelectedItem();
+			
+			// Fire an edit panel event
+			if(editListener != null) editListener.editMade();
+		}
+	}
+
+//	@Override
+//	public void propertyChange(PropertyChangeEvent e)
+//	{
+//	    Object source = e.getSource();
+//	    
+//	    if (source == imageCounterTextField)
+//	    {
+//	    	imageCounter = ((Number)imageCounterTextField.getValue()).intValue();
+//	    }
+//	}
+
+	@Override
+	public String getFormattedName()
+	{
+		if(selectedImageableComponent != null)
+		{
+			// return getName() + " (" + selectedImageableComponent.getName() + ")";
+			return "(" + ((AbstractOpticalComponent)selectedImageableComponent).getName() + ")'";
+		}
+		else
+		{
+			return "Image (no object selected)";
+		}
+	}
+	
+	public ImageableInterface getSelectedImageableComponent() {
+		return selectedImageableComponent;
+	}
+
+	public void setSelectedImageableComponent(
+			ImageableInterface selectedImageableComponent) {
+		this.selectedImageableComponent = selectedImageableComponent;
+	}
+
+	public AbstractOpticalComponent getSearchTreeStartComponent() {
+		return searchTreeStartComponent;
+	}
+
+	public void setSearchTreeStartComponent(
+			AbstractOpticalComponent searchTreeStartComponent) {
+		this.searchTreeStartComponent = searchTreeStartComponent;
+	}
+	
+	public void resetRoundTripCounter()
+	{
+		roundTripCounter.reset();
+	}
+}

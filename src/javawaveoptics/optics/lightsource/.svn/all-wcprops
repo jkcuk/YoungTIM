@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/p/javawaveoptics/code/!svn/ver/271/trunk/Young%20TIM/src/javawaveoptics/optics/lightsource
+END
+AbstractLightSource.java
+K 25
+svn:wc:ra_dav:version-url
+V 116
+/p/javawaveoptics/code/!svn/ver/187/trunk/Young%20TIM/src/javawaveoptics/optics/lightsource/AbstractLightSource.java
+END
+LaguerreGaussianBeam.java
+K 25
+svn:wc:ra_dav:version-url
+V 117
+/p/javawaveoptics/code/!svn/ver/249/trunk/Young%20TIM/src/javawaveoptics/optics/lightsource/LaguerreGaussianBeam.java
+END
+HermiteGaussianBeam.java
+K 25
+svn:wc:ra_dav:version-url
+V 116
+/p/javawaveoptics/code/!svn/ver/271/trunk/Young%20TIM/src/javawaveoptics/optics/lightsource/HermiteGaussianBeam.java
+END
+GaussianBeam.java
+K 25
+svn:wc:ra_dav:version-url
+V 109
+/p/javawaveoptics/code/!svn/ver/249/trunk/Young%20TIM/src/javawaveoptics/optics/lightsource/GaussianBeam.java
+END
+BeamFromBitmap.java
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/p/javawaveoptics/code/!svn/ver/271/trunk/Young%20TIM/src/javawaveoptics/optics/lightsource/BeamFromBitmap.java
+END
+UniformPlaneWave.java
+K 25
+svn:wc:ra_dav:version-url
+V 113
+/p/javawaveoptics/code/!svn/ver/187/trunk/Young%20TIM/src/javawaveoptics/optics/lightsource/UniformPlaneWave.java
+END

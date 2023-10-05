@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 38
+/svnroot/jtransforms/!svn/ver/29/trunk
+END
+changelog.txt
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svnroot/jtransforms/!svn/ver/26/trunk/changelog.txt
+END
+build.xml
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svnroot/jtransforms/!svn/ver/26/trunk/build.xml
+END
+.project
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svnroot/jtransforms/!svn/ver/2/trunk/.project
+END
+.classpath
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svnroot/jtransforms/!svn/ver/2/trunk/.classpath
+END
+jtransforms.jardesc
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svnroot/jtransforms/!svn/ver/7/trunk/jtransforms.jardesc
+END

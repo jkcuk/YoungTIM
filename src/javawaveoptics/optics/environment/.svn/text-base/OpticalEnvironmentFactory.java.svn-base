@@ -1,0 +1,54 @@
+package javawaveoptics.optics.environment;
+
+public class OpticalEnvironmentFactory
+{
+	public static final int
+		TYPE_DEFAULT			=		0,
+		TYPE_LIMITED			=		1,
+		TYPE_AUTOSTEREOGRAM		=		2,
+		TYPE_KATIE	= 3,
+		TYPE_DOVE_PRISM_INTERFEROMETER = 4,
+		TYPE_FRACTAL_LASER = 5,
+		TYPE_1D_FRACTAL_LASER = 6;
+	
+	/**
+	 * Creates and returns an optical environment based on the specified type number. The type number
+	 * corresponds to one of the numbers defined above, which is used to decide which optical environment
+	 * to load.
+	 * 
+	 * @param type		The type number, as defined above
+	 * @return			The corresponding optical environment
+	 */
+	public static AbstractOpticalEnvironment createOpticalEnvironment(int type)
+	{
+		switch(type)
+		{
+			case 1:
+				return new LimitedExampleOpticalEnvironment();
+			
+			case 2:
+				return new AutostereogramOpticalEnvironment();
+				
+			case 3:
+				return new KatiesOpticalEnvironment();
+				
+			case 4:
+				return new DovePrismInterferometerOpticalEnvironment();
+				
+			case 5:
+				return new FractalLaserOpticalEnvironment();
+				
+			case 6:
+				return new FractalStripLaserOpticalEnvironment();
+
+			case 7:
+				return new DoubleSlitOpticalEnvironmentRestricted();
+
+			case 0:
+			default:
+				// return new FractalStripLaserOpticalEnvironment();
+				return new DoubleSlitOpticalEnvironment();
+				// return new FractalLaserOpticalEnvironment();
+		}
+	}
+}

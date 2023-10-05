@@ -1,0 +1,1 @@
+package library.physics;public class PhysicalConstants{	public final static double				// vacuum permittivity in C^2 N^-1 M^-2		EPSILON_0 = 8.854187817e-12,				// speed of light in m/s		LIGHT_C = 2.99792458e8,		// Planck constant in Joule Second		PLANCK_H = 6.6260755e-34,		PLANCK_HBAR = PLANCK_H / (2. * Math.PI);}

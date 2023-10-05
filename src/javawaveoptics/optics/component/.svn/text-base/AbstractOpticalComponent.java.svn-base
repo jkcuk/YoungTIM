@@ -1,0 +1,913 @@
+package javawaveoptics.optics.component;
+
+import java.awt.BorderLayout;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
+
+import javax.imageio.ImageIO;
+import javax.swing.BoxLayout;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+
+import javawaveoptics.optics.BeamCrossSection;
+import javawaveoptics.optics.ComponentInput;
+import javawaveoptics.optics.ComponentOutput;
+import javawaveoptics.ui.OpticalComponentEditListener;
+import javawaveoptics.ui.UIBitsAndBobs;
+import javawaveoptics.ui.workbench.ExtensiveAbstractWorkbenchComponent;
+import javawaveoptics.utility.ComponentImageNanny;
+import javawaveoptics.utility.ImageableInterface;
+import javawaveoptics.utility.SimulationException;
+
+/**
+ * Defines a generic optical component with any number of inputs and outputs. Provides an abstract
+ * graphical user interface with edit functionality relevant to the optical component implemented using
+ * this abstract class.
+ * 
+ * @author Sean
+ * @author Johannes
+ */
+public abstract class AbstractOpticalComponent implements Serializable
+{
+	private static final long serialVersionUID = 3490364229878751075L;
+
+	// Debug mode setting. This prints output of what each optical component is doing when it is given a beam.
+	public static final boolean DEBUG_MODE = false;
+	
+	/*
+	 * Fields
+	 */
+	
+	// User-friendly name for this optical component
+	protected String name;
+	
+	// is component enabled?  Allows component to be temporarily disabled.
+	// Disabled light sources return an empty array of beams.
+	// Disabled other components return the array of inputs as outputs.
+	protected boolean componentEnabled = true;
+	
+	protected boolean calculating = false;
+	protected double calculationFractionComplete;
+	
+	// notified when the component starts and finishes simulating
+	protected ComponentImageNanny componentImageNanny = null;
+	
+	protected boolean warning = false;
+	protected String warningMessage = "";
+
+	// List of inputs to this component. The inputs are of course outputs from other components,
+	// and so they are of type ComponentOutput.
+	protected ComponentOutput componentInputs[];
+	
+	// List of outputs from this component. The outputs are of course inputs from other components,
+	// and so they are of type ComponentInput.
+	protected ComponentInput componentOutputs[];
+	
+	// The index corresponding to the input beam we want to show when the component is visualised
+	protected int opticalTrainInputIndex;
+	
+	// The index corresponding to the output beam we want to show when the component is visualised
+	protected int opticalTrainOutputIndex;
+	
+	// Image scale factor
+	protected double scaleFactor = 1;
+	
+	/*
+	 * GUI edit controls
+	 */
+	
+	// The edit panel associated with this optical component
+	protected transient JPanel editPanelOuter, editPanel;
+	protected transient JScrollPane editScrollPane;
+		
+	// Edit panel layout manager
+//	protected transient GroupLayout editPanelLayoutManager;
+//	protected transient ParallelGroup editPanelHorizontalGroup;
+//	protected transient SequentialGroup editPanelVerticalGroup;
+	
+	// Name edit control
+	protected boolean showBorder = false;
+	
+	protected boolean addScrollBarsToEditPanel = true;
+	
+	// Component edit listener
+	protected transient OpticalComponentEditListener editListener;
+
+	/**
+	 * Constructor. Takes a user-friendly name and the number of inputs and outputs for the optical
+	 * component represented by the child class.
+	 * 
+	 * @param name				User-friendly name for this component
+	 * @param numberOfInputs	Number of inputs to the optical component
+	 * @param numberOfOutputs	Number of outputs from the optical component
+	 */
+	public AbstractOpticalComponent(String name, int numberOfInputs, int numberOfOutputs)
+	{
+		this.name = name;
+		
+		componentInputs = new ComponentOutput[numberOfInputs];
+		componentOutputs = new ComponentInput[numberOfOutputs];
+	}
+	
+	
+	/**
+	 * @return	the name of the component type
+	 */
+	public abstract String getComponentTypeName();
+	
+	/**
+	 * Calculate all inputs to the element, apart from the one specified, provided it is a valid input.
+	 * 
+	 * @param inputNumber	the number of the specified input that does not need to be calculated; -1 if all inputs are to be calculated
+	 * @param inputBeam	the known beam going into the specified input
+	 * @return	a list of all inputs
+	 */
+	private ArrayList<BeamCrossSection> calculateInputs(int inputNumber, BeamCrossSection inputBeam)
+	{
+		ArrayList<BeamCrossSection> inputs = new ArrayList<BeamCrossSection>();
+		
+		// Loop through and add input beams to list
+		for(int x = 0; x < componentInputs.length; x++)
+		{
+			if(x == inputNumber)
+			{
+				inputs.add(inputBeam);
+			}
+			else
+			{
+				if(componentInputs[x] != null)
+				{
+					// Get this input's beam object and add it to our list
+					inputs.add(componentInputs[x].calculateOutput());
+				}
+				else
+				{
+					// The input is not connected to anything
+					if(DEBUG_MODE)
+					{
+						System.err.println("Warning: input " + (x + 1) + " of \"" + name + "\" is not connected to anything.");
+					}
+					
+					// Add a null pointer to the list anyway to keep it in order
+					inputs.add(null);
+				}
+			}
+		}
+		
+		return inputs;
+	}
+	
+	/**
+	 * Calculate all outputs from the component, and deal with all of them, apart from the one specified, provided it is a valid output number.
+	 * 
+	 * @param inputs	the array of inputs to the element
+	 * @param doNotDealWith	the number of the specified output that does not need to be dealt with; -1 if all outputs are to be dealt with
+	 * @return	the outputs
+	 */
+	private ArrayList<BeamCrossSection> calculateAndDealWithOutputs(ArrayList<BeamCrossSection> inputs, int doNotDealWith)
+	{
+		try
+		{
+			setWarning(false, "");
+			setCalculating(true);
+
+			// calculate all the output beams
+			ArrayList<BeamCrossSection> outputs = simulate(inputs);
+
+			setCalculating(false);
+			
+			// Iterate over the outputs, having each deal with the output this component gives it; excluding
+			// the output that is to be returned by this method
+			for(int x = 0; x < outputs.size(); x++)
+			{
+				// Check that the output isn't the one requested, as we don't want to
+				// run dealWithInput() on it, we want to return it.
+				if(x != doNotDealWith)
+				{
+					// is anything connected to this output?
+					if(componentOutputs[x] != null)
+					{
+						// Tell the component connected to the output to deal with the beam (even if it is null)
+						componentOutputs[x].dealWithInput(outputs.get(x));
+					}
+					else
+					{
+						System.out.println("Output " + (x + 1) + " of \"" + name + "\" is not connected to anything.");
+					}
+				}
+			}
+
+			// Return the outputs
+			return outputs;
+		}
+		catch(SimulationException e)
+		{
+			// deal with SimulationExceptions gracefully
+			setCalculating(false);
+			setWarning(true, e.getUserMessage());
+			return null;
+			// throw e;
+		}
+		catch(Exception e)
+		{
+			setCalculating(false);
+			setWarning(true, e.getMessage());
+			// not quite sure what to do here --- print stack trace, return null
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	/**
+	 * Method to calculate outputs. Returns the output specified by the provided output number.
+	 * 
+	 * This calculates the specified output by fetching the required inputs and then performing a
+	 * manipulation on them (e.g. passing them through a beam splitter).
+	 * 
+	 * It then sends these outputs to their relevant connected components, except in the case
+	 * of the specified output number, where the method returns that output beam to be dealt
+	 * with by the method that called this one.
+	 * 
+	 * @param outputNumber	The number corresponding to the output required
+	 * 
+	 * @return				The required beam
+	 */
+	public BeamCrossSection calculateOutput(int outputNumber)
+	{
+		// if(DEBUG_MODE)
+		System.out.println("\""+name+"\""+" calculating output number "+(outputNumber+1)+".");
+
+		try
+		{
+			// calculate all inputs
+			ArrayList<BeamCrossSection> inputs = calculateInputs(-1, null);
+
+			// calculate all outputs, and deal with them all apart from the one specified by outputNumber
+			ArrayList<BeamCrossSection> outputs = calculateAndDealWithOutputs(inputs, outputNumber);
+
+			if(DEBUG_MODE)
+			{				
+				System.out.println(getSimulateMessage(inputs.size(), outputs.size())); 
+			}			
+
+			// return the specified output
+			return outputs.get(outputNumber);
+		}
+		catch(Exception e)
+		{
+			System.err.println("Error during simulation: " + e.getMessage());
+			e.printStackTrace();
+			
+			return null;
+		}
+	}
+	
+	/**
+	 * Method to deal with an input.
+	 * 
+	 * This fetches any other required inputs along with the input provided, then calculates the
+	 * component's outputs and in turn calls dealWithInput() on them.
+	 * 
+	 * @param input		An input from an attached component
+	 */
+	public void dealWithInput(int inputNumber, BeamCrossSection inputBeam)
+	{
+		// if(DEBUG_MODE)
+		System.out.println("\""+name+"\""+" dealing with input number "+(inputNumber+1)+".");
+		
+		try
+		{
+			// calculate all inputs
+			ArrayList<BeamCrossSection> inputs = calculateInputs(inputNumber, inputBeam);
+			
+			// calculate and deal with all outputs
+			ArrayList<BeamCrossSection> outputs = calculateAndDealWithOutputs(inputs, -1);
+		
+			if(DEBUG_MODE)
+			{				
+				System.out.println(getSimulateMessage(inputs.size(), outputs.size())); 
+			}			
+		}
+		catch(Exception e)
+		{
+			System.err.println("Error during simulation: " + e.getMessage());
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Method to calculate all inputs and outputs.
+	 * 
+	 * Fetches the required inputs and then performs the component's
+	 * manipulation on them (e.g. passing them through a beam splitter).
+	 * 
+	 * Then sends these outputs to their relevant connected components.
+	 */
+	public void calculateAndDealWithInputsAndOutputs()
+	{
+		if(DEBUG_MODE) System.out.println("\""+name+"\""+" calculating all inputs and outputs...");
+
+		try
+		{
+			// calculate all inputs
+			ArrayList<BeamCrossSection> inputs = calculateInputs(-1, null);
+
+			// calculate all outputs, and deal with them all apart from the one specified by outputNumber
+			ArrayList<BeamCrossSection> outputs = calculateAndDealWithOutputs(inputs, -1);
+
+			if(DEBUG_MODE)
+			{				
+				System.out.println(getSimulateMessage(inputs.size(), outputs.size())); 
+			}			
+		}
+		catch(Exception e)
+		{
+			System.err.println("Error during simulation: " + e.getMessage());
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Provides all outputs given all inputs.
+	 */
+	protected abstract ArrayList<BeamCrossSection> simulate(ArrayList<BeamCrossSection> inputs) throws Exception;
+	
+	/**
+	 * Returns a message about the effect this component has on the input(s).
+	 * 
+	 * @return
+	 */
+	private String getSimulateMessage(int numberOfInputs, int numberOfOutputs)
+	{
+		String message = "\""+name+"\"";
+		
+		if(numberOfInputs == 0)
+		{
+			message += " creates";
+		}
+		else if(numberOfInputs > 1)
+		{
+			message += " has an effect on " + numberOfInputs + " inputs, producing";
+		}
+		else
+		{
+			message += " has an effect on 1 input, producing";
+		}
+		
+		if(numberOfOutputs == 0)
+		{
+			message += " no outputs";
+		}
+		else if(numberOfOutputs > 1)
+		{
+			message += " " + numberOfOutputs + " outputs";
+		}
+		else
+		{
+			message += " 1 output";
+		}
+		
+		message += ".";
+		
+		return message;
+	}
+	
+	/**
+	 * Gets current input beam
+	 * 
+	 * @return
+	 */
+	public ComponentOutput getVisibleInputComponent()
+	{
+		ComponentOutput input;
+		
+		if(componentInputs.length > 0)
+		{
+			input = componentInputs[opticalTrainInputIndex];
+		}
+		else
+		{
+			input = null;
+		}
+		
+		return input;
+	}
+	
+	/**
+	 * Gets current output beam
+	 * 
+	 * @return
+	 */
+	public ComponentInput getVisibleOutputComponent()
+	{
+		ComponentInput output;
+		
+		if(componentOutputs.length > 0)
+		{
+			output = componentOutputs[opticalTrainOutputIndex];
+		}
+		else
+		{
+			output = null;
+		}
+		
+		return output;
+	}
+	
+	/**
+	 * Sets a specific input in this optical component to a specific beam.
+	 * 
+	 * @param inputNumber
+	 * @param input
+	 */
+	public void setComponentInput(int inputNumber, ComponentOutput input)
+	{
+		componentInputs[inputNumber] = input;
+	}
+	
+	/**
+	 * Sets current input
+	 * 
+	 * @param input
+	 */
+	public void setVisibleComponentInput(ComponentOutput input)
+	{
+		componentInputs[opticalTrainInputIndex] = input;
+	}
+	
+	/**
+	 * Sets a specific output in this optical component to a specific beam.
+	 * 
+	 * @param outputNumber
+	 * @param output
+	 */
+	public void setComponentOutput(int outputNumber, ComponentInput output)
+	{
+		componentOutputs[outputNumber] = output;
+	}
+	
+	/**
+	 * Sets current output
+	 * 
+	 * @param output
+	 */
+	public void setVisibleComponentOutput(ComponentInput output)
+	{
+		componentOutputs[opticalTrainOutputIndex] = output;
+	}
+	
+	public JComponent getEditPanel()
+	{
+		if(editPanelOuter == null)
+		{
+			createEditPanel();
+		}
+		
+		if(addScrollBarsToEditPanel)
+		{
+			return editScrollPane;
+		}
+		
+		return editPanelOuter;
+	}
+	
+	/**
+	 * Creates the edit panel for this optical component.
+	 */
+	protected void createEditPanel()
+	{
+		/**********************
+		 * GUI initialisation *
+		 **********************/
+		
+		// (Re)set edit panel to new, empty JPanel
+		editPanelOuter = new JPanel();
+		// editPanel.setMinimumSize(new Dimension(500, 200));
+		// editPanel.setLayout(new BoxLayout(editPanel, BoxLayout.Y_AXIS));
+		editPanelOuter.setLayout(new BorderLayout());
+		
+		if(addScrollBarsToEditPanel)
+		{
+			editScrollPane = new JScrollPane(editPanelOuter);
+			// editScrollPane.setBorder(BorderFactory.createEmptyBorder());
+		}
+
+		if(showBorder)
+		{
+			editPanelOuter.setBorder(UIBitsAndBobs.getTitledBorder(getComponentTypeName()));
+		}
+
+		
+//		// (Re)create layout manager
+//		editPanelLayoutManager = new GroupLayout(editPanel);
+//		editPanelHorizontalGroup = editPanelLayoutManager.createParallelGroup();
+//		editPanelVerticalGroup = editPanelLayoutManager.createSequentialGroup();
+//		editPanelLayoutManager.setHorizontalGroup(editPanelHorizontalGroup);
+//		editPanelLayoutManager.setVerticalGroup(editPanelVerticalGroup);
+//		
+//		// Automatically create gaps between components in the layout
+//		editPanelLayoutManager.setAutoCreateGaps(true);
+//		
+//		// Set the edit panel's layout manager
+//		editPanel.setLayout(editPanelLayoutManager);
+		
+		/**************************
+		 * Specific edit controls *
+		 **************************/
+		
+		// Initialise the edit controls
+		initialiseWidgets();
+		
+		/*
+		 * Edit name control
+		 */
+		
+		if(showBorder)
+		{
+			// Set the local key listener, for saving the edited text
+			// editNameTextBox.addKeyListener(this);
+		
+			// nameSubEditPanel = UIBitsAndBobs.makeRow("Name", editNameTextBox);
+			// editPanelOuter.add(nameSubEditPanel, BorderLayout.NORTH);
+			if(this instanceof ImageableInterface)
+			{
+				// nameSubEditPanel.setToolTipText("<html>Unique name of the optical component<br>(to allow unambiguous selection of this component as the object in any \"Image of plane\" component)</html>");
+			}
+			else
+			{
+				// nameSubEditPanel.setToolTipText("Name of the optical component (for the user's benefit, not the computer's)");
+			}
+		}
+		
+//		// Add to layout
+//		editPanelHorizontalGroup.addGroup(
+//			editPanelLayoutManager.createSequentialGroup()
+//				.addComponent(editNameLabel)
+//				.addComponent(editNameTextBox)
+//		);
+//		
+//		editPanelVerticalGroup.addGroup(
+//			editPanelLayoutManager.createParallelGroup(GroupLayout.Alignment.CENTER)
+//				.addComponent(editNameLabel)
+//				.addComponent(editNameTextBox)
+//		);
+		
+		editPanel = new JPanel();
+		editPanel.setLayout(new BoxLayout(editPanel, BoxLayout.Y_AXIS));
+		editPanelOuter.add(editPanel, BorderLayout.CENTER);
+	}
+	
+	/**
+	 * Initialises GUI widgets to default values.
+	 */
+	protected void initialiseWidgets()
+	{
+		// Name edit control
+		// editNameTextBox = new JTextField(10);
+		
+		// editNameTextBox.setText(name);
+	}
+
+	/**
+	 * Returns the image associated with this component.  First looks in the graphics folder,
+	 * and if it doesn't find one for this component it produces a default image.
+	 * 
+	 * @return	the image
+	 */
+	public BufferedImage getComponentImage()
+	{
+		// System.out.println("name = "+getClass().getSimpleName());
+		
+		java.net.URL imageURL = getClass().getResource(getClass().getSimpleName() + ".png");
+		
+    	try
+    	{
+    		BufferedImage image = ImageIO.read(imageURL);
+
+    		// create a scaled copy of the image
+    		scaleFactor = (double)ExtensiveAbstractWorkbenchComponent.COMPONENT_IMAGE_HEIGHT / (double)image.getHeight();
+    		int componentImageWidth = (int)((double)image.getWidth() * scaleFactor);
+    		
+//    		BufferedImage scaledImage = new BufferedImage(componentImageWidth, ExtensiveAbstractWorkbenchComponent.COMPONENT_IMAGE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
+//    		AffineTransform at = new AffineTransform();
+//    		at.scale(scaleFactor, scaleFactor);
+//    		AffineTransformOp scaleOp = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
+//    		scaledImage = scaleOp.filter(image, scaledImage);
+
+    		// Create new (blank) image of required (scaled) size
+    		BufferedImage scaledImage = new BufferedImage(componentImageWidth, ExtensiveAbstractWorkbenchComponent.COMPONENT_IMAGE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
+
+    		// Paint scaled version of image to new image
+    		Graphics2D graphics2D = scaledImage.createGraphics();
+    		graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+    		graphics2D.drawImage(image, 0, 0, componentImageWidth, ExtensiveAbstractWorkbenchComponent.COMPONENT_IMAGE_HEIGHT, null);
+
+    		// clean up
+    		graphics2D.dispose();
+
+    		return scaledImage;	// scaledImage;
+    	}
+		catch (IOException e)
+		{
+	        System.err.println("Couldn't find file " + getClass().getSimpleName() + ".png");
+	        return new BufferedImage(ExtensiveAbstractWorkbenchComponent.COMPONENT_IMAGE_HEIGHT, ExtensiveAbstractWorkbenchComponent.COMPONENT_IMAGE_HEIGHT, BufferedImage.TYPE_INT_RGB);
+		}
+	}
+	
+	/**
+	 * Custom writeObject method to assist in serialization debugging. Does what
+	 * serialization would do anyway but with added comments.
+	 * 
+	 * @param out
+	 * @throws IOException
+	 */
+	// @Override // does this make sense for a private method?
+	private void writeObject(ObjectOutputStream out) throws IOException
+	{
+		System.out.println("Writing object \"" + getName() + "\"");
+		
+		out.defaultWriteObject();
+		
+		System.out.println("Object written successfully.");
+	}
+
+	/**
+	 * Custom readObject method to assist in serialization debugging. Does what
+	 * serialization would do anyway but with added comments.
+	 * 
+	 * @param in
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	// @Override // does this make sense for a private method?
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException
+	{
+		System.out.println("Reading object...");
+		
+		in.defaultReadObject();
+		
+		System.out.println("Read in object \"" + getName() + "\"");
+	}
+	
+	/**
+	 * Returns a String representation of this object
+	 */
+	@Override
+	public String toString()
+	{
+		// Return string representation with no pre-tabulation
+		return getName(); // toString(0);
+	}
+	
+	/**
+	 * Returns a String representation of this object, with new lines indented by the specified number of
+	 * tabulations. This is useful for nesting the toString() outputs of optical components.
+	 * 
+	 * This String representation includes a tabbed representation of all directly connected inputs and
+	 * outputs.
+	 * 
+	 * @param tabIndex		Number of tabs to indent new lines
+	 * 
+	 * @return	String representation of this object
+	 */
+	public String toString(int tabIndex)
+	{
+		String inputs = "";
+		String outputs = "";
+		
+		String tabulation = "";
+		
+		for(int i = 0; i < tabIndex; i++)
+		{
+			tabulation += "\t";
+		}
+		
+		boolean foundInput = false;
+		
+		for(int i = 0; i < componentInputs.length; i++)
+		{			
+			if(componentInputs[i] != null)
+			{
+				foundInput = true;
+				
+				inputs += "\n\t\t" + tabulation + (i + 1) + ": " + componentInputs[i].getComponent().getName();
+			}
+		}
+		
+		if(!foundInput)
+		{
+			inputs += "\n\t\t" + tabulation + "None";
+		}
+		
+		boolean foundOutput = false;
+		
+		for(int i = 0; i < componentOutputs.length; i++)
+		{			
+			if(componentOutputs[i] != null)
+			{
+				foundOutput = true;
+				
+				outputs += "\n\t\t" + tabulation + (i + 1) + ": " + componentOutputs[i].getComponent().getName();
+			}
+		}
+		
+		if(!foundOutput)
+		{
+			outputs += "\n\t\t" + tabulation + "None";
+		}
+		
+		return tabulation + "Optical Component '" + getName() + "'\n\t" + tabulation + "Inputs: " + inputs + "\n\t" + tabulation + "Outputs: " + outputs;
+	}
+	
+	/*
+	 * Getters and setters
+	 */
+
+	public String getFormattedName()
+	{
+		// By default, do nothing to format the name (child classes can alter this behaviour)
+		return getName();
+	}
+	
+	public String getName()
+	{
+		return name;
+	}
+
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+
+	public double getScaleFactor() {
+		return scaleFactor;
+	}
+
+
+	public void setScaleFactor(double scaleFactor) {
+		this.scaleFactor = scaleFactor;
+	}
+
+
+	public ComponentOutput[] getComponentInputs()
+	{
+		return componentInputs;
+	}
+
+	public void setComponentInputs(ComponentOutput[] inputBeams)
+	{
+		this.componentInputs = inputBeams;
+	}
+
+	public ComponentInput[] getComponentOutputs()
+	{
+		return componentOutputs;
+	}
+
+	public void setComponentOutputs(ComponentInput[] outputBeams)
+	{
+		this.componentOutputs = outputBeams;
+	}
+
+	public int getOpticalTrainInputIndex()
+	{
+		return opticalTrainInputIndex;
+	}
+
+	public void setOpticalTrainInputIndex(int opticalTrainInputIndex)
+	{
+		this.opticalTrainInputIndex = opticalTrainInputIndex;
+	}
+
+	public int getOpticalTrainOutputIndex()
+	{
+		return opticalTrainOutputIndex;
+	}
+
+	public void setOpticalTrainOutputIndex(int opticalTrainOutputIndex)
+	{
+		this.opticalTrainOutputIndex = opticalTrainOutputIndex;
+	}
+
+	public OpticalComponentEditListener getEditPanelListener()
+	{
+		return editListener;
+	}
+
+	/**
+	 * Sets the edit panel listener which is to be fired when edits are made using the GUI edit
+	 * controls.
+	 * 
+	 * This allows a GUI using this component to update the name corresponding to the component
+	 * in the interface.
+	 * @param editPanelListener
+	 */
+	public void setEditPanelListener(OpticalComponentEditListener editPanelListener)
+	{
+		this.editListener = editPanelListener;
+	}
+
+
+	public ComponentImageNanny getComponentImageNanny() {
+		return componentImageNanny;
+	}
+
+
+	public void setComponentImageNanny(ComponentImageNanny componentImageNanny) {
+		this.componentImageNanny = componentImageNanny;
+	}
+
+
+	public boolean isShowBorderAndNameTextBox() {
+		return showBorder;
+	}
+
+
+	public void setShowBorderAndNameTextBox(boolean showBorderAndNameTextBox) {
+		this.showBorder = showBorderAndNameTextBox;
+	}
+
+
+	public boolean isComponentEnabled() {
+		return componentEnabled;
+	}
+
+	public void setComponentEnabled(boolean componentEnabled) {
+		this.componentEnabled = componentEnabled;
+	}
+	
+	/**
+	 * @return is the component image used as a progress bar?  normally false (override if necessary)
+	 */
+	public boolean isComponentImageIndicatingProgress()
+	{
+		return false;
+	}
+
+
+	public boolean isCalculating() {
+		return calculating;
+	}
+
+
+	public void setCalculating(boolean calculating)
+	{
+		// this component is currently calculating or not
+		this.calculating = calculating;
+		
+		// tell any componentImageNanny about it
+		if(componentImageNanny != null)
+		{
+			componentImageNanny.updateImage();
+		}
+	}
+
+
+	public double getCalculationFractionComplete() {
+		return calculationFractionComplete;
+	}
+
+
+	public void setCalculationFractionComplete(double calculationFractionComplete)
+	{
+		// set the fraction the calculation is complete...
+		this.calculationFractionComplete = calculationFractionComplete;
+		
+		// ... and tell any componentImageNanny about it
+		if(componentImageNanny != null)
+		{
+			componentImageNanny.updateImage();
+		}
+	}
+
+
+	public boolean isWarning() {
+		return warning;
+	}
+	
+	public String getWarningMessage()
+	{
+		return warningMessage;
+	}
+
+
+	public void setWarning(boolean warning, String warningMessage)
+	{
+		// set the warning indicator ...
+		this.warning = warning;
+		this.warningMessage = warningMessage;
+		
+		// ... and tell any componentImageNanny about it
+		if(componentImageNanny != null)
+		{
+			componentImageNanny.updateImage();
+		}
+	}
+}

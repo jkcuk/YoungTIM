@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/awt
+END
+MessageDialog.java
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/awt/MessageDialog.java
+END
+ComponentWithCaption.java
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/awt/ComponentWithCaption.java
+END
+WindowDisposingAdapter.java
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/awt/WindowDisposingAdapter.java
+END
+WindowInvisibleAdapter.java
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/awt/WindowInvisibleAdapter.java
+END
+ComponentWithLabel.java
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/awt/ComponentWithLabel.java
+END

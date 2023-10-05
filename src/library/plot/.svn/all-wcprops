@@ -1,0 +1,77 @@
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/plot
+END
+PlotControlsDialog.java
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/plot/PlotControlsDialog.java
+END
+BrightnessContrastControlListener.java
+K 25
+svn:wc:ra_dav:version-url
+V 109
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/plot/BrightnessContrastControlListener.java
+END
+PlotFrame.java
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/plot/PlotFrame.java
+END
+ScaleTicks.java
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/plot/ScaleTicks.java
+END
+BrightnessContrastControl.java
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/plot/BrightnessContrastControl.java
+END
+PlotCanvas.java
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/plot/PlotCanvas.java
+END
+ListPlot2DPanelPopupMenu.java
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/plot/ListPlot2DPanelPopupMenu.java
+END
+DensityPlotControlsDialog.java
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/plot/DensityPlotControlsDialog.java
+END
+DensityPlotFrameComponentAdapter.java
+K 25
+svn:wc:ra_dav:version-url
+V 108
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/plot/DensityPlotFrameComponentAdapter.java
+END
+DensityPlotFrame.java
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/plot/DensityPlotFrame.java
+END
+ListPlot2DPanel.java
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/plot/ListPlot2DPanel.java
+END
+DensityPlotCanvas.java
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/library/plot/DensityPlotCanvas.java
+END

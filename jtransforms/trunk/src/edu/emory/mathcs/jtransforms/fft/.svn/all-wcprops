@@ -1,0 +1,83 @@
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svnroot/jtransforms/!svn/ver/29/trunk/src/edu/emory/mathcs/jtransforms/fft
+END
+DoubleFFT_1D.java
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svnroot/jtransforms/!svn/ver/27/trunk/src/edu/emory/mathcs/jtransforms/fft/DoubleFFT_1D.java
+END
+DoubleFFT_2D.java
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svnroot/jtransforms/!svn/ver/29/trunk/src/edu/emory/mathcs/jtransforms/fft/DoubleFFT_2D.java
+END
+DoubleFFT_3D.java
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svnroot/jtransforms/!svn/ver/21/trunk/src/edu/emory/mathcs/jtransforms/fft/DoubleFFT_3D.java
+END
+package.html
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svnroot/jtransforms/!svn/ver/2/trunk/src/edu/emory/mathcs/jtransforms/fft/package.html
+END
+FloatFFT_1D.java
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svnroot/jtransforms/!svn/ver/27/trunk/src/edu/emory/mathcs/jtransforms/fft/FloatFFT_1D.java
+END
+FloatFFT_2D.java
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svnroot/jtransforms/!svn/ver/28/trunk/src/edu/emory/mathcs/jtransforms/fft/FloatFFT_2D.java
+END
+FloatFFT_3D.java
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svnroot/jtransforms/!svn/ver/24/trunk/src/edu/emory/mathcs/jtransforms/fft/FloatFFT_3D.java
+END
+AccuracyCheckFloatFFT.java
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/svnroot/jtransforms/!svn/ver/8/trunk/src/edu/emory/mathcs/jtransforms/fft/AccuracyCheckFloatFFT.java
+END
+BenchmarkDoubleFFT.java
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/svnroot/jtransforms/!svn/ver/7/trunk/src/edu/emory/mathcs/jtransforms/fft/BenchmarkDoubleFFT.java
+END
+RealFFTUtils_2D.java
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svnroot/jtransforms/!svn/ver/19/trunk/src/edu/emory/mathcs/jtransforms/fft/RealFFTUtils_2D.java
+END
+BenchmarkFloatFFT.java
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/svnroot/jtransforms/!svn/ver/7/trunk/src/edu/emory/mathcs/jtransforms/fft/BenchmarkFloatFFT.java
+END
+RealFFTUtils_3D.java
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svnroot/jtransforms/!svn/ver/22/trunk/src/edu/emory/mathcs/jtransforms/fft/RealFFTUtils_3D.java
+END
+AccuracyCheckDoubleFFT.java
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/svnroot/jtransforms/!svn/ver/9/trunk/src/edu/emory/mathcs/jtransforms/fft/AccuracyCheckDoubleFFT.java
+END

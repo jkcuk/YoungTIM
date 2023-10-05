@@ -1,0 +1,145 @@
+package javawaveoptics.optics.aperture;
+
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.Serializable;
+
+import javawaveoptics.optics.BeamCrossSection;
+import javawaveoptics.ui.LengthField;
+import javawaveoptics.ui.UIBitsAndBobs;
+
+/**
+ * Defines a circularly symmetric Gaussian aperture.
+ * A light beam passing through this component will be multiplied by a radially dependent Gaussian absorption factor.
+ * 
+ * @author Johannes
+ */
+public class GaussianAperture extends AbstractAperture implements Serializable, PropertyChangeListener
+{
+	private static final long serialVersionUID = -6079033887674966418L;
+
+	/*
+	 * Fields
+	 */
+	
+	// size and centre
+	double sigma, xCentre, yCentre;
+	
+	/*
+	 * GUI edit controls
+	 */
+	
+	private transient LengthField sigmaLengthField, xCentreLengthField, yCentreLengthField;
+
+	
+	public GaussianAperture(String name, double sigma, double xCentre, double yCentre)
+	{
+		super(name);
+		
+		this.sigma = sigma;
+		this.xCentre = xCentre;
+		this.yCentre = yCentre;
+	}
+	
+	/**
+	 * Null constructor. Creates a circular aperture with default values.
+	 * This requires no parameters.
+	 */
+	public GaussianAperture()
+	{
+		this("Gaussian aperture", 1e-3, 0, 0);
+	}
+	
+	@Override
+	public String getApertureTypeName()
+	{
+		return "Gaussian aperture";
+	}
+
+	@Override
+	public BeamCrossSection fromInputBeamCalculateOutputBeam(BeamCrossSection inputBeam)
+	{
+		if(inputBeam != null)
+		{
+			inputBeam.passThroughGaussianAperture(sigma, xCentre, yCentre);
+		}
+		
+		return inputBeam;
+	}
+
+	@Override
+	protected void createEditPanel()
+	{
+		super.createEditPanel();
+		
+		/*
+		 * Edit radius control
+		 */
+		
+		editPanel.add(UIBitsAndBobs.makeRow("Sigma", sigmaLengthField, true));
+		editPanel.add(UIBitsAndBobs.makeRow("Centre (", xCentreLengthField, ",", yCentreLengthField, ")", true));
+	}
+	
+	@Override
+	protected void initialiseWidgets()
+	{
+		super.initialiseWidgets();
+		
+		sigmaLengthField = new LengthField(this);
+		sigmaLengthField.setLengthInMetres(sigma);
+
+		xCentreLengthField = new LengthField(this);
+		xCentreLengthField.setLengthInMetres(xCentre);
+
+		yCentreLengthField = new LengthField(this);
+		yCentreLengthField.setLengthInMetres(yCentre);
+	}
+	
+	@Override
+	public void propertyChange(PropertyChangeEvent e)
+	{
+	    Object source = e.getSource();
+	    
+	    if (source == sigmaLengthField)
+	    {
+	        sigma = sigmaLengthField.getLengthInMetres();
+	    }
+	    else if (source == xCentreLengthField)
+	    {
+	        xCentre = xCentreLengthField.getLengthInMetres();
+	    }
+	    else if (source == yCentreLengthField)
+	    {
+	        yCentre = yCentreLengthField.getLengthInMetres();
+	    }
+	    
+		// Fire an edit panel event
+		// editListener.editMade();
+	}
+	
+	public double getxCentre() {
+		return xCentre;
+	}
+
+	public void setxCentre(double xCentre) {
+		this.xCentre = xCentre;
+	}
+
+	public double getyCentre() {
+		return yCentre;
+	}
+
+	public void setyCentre(double yCentre) {
+		this.yCentre = yCentre;
+	}
+
+	public double getSigma()
+	{
+		return sigma;
+	}
+
+	public void setSigma(double sigma)
+	{
+		this.sigma = sigma;
+	}
+}

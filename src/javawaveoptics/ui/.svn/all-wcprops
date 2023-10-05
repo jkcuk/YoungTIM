@@ -1,0 +1,155 @@
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/p/javawaveoptics/code/!svn/ver/278/trunk/Young%20TIM/src/javawaveoptics/ui
+END
+BitmapFileChooser.java
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/p/javawaveoptics/code/!svn/ver/162/trunk/Young%20TIM/src/javawaveoptics/ui/BitmapFileChooser.java
+END
+OpticalEnvironmentChangeEvent.java
+K 25
+svn:wc:ra_dav:version-url
+V 110
+/p/javawaveoptics/code/!svn/ver/162/trunk/Young%20TIM/src/javawaveoptics/ui/OpticalEnvironmentChangeEvent.java
+END
+JCProgressBar.java
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/p/javawaveoptics/code/!svn/ver/276/trunk/Young%20TIM/src/javawaveoptics/ui/JCProgressBar.java
+END
+JCPanel.java
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/p/javawaveoptics/code/!svn/ver/186/trunk/Young%20TIM/src/javawaveoptics/ui/JCPanel.java
+END
+PlusMinusButtons.java
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/p/javawaveoptics/code/!svn/ver/246/trunk/Young%20TIM/src/javawaveoptics/ui/PlusMinusButtons.java
+END
+PowersOf2ComboBox.java
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/p/javawaveoptics/code/!svn/ver/233/trunk/Young%20TIM/src/javawaveoptics/ui/PowersOf2ComboBox.java
+END
+ImagePanel.java
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/p/javawaveoptics/code/!svn/ver/276/trunk/Young%20TIM/src/javawaveoptics/ui/ImagePanel.java
+END
+TIMFileChooser.java
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/p/javawaveoptics/code/!svn/ver/162/trunk/Young%20TIM/src/javawaveoptics/ui/TIMFileChooser.java
+END
+ZoomListener.java
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/p/javawaveoptics/code/!svn/ver/263/trunk/Young%20TIM/src/javawaveoptics/ui/ZoomListener.java
+END
+LengthUnitsComboBox.java
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/p/javawaveoptics/code/!svn/ver/259/trunk/Young%20TIM/src/javawaveoptics/ui/LengthUnitsComboBox.java
+END
+ImagePanelSuperSimple.java
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/p/javawaveoptics/code/!svn/ver/270/trunk/Young%20TIM/src/javawaveoptics/ui/ImagePanelSuperSimple.java
+END
+OpticalComponentEditListener.java
+K 25
+svn:wc:ra_dav:version-url
+V 109
+/p/javawaveoptics/code/!svn/ver/162/trunk/Young%20TIM/src/javawaveoptics/ui/OpticalComponentEditListener.java
+END
+PlotPanel.java
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/p/javawaveoptics/code/!svn/ver/259/trunk/Young%20TIM/src/javawaveoptics/ui/PlotPanel.java
+END
+OpticalEnvironmentChangeListener.java
+K 25
+svn:wc:ra_dav:version-url
+V 113
+/p/javawaveoptics/code/!svn/ver/162/trunk/Young%20TIM/src/javawaveoptics/ui/OpticalEnvironmentChangeListener.java
+END
+Counter.java
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/p/javawaveoptics/code/!svn/ver/276/trunk/Young%20TIM/src/javawaveoptics/ui/Counter.java
+END
+ImagePanelSimple.java
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/p/javawaveoptics/code/!svn/ver/266/trunk/Young%20TIM/src/javawaveoptics/ui/ImagePanelSimple.java
+END
+GUI.java
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/p/javawaveoptics/code/!svn/ver/264/trunk/Young%20TIM/src/javawaveoptics/ui/GUI.java
+END
+UIBitsAndBobs.java
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/p/javawaveoptics/code/!svn/ver/270/trunk/Young%20TIM/src/javawaveoptics/ui/UIBitsAndBobs.java
+END
+BitmapPreview.java
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/p/javawaveoptics/code/!svn/ver/241/trunk/Young%20TIM/src/javawaveoptics/ui/BitmapPreview.java
+END
+ClickableInputOutputShape.java
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/p/javawaveoptics/code/!svn/ver/250/trunk/Young%20TIM/src/javawaveoptics/ui/ClickableInputOutputShape.java
+END
+ClickableInterface.java
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/p/javawaveoptics/code/!svn/ver/248/trunk/Young%20TIM/src/javawaveoptics/ui/ClickableInterface.java
+END
+ImageSizeProblemListener.java
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/p/javawaveoptics/code/!svn/ver/256/trunk/Young%20TIM/src/javawaveoptics/ui/ImageSizeProblemListener.java
+END
+AbstractUI.java
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/p/javawaveoptics/code/!svn/ver/167/trunk/Young%20TIM/src/javawaveoptics/ui/AbstractUI.java
+END
+ArraySizesComboBox.java
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/p/javawaveoptics/code/!svn/ver/171/trunk/Young%20TIM/src/javawaveoptics/ui/ArraySizesComboBox.java
+END
+LengthField.java
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/p/javawaveoptics/code/!svn/ver/273/trunk/Young%20TIM/src/javawaveoptics/ui/LengthField.java
+END

@@ -1,0 +1,534 @@
+/* */
+
+
+package library.list;
+
+
+import java.awt.*;
+import java.io.*;
+
+import javawaveoptics.utility.MathsUtilities;
+
+import library.maths.*;
+import library.util.*;
+
+
+// A ComplexArray2D stores its complex array differently from a SimpleComplexArray2D.
+// This is so the data can be Fourier Transformed and numerically integrated (see ODE).
+
+public class ComplexArray2D extends ComplexList2DClass
+implements Serializable
+{
+	private static final long serialVersionUID = -2833042352652047018L;
+
+	protected int width, height;
+
+	// data, stored in a form so that they can be passed to Fourier:
+	// a real array of length twice the product of width and height, in which the data are 
+	// stored as in a multidimensional complex array: real and imaginary parts of each element
+	// are in consecutive locations, and the rightmost index of the array increases most rapidly
+	// as one proceeds along data.  This is equivalent to storing the array by rows.
+	protected double data[];
+	
+	// this constructor simply reserves space for <width> * <height> complex numbers, which
+	// can be given values using the method setElement(int i, int j, Complex c)
+	public ComplexArray2D(int width, int height)
+	{
+		this.width = width;
+		this.height = height;
+		
+		// allocate memory
+		data = new double[2*width*height];
+		
+		// set all the data to zero --- not sure this is actually necessary
+		for(int i=0; i<width; i++)
+			for(int j=0; j<height; j++)
+				setElement(i, j, new Complex(0, 0));
+	}
+	
+	public ComplexArray2D(Dimension size)
+	{
+		this(size.width, size.height);
+	}
+	
+	// this constructor COPIES the ComplexArray2D a into its private array;
+	// this constructor is much faster than ComplexArray2D(ComplexList2D)
+	public ComplexArray2D(ComplexArray2D a)
+	{
+		width = a.getSize().width;
+		height = a.getSize().height;
+		data = new double[2*width*height];
+		
+		// copy the actual data array, FAST
+		System.arraycopy(a.data, 0, data, 0, data.length);
+	}
+	
+	// this constructor COPIES the ComplexList2D d into its private array
+	public ComplexArray2D(ComplexList2D d)
+	{
+		width = d.getSize().width;
+		height = d.getSize().height;
+		data = new double[2*width*height];
+		
+		for(int i=0; i<width; i++)
+			for(int j=0; j<height; j++)
+				setElement(i, j, d.getElement(i, j));
+	}
+	
+	// this constructor "wraps" a ComplexArray2D around the array data[], which is interpreted
+	// as representing a complex array of dimensions width x height
+	public ComplexArray2D(int width, int height, double data[])
+	{
+		this.width = width;
+		this.height = height;
+		this.data = data;
+	}
+	
+	
+	/////////////////////////
+	// setters and getters //
+	/////////////////////////
+	
+	public int getWidth() {
+		return width;
+	}
+
+	public void setWidth(int width) {
+		// Plot width must be a power of 2 due to the FFT algorithm used
+		if(MathsUtilities.isPowerOfTwo(width))
+		{
+			this.width = width;
+		}
+		else
+		{
+			throw new NumberFormatException("Width must be a power of 2");
+		}
+	}
+
+	public int getHeight() {
+		return height;
+	}
+
+	public void setHeight(int height) {
+		// Plot height must be a power of 2 due to the FFT algorithm used
+		if(MathsUtilities.isPowerOfTwo(height))
+		{
+			this.height = height;
+		}
+		else
+		{
+			throw new NumberFormatException("Height must be a power of 2");
+		}
+	}
+
+	public double[] getData() {
+		return data;
+	}
+
+	public void setData(double[] data) {
+		this.data = data;
+	}
+
+	//////////////////////////////
+	// organisation of the data //
+	//////////////////////////////
+	
+	// get the index where the real part of the amplitude with coordinates (i, j)
+	// is stored in the array amplitudes
+	protected int getIndexRe(int i, int j)
+	{
+		return 2 * (j*width + i);
+	}
+	
+	// get the index where the imaginary part of the amplitude with coordinates (i, j)
+	// is stored in the array amplitudes
+	protected int getIndexIm(int i, int j)
+	{
+		return 2 * (j*width + i) + 1;
+	}
+
+
+	////////////////////////////////////////////////////
+	// methods defined by the interface ComplexList2D //
+	////////////////////////////////////////////////////
+
+	public Dimension getSize()
+	{
+		return new Dimension(width, height);
+	}
+
+	public Complex getElement(int i, int j)
+	{
+		return new Complex(data[getIndexRe(i, j)], data[getIndexIm(i, j)]);
+	}
+
+	public double getElementRe(int i, int j)
+	{
+		return data[getIndexRe(i, j)];
+	}
+
+	public double getElementIm(int i, int j)
+	{
+		return data[getIndexIm(i, j)];
+	}
+	
+	
+	//////////////////
+	// setting data //
+	//////////////////
+	
+	public void setElement(int i, int j, Complex c)
+	{
+		data[getIndexRe(i, j)] = c.re;
+		data[getIndexIm(i, j)] = c.im;
+	}
+	
+	// zero imaginary part
+	public void setElement(int i, int j, double re)
+	{
+		data[getIndexRe(i, j)] = re;
+		data[getIndexIm(i, j)] = 0.0;
+	}
+	
+	// real and imaginary parts given
+	public void setElement(int i, int j, double re, double im)
+	{
+		data[getIndexRe(i, j)] = re;
+		data[getIndexIm(i, j)] = im;
+	}
+	
+	
+	//
+	// additional data access
+	//
+	
+	public void setRow(int j, Complex row[])
+	{
+		// the array rowValues has to be of length width
+		for(int i=0; i<width; i++)
+			setElement(i, j, row[i]);
+	}
+	
+	public void setRow(int j, ComplexList1D row)
+	{
+		// the array rowValues has to be of length width
+		for(int i=0; i<width; i++)
+			setElement(i, j, row.getElement(i));
+	}
+	
+	public void setColumn(int i, Complex column[])
+	{
+		// the array columnValues has to be of length height
+		for(int j=0; j<height; j++)
+			setElement(i, j, column[j]);
+	}
+
+	public void setColumn(int i, ComplexList1D column)
+	{
+		// the array columnValues has to be of length height
+		for(int j=0; j<height; j++)
+			setElement(i, j, column.getElement(j));
+	}
+	
+	
+	/////////////////////
+	// fast arithmetic //
+	/////////////////////
+	
+	
+	
+	/**
+	 * Adds the elements from the specified complex list to this list, element by element.
+	 * 
+	 * @param listToSubtract
+	 * @throws SizeMismatchError
+	 * 
+	 * @author Sean
+	 */
+	public void add(ComplexList2D listToAdd) throws SizeMismatchError
+	{
+		if(getSize().equals(listToAdd.getSize()))
+		{
+			for(int i = 0; i < width; i++)
+			{
+				for(int j = 0; j < height; j++)
+				{
+					addToElement(i, j, listToAdd.getElement(i, j));
+				}
+			}
+		}
+		else
+		{
+			throw new SizeMismatchError("ComplexList2D size mismatch");
+		}
+	}
+	
+	/**
+	 * Subtracts the elements from the specified complex list from this list, element by element.
+	 * 
+	 * @param listToSubtract
+	 * @throws SizeMismatchError
+	 * 
+	 * @author Sean
+	 */
+	public void subtract(ComplexList2D listToSubtract) throws SizeMismatchError
+	{
+		if(getSize().equals(listToSubtract.getSize()))
+		{
+			for(int i = 0; i < width; i++)
+			{
+				for(int j = 0; j < height; j++)
+				{
+					subtractFromElement(i, j, listToSubtract.getElement(i, j));
+				}
+			}
+		}
+		else
+		{
+			throw new SizeMismatchError("ComplexList2D size mismatch");
+		}
+	}
+	
+	/**
+	 * Multiplies the elements from the specified complex list by those in this list, element by element.
+	 * 
+	 * @param listOfFactors
+	 * @throws SizeMismatchError
+	 * 
+	 * @author Johannes
+	 */
+	public void multiply(ComplexList2D listOfFactors) throws SizeMismatchError
+	{
+		if(getSize().equals(listOfFactors.getSize()))
+		{
+			for(int i = 0; i < width; i++)
+			{
+				for(int j = 0; j < height; j++)
+				{
+					multiplyElement(i, j, listOfFactors.getElement(i, j));
+				}
+			}
+		}
+		else
+		{
+			throw new SizeMismatchError("ComplexList2D::multiply: size mismatch");
+		}
+	}
+
+	
+	// addition of a complex number
+	public void addToElement(int i, int j, Complex a)
+	{
+		data[getIndexRe(i, j)] += a.re;
+		data[getIndexIm(i, j)] += a.im;
+	}
+	
+	/**
+	 * Subtracts the specified complex number from the array at the specified point.
+	 * 
+	 * @param i
+	 * @param j
+	 * @param a
+	 * 
+	 * @author Sean
+	 */
+	public void subtractFromElement(int i, int j, Complex a)
+	{
+		data[getIndexRe(i, j)] -= a.re;
+		data[getIndexIm(i, j)] -= a.im;
+	}
+	
+	// multiplication with a real number
+	public void multiplyElement(int i, int j, double f)
+	{
+		data[getIndexRe(i, j)] *= f;
+		data[getIndexIm(i, j)] *= f;
+	}
+	
+	// multiplication with a complex number
+	public void multiplyElement(int i, int j, Complex f)
+	{
+		double
+			re = data[getIndexRe(i, j)],
+			im = data[getIndexIm(i, j)];
+		
+		data[getIndexRe(i, j)] = re*f.re - im*f.im;
+		data[getIndexIm(i, j)] = re*f.im + im*f.re;
+	}
+	
+	///////////////////////////////////
+	// element-by-element arithmetic //
+	///////////////////////////////////
+	
+	// multiply every element by f
+	public void multiply(double f)
+	{
+		for(int i=0; i<2*width*height; i++) data[i] *= f;
+	}
+	
+	
+	///////////////////////
+	// Fourier Transform //
+	///////////////////////
+	
+	public void FT(int isign)
+	{
+		// number of matrix elements in the two dimensions; for use by Fourier.Transform
+		int nn[] = {height, width};
+
+		// 1. Fourier transform the amplitude matrix
+		Fourier.transform(isign,	// +1 means do a Fourier transform, -1 an inverse FT
+			2,	// number of dimensions
+			nn,	// number of elements in those dimensions
+			data );
+	}
+	
+	public void swapQuadrants()
+	{
+		int
+			width2 = width / 2,
+			height2 = height / 2;
+	
+		for(int x = 0; x < width2; x++)
+		{
+			for(int y = 0; y < height2; y++)
+			{
+				// swap elements in the top left and bottom right quadrants
+				Complex wasTopLeft = getElement(x, y);
+				setElement(x, y, getElement(x + width2, y + height2));
+				setElement(x + width2, y + height2, wasTopLeft);
+
+				// swap elements in the top right and bottom left quadrants
+				Complex wasTopRight = getElement(x + width2, y);
+				setElement(x + width2, y, getElement(x, y + height2));
+				setElement(x, y + height2, wasTopRight);
+			}
+		}
+	}
+	
+	public void correctFFTPhase()
+	{
+		/*
+		 * correct for numerical phase factors
+		 */
+	
+		double[]
+		       xPhases = calculateFFTPhaseArray(width),
+		       yPhases = calculateFFTPhaseArray(height);
+	
+		for(int x = 0; x < width; x++)
+		{
+			for(int y = 0; y < height; y++)
+			{
+				setElement(
+						x, y,
+						Complex.product(
+								getElement(x, y),
+								Complex.expI(xPhases[x] + yPhases[y])
+						)
+				);
+			}
+		}
+	}
+
+	public void correctInverseFFTPhase()
+	{
+		/*
+		 * correct for numerical phase factors
+		 */
+	
+		double[]
+		       xPhases = calculateFFTPhaseArray(width),
+		       yPhases = calculateFFTPhaseArray(height);
+	
+		for(int x = 0; x < width; x++)
+		{
+			for(int y = 0; y < height; y++)
+			{
+				setElement(
+						x, y,
+						Complex.product(
+								getElement(x, y),
+								Complex.expI(-xPhases[x] - yPhases[y])
+						)
+				);
+			}
+		}
+	}
+
+	/**
+	 * FFT + quadrant swapping introduces phases into the elements;
+	 * calculate those, so that they can then be corrected.
+	 * @param numberOfElements
+	 * @return	array of phases introduced by a 1D FFT
+	 */
+	private double[] calculateFFTPhaseArray(int numberOfElements)
+	{
+		double[] phases = new double[numberOfElements];
+		
+		for(int i=0; i<numberOfElements; i++)
+		{
+			phases[i] =
+				((i-1+numberOfElements/2) % numberOfElements - numberOfElements/2)
+				* numberOfElements / (numberOfElements-1.0) * Math.PI;
+				// * Math.PI;
+				// * (numberOfElements-1.0) / numberOfElements * Math.PI;
+		}
+		
+		return phases;
+	}
+	
+	public void doCyclicRotation(double xShift, double yShift)
+	{		
+		// Fourier transform
+		FT(+1);
+
+		applyCyclicRotationPhaseFactors(xShift, yShift);
+		
+		// inverse Fourier transform
+		FT(-1);
+	}
+
+	/**
+	 * add phases such that the resulting FT is shifted by xShift elements in the horizontal direction
+	 * and by yShift elements in the vertical direction
+	 * @param xShift
+	 * @param yShift
+	 */
+	public void applyCyclicRotationPhaseFactors(double xShift, double yShift)
+	{
+		double[]
+		       xPhases = calculateOffsetFourierSpacePhaseArray(xShift, width),
+		       yPhases = calculateOffsetFourierSpacePhaseArray(yShift, height);
+	
+		for(int x = 0; x < width; x++)
+		{
+			for(int y = 0; y < height; y++)
+			{
+				// inputBeam.getElement(x, y).multiply(Complex.expI(xPhases[x] + yPhases[y]));
+				setElement(
+						x, y,
+						Complex.product(
+								getElement(x, y),
+								Complex.expI(xPhases[x] + yPhases[y])
+						)
+				);
+			}
+		}
+	}
+
+	public double[] calculateOffsetFourierSpacePhaseArray(double offsetInElements, int numberOfElements)
+	{
+		double[] phases = new double[numberOfElements];
+		
+		for(int i=0; i<numberOfElements; i++)
+		{
+			phases[i] =
+				(double)(i-1) / (double)numberOfElements *
+				offsetInElements * 2 * Math.PI;
+		}
+		
+		return phases;
+	}
+
+}

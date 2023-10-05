@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/javawaveoptics/optics/aperture
+END
+GaussianAperture.java
+K 25
+svn:wc:ra_dav:version-url
+V 110
+/p/javawaveoptics/code/!svn/ver/279/trunk/Young%20TIM/src/javawaveoptics/optics/aperture/GaussianAperture.java
+END
+AnnularAperture.java
+K 25
+svn:wc:ra_dav:version-url
+V 109
+/p/javawaveoptics/code/!svn/ver/259/trunk/Young%20TIM/src/javawaveoptics/optics/aperture/AnnularAperture.java
+END
+DoubleSlit.java
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/javawaveoptics/optics/aperture/DoubleSlit.java
+END
+PolygonalAperture.java
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/javawaveoptics/optics/aperture/PolygonalAperture.java
+END
+Grating.java
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/javawaveoptics/optics/aperture/Grating.java
+END
+Slit.java
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/p/javawaveoptics/code/!svn/ver/272/trunk/Young%20TIM/src/javawaveoptics/optics/aperture/Slit.java
+END
+AbstractAperture.java
+K 25
+svn:wc:ra_dav:version-url
+V 110
+/p/javawaveoptics/code/!svn/ver/177/trunk/Young%20TIM/src/javawaveoptics/optics/aperture/AbstractAperture.java
+END
