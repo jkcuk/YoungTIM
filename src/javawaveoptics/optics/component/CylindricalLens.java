@@ -124,7 +124,7 @@ public class CylindricalLens extends AbstractSimpleOpticalComponent implements S
 		focalLengthField.setLengthInMetres(focalLength);
 		
 		angleOfModulationWithXDirectionTextField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
-		angleOfModulationWithXDirectionTextField.setValue(new Double(0));
+		angleOfModulationWithXDirectionTextField.setValue(Double.valueOf(0));
 	}
 	
 	@Override

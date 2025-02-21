@@ -419,7 +419,7 @@ public class ZPlanePlot extends AbstractPlot implements Serializable, ActionList
 
 		numberOfZStepsField = UIBitsAndBobs.makeIntFormattedTextField(this);
 		// numberOfZStepsField.setAlignmentX(Component.LEFT_ALIGNMENT);
-		numberOfZStepsField.setValue(new Integer(numberOfZSteps));
+		numberOfZStepsField.setValue(Integer.valueOf(numberOfZSteps));
 		
 //		aspectRatioComboBox = new JComboBox();
 //		aspectRatioComboBox.addActionListener(this);

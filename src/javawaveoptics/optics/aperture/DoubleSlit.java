@@ -93,7 +93,7 @@ public class DoubleSlit extends AbstractAperture implements Serializable //, Pro
 		slitSeparationLengthField.setLengthInMetres(slitSeparation);
 
 		rotationAngleTextField = UIBitsAndBobs.makeDoubleFormattedTextField(null);
-		rotationAngleTextField.setValue(new Double(rotationAngle));
+		rotationAngleTextField.setValue(Double.valueOf(rotationAngle));
 
 		xCentreLengthField = new LengthField(null);
 		xCentreLengthField.setLengthInMetres(xCentre);

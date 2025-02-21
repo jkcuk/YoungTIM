@@ -44,7 +44,7 @@ implements Serializable, ImageableLightSourceInterface, OpticalComponentEditList
 	private transient JTabbedPane lightSourceOrImageTabbedPane;
 	
 	private static String[] initialisationTypes = { "Nothing", "Light source" };
-	private transient JComboBox initialisationComboBox;
+	private transient JComboBox<String> initialisationComboBox;
 	
 	private transient JPanel lightSourceEditPanel;
 
@@ -194,7 +194,7 @@ implements Serializable, ImageableLightSourceInterface, OpticalComponentEditList
 		imageOfPlane.initialiseWidgets();
 
 		lightSourceEditPanel = new JPanel();
-		initialisationComboBox = new JComboBox(initialisationTypes);
+		initialisationComboBox = new JComboBox<String>(initialisationTypes);
 		if(initialiseToNull)
 		{
 			initialisationComboBox.setSelectedItem("Nothing");

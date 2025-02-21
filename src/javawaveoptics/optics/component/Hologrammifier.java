@@ -134,12 +134,12 @@ public class Hologrammifier extends AbstractSimpleOpticalComponent implements Se
 	{
 		super.initialiseWidgets();
 		
-		hologrammifierTypeComboBox = new JComboBox(HologrammifierType.values());
+		hologrammifierTypeComboBox = new JComboBox<HologrammifierType>(HologrammifierType.values());
 		hologrammifierTypeComboBox.setSelectedItem(hologrammifierType);
 		hologrammifierTypeComboBox.addActionListener(this);
 				
 		phaseStepHeightFactorField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
-		phaseStepHeightFactorField.setValue(new Double(phaseStepHeightFactor));
+		phaseStepHeightFactorField.setValue(Double.valueOf(phaseStepHeightFactor));
 		
 		phasePanel = UIBitsAndBobs.makeRow("Phase step height", phaseStepHeightFactorField, "* 2 pi", true);
 		phasePanel.setVisible(hologrammifierType == HologrammifierType.PHASE);

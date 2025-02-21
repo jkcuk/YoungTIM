@@ -572,7 +572,7 @@ public class LinePlot extends AbstractPlot implements Serializable, ActionListen
 		zEndLengthField.setLengthInMetres(zEnd);
 
 		numberOfZStepsField = UIBitsAndBobs.makeIntFormattedTextField(this);
-		numberOfZStepsField.setValue(new Integer(numberOfZSteps));
+		numberOfZStepsField.setValue(Integer.valueOf(numberOfZSteps));
 
 		calculateCrossSectionButton = new JButton("(Re)calculate");
 		calculateCrossSectionButton.setEnabled(beam != null);

@@ -93,10 +93,10 @@ public class BeamRotator extends AbstractSimpleOpticalComponent implements Seria
 		super.initialiseWidgets();
 		
 		rotationAngleTextField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
-		rotationAngleTextField.setValue(new Double(rotationAngle));
+		rotationAngleTextField.setValue(Double.valueOf(rotationAngle));
 
 		zoomFactorTextField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
-		zoomFactorTextField.setValue(new Double(zoomFactor));
+		zoomFactorTextField.setValue(Double.valueOf(zoomFactor));
 
 		// Clip edit control
 		editClipCheckBox = new JCheckBox();

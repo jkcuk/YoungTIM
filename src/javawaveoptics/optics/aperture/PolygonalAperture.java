@@ -99,13 +99,13 @@ public class PolygonalAperture extends AbstractAperture implements Serializable 
 		super.initialiseWidgets();
 		
 		numberOfSidesField = UIBitsAndBobs.makeIntFormattedTextField(null);
-		numberOfSidesField.setValue(new Integer(numberOfSides));
+		numberOfSidesField.setValue(Integer.valueOf(numberOfSides));
 		
 		radiusLengthField = new LengthField(null);
 		radiusLengthField.setLengthInMetres(radius);
 		
 		rotationAngleTextField = UIBitsAndBobs.makeDoubleFormattedTextField(null);
-		rotationAngleTextField.setValue(new Double(rotationAngle));
+		rotationAngleTextField.setValue(Double.valueOf(rotationAngle));
 
 		xCentreLengthField = new LengthField(null);
 		xCentreLengthField.setLengthInMetres(xCentre);

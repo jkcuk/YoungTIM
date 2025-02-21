@@ -65,7 +65,7 @@ public class LaguerreGaussianBeam extends GaussianBeam implements Serializable
 	{
 		super.createEditPanel();
 		
-		editPanel.add(UIBitsAndBobs.makeRow("Mode indices: l", lIndexTextField, ", p", pIndexTextField, "", true));
+		editPanel.add(UIBitsAndBobs.makeRow("Mode indices: <i>l</i>", lIndexTextField, ", <i>p</i>", pIndexTextField, "", true));
 	}
 	
 	protected void initialiseWidgets()
@@ -76,10 +76,10 @@ public class LaguerreGaussianBeam extends GaussianBeam implements Serializable
 		// laguerreLabel = new JLabel("<html><p>[ <strong>LG<sup>l</sup><sub>p</sub></strong> ]</p></html>");
 		
 		lIndexTextField = UIBitsAndBobs.makeIntFormattedTextField(this);
-		lIndexTextField.setValue(new Integer(lIndex));
+		lIndexTextField.setValue(Integer.valueOf(lIndex));
 
 		pIndexTextField = UIBitsAndBobs.makeIntFormattedTextField(this);
-		pIndexTextField.setValue(new Integer(pIndex));
+		pIndexTextField.setValue(Integer.valueOf(pIndex));
 	}
 	
 	@Override

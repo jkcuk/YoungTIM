@@ -289,11 +289,11 @@ public class Mirror extends AbstractOpticalComponent implements Serializable, Ac
 
 		// reflection coefficient
 		reflectionCoefficientTextField = UIBitsAndBobs.makeDoubleFormattedTextField();
-		reflectionCoefficientTextField.setValue(new Double(reflectionCoefficient));
+		reflectionCoefficientTextField.setValue(Double.valueOf(reflectionCoefficient));
 
 		// transmission coefficient
 		transmissionCoefficientTextField = UIBitsAndBobs.makeDoubleFormattedTextField();
-		transmissionCoefficientTextField.setValue(new Double(transmissionCoefficient));
+		transmissionCoefficientTextField.setValue(Double.valueOf(transmissionCoefficient));
 		
 		// add listeners
 		losslessCheckBox.addItemListener(this);		
@@ -346,7 +346,7 @@ public class Mirror extends AbstractOpticalComponent implements Serializable, Ac
 			// t^2 >= 0, so all good
 
 			// set transmission coefficient to sqrt(t^2)...
-			transmissionCoefficientTextField.setValue(new Double(Math.sqrt(1.0 - reflectionCoefficient*reflectionCoefficient)));
+			transmissionCoefficientTextField.setValue(Double.valueOf(Math.sqrt(1.0 - reflectionCoefficient*reflectionCoefficient)));
 			
 			// ... and indicate that all is good
 			transmissionCoefficientTextField.setBackground(UIManager.getColor("TextField.background"));

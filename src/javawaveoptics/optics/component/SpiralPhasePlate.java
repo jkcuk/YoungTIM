@@ -84,7 +84,7 @@ public class SpiralPhasePlate extends AbstractSimpleOpticalComponent implements 
 		super.initialiseWidgets();
 		
 		topologicalChargeTextField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
-		topologicalChargeTextField.setValue(new Double(topologicalCharge));
+		topologicalChargeTextField.setValue(Double.valueOf(topologicalCharge));
 	}
 	
 	@Override

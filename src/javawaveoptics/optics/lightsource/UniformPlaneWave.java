@@ -87,7 +87,7 @@ public class UniformPlaneWave extends AbstractLightSource implements Serializabl
 		super.createEditPanel();
 		// editPanel = new JPanel();	// don't draw the titled border with nothing in it --- looks crap
 
-		editPanel.add(UIBitsAndBobs.makeRow("Wave numbers: k<sub>x</sub>", xWaveNumberTextField, "/m, k<sub>y</sub>", yWaveNumberTextField, "/m", true));
+		editPanel.add(UIBitsAndBobs.makeRow("Wave numbers: <i>k</i><sub>x</sub> = ", xWaveNumberTextField, "/m, <i>k</i><sub>y</sub> = ", yWaveNumberTextField, "/m", true));
 
 		editPanel.add(UIBitsAndBobs.makeRow("Set to ", phaseCycleInXTextField, " 2&pi; phase cycles per width &amp; ", phaseCycleInYTextField, " 2&pi; phase cycles per height", setKButton, false));
 	}
@@ -98,16 +98,16 @@ public class UniformPlaneWave extends AbstractLightSource implements Serializabl
 		super.initialiseWidgets();
 		
 		xWaveNumberTextField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
-		xWaveNumberTextField.setValue(new Double(xWaveNumber));
+		xWaveNumberTextField.setValue(Double.valueOf(xWaveNumber));
 
 		yWaveNumberTextField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
-		yWaveNumberTextField.setValue(new Double(yWaveNumber));
+		yWaveNumberTextField.setValue(Double.valueOf(yWaveNumber));
 		
 		phaseCycleInXTextField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
-		phaseCycleInXTextField.setValue(new Double(0));
+		phaseCycleInXTextField.setValue(Double.valueOf(0));
 
 		phaseCycleInYTextField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
-		phaseCycleInYTextField.setValue(new Double(0));
+		phaseCycleInYTextField.setValue(Double.valueOf(0));
 		
 		setKButton = new JButton("Go");
 		setKButton.addActionListener(this);
@@ -143,8 +143,8 @@ public class UniformPlaneWave extends AbstractLightSource implements Serializabl
 	    
 	    if (source == setKButton)
 	    {
-	    	xWaveNumberTextField.setValue(new Double(((Number)phaseCycleInXTextField.getValue()).doubleValue()*2.*Math.PI/lightSource.getPhysicalWidth()));
-	    	yWaveNumberTextField.setValue(new Double(((Number)phaseCycleInYTextField.getValue()).doubleValue()*2.*Math.PI/lightSource.getPhysicalHeight()));
+	    	xWaveNumberTextField.setValue(Double.valueOf(((Number)phaseCycleInXTextField.getValue()).doubleValue()*2.*Math.PI/lightSource.getPhysicalWidth()));
+	    	yWaveNumberTextField.setValue(Double.valueOf(((Number)phaseCycleInYTextField.getValue()).doubleValue()*2.*Math.PI/lightSource.getPhysicalHeight()));
 	    }
 	}
 

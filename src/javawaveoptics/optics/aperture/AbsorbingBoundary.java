@@ -83,7 +83,7 @@ public class AbsorbingBoundary extends AbstractAperture implements Serializable 
 		super.initialiseWidgets();
 		
 		widthOfAbsorbingBoundaryTextField = UIBitsAndBobs.makeIntFormattedTextField(null);
-		widthOfAbsorbingBoundaryTextField.setValue(new Integer(widthOfAbsorbingBoundary));
+		widthOfAbsorbingBoundaryTextField.setValue(Integer.valueOf(widthOfAbsorbingBoundary));
 	}
 	
 	@Override

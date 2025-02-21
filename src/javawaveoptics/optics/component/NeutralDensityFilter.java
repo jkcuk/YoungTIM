@@ -139,7 +139,7 @@ public class NeutralDensityFilter extends AbstractSimpleOpticalComponent impleme
 		super.initialiseWidgets();
 		
 		numberField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
-		numberField.setValue(new Double(number));
+		numberField.setValue(Double.valueOf(number));
 		
 		scalingTypeComboBox = new JComboBox(scalingTypes);
 		

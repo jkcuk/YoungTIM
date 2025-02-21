@@ -119,7 +119,7 @@ public class ApertureStack extends AbstractSimpleOpticalComponent implements Ser
 		thicknessLengthField.setLengthInMetres(separation*(noOfApertures-1));
 		
 		noOfAperturesTextField = UIBitsAndBobs.makeIntFormattedTextField(this);
-		noOfAperturesTextField.setValue(new Integer(noOfApertures));
+		noOfAperturesTextField.setValue(Integer.valueOf(noOfApertures));
 		
 		separationLengthField = new LengthField(this);
 		separationLengthField.setLengthInMetres(separation);

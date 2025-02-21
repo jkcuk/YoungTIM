@@ -14,6 +14,7 @@ import javawaveoptics.optics.plot.AbstractPlot;
 import javawaveoptics.optics.plot.AnaglyphPlot;
 import javawaveoptics.optics.plot.FourierTransformPlot;
 import javawaveoptics.optics.plot.LinePlot;
+import javawaveoptics.optics.plot.PowerFractionVsDistancePlot;
 import javawaveoptics.optics.plot.SelfSimilarityPlot;
 import javawaveoptics.optics.plot.XYPlanePlot;
 import javawaveoptics.optics.plot.ZPlanePlot;
@@ -177,9 +178,10 @@ public class Plane extends AbstractSimpleOpticalComponent implements Serializabl
 		plotPanels.add(setUpPlotAndGetNewPlotPanel(new XYPlanePlot()));
 		plotPanels.add(setUpPlotAndGetNewPlotPanel(new ZPlanePlot()));
 		plotPanels.add(setUpPlotAndGetNewPlotPanel(new LinePlot()));
-		plotPanels.add(setUpPlotAndGetNewPlotPanel(new SelfSimilarityPlot()));
 		plotPanels.add(setUpPlotAndGetNewPlotPanel(new FourierTransformPlot()));
+		plotPanels.add(setUpPlotAndGetNewPlotPanel(new PowerFractionVsDistancePlot()));
 		plotPanels.add(setUpPlotAndGetNewPlotPanel(new AnaglyphPlot()));
+		plotPanels.add(setUpPlotAndGetNewPlotPanel(new SelfSimilarityPlot()));
 		
 		// Add the tabs
 		for(PlotPanel plotPanel : plotPanels)

@@ -20,7 +20,7 @@ import javax.swing.text.DefaultFormatter;
  * 
  * @author Johannes
  */
-public class LengthField extends JCPanel implements PropertyChangeListener, ActionListener, ChangeListener
+public class LengthField extends JCPanel implements PropertyChangeListener, ActionListener, ChangeListener //, FocusListener
 {
 	private static final long serialVersionUID = -6094767353973244920L;
 
@@ -41,6 +41,17 @@ public class LengthField extends JCPanel implements PropertyChangeListener, Acti
 		valueSpinner = new JSpinner(valueSpinnerModel);
 		((JSpinner.DefaultEditor)valueSpinner.getEditor()).getTextField().setColumns(6);
 		valueSpinner.setMaximumSize(valueSpinner.getPreferredSize());
+//		valueSpinner.getEditor().addFocusListener(this);
+//		valueSpinner.getEditor().addKeyListener
+//	      (new KeyAdapter() {
+//	         public void keyPressed(KeyEvent e) {
+//	           int key = e.getKeyCode();
+//	           if (key == KeyEvent.VK_ENTER) {
+//	        	   informPropertyChangeListener();
+//	              }
+//	           }
+//	         }
+//	      );
 		valueSpinner.addChangeListener(this);
 		
 		// try to make sure the value change *always* gets registered, even if the JSpinner is left to create a new component
@@ -72,7 +83,7 @@ public class LengthField extends JCPanel implements PropertyChangeListener, Acti
 	public double getLengthInMetres()
 	{
 		// System.out.println("LengthField::getLengthInMetres: valueSpinner.getValue() = " + valueSpinner.getValue());
-		double value = ((Double)valueSpinner.getValue()).doubleValue();
+		double value = ((Number)valueSpinner.getValue()).doubleValue();
 		// double value = ((Number)valueTextField.getValue()).doubleValue();
 		return  value * unitsComboBox.getMultiplicationFactor();
 	}
@@ -123,6 +134,16 @@ public class LengthField extends JCPanel implements PropertyChangeListener, Acti
 		informPropertyChangeListener();
 		// propertyChangeListener.propertyChange(new PropertyChangeEvent(this, "value", 0, getLengthInMetres()));
 	}
+	
+//	@Override
+//	public void focusGained(FocusEvent e)
+//	{}
+//
+//	@Override
+//	public void focusLost(FocusEvent e)
+//	{
+//		informPropertyChangeListener();
+//	}
 	
 	@Override
 	public void stateChanged(ChangeEvent e)

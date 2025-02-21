@@ -74,6 +74,7 @@ public class OpticalComponentFactory
 			"Neutral-density filter",
 			"Phase-conjugating surface",
 			"Plane",
+			"Spiral adaptive Fresnel lens",
 			"Spiral phase plate",
 			"Wedge"
 	};
@@ -141,6 +142,10 @@ public class OpticalComponentFactory
 		else if(name.equals("Hologram (from bitmap)"))
 		{
 			opticalComponent = new HologramFromBitmap();
+		}
+		else if(name.equals("Spiral adaptive Fresnel lens"))
+		{
+			opticalComponent = new SpiralAdaptiveFresnelLens();
 		}
 		else if(name.equals("Spiral phase plate"))
 		{

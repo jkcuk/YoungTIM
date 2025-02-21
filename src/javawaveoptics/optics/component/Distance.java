@@ -152,7 +152,7 @@ public class Distance extends AbstractSimpleOpticalComponent implements Serializ
 		stepSizeLengthField.setLengthInMetres(stepSize);
 
 		widthOfAbsorbingBoundaryTextField = UIBitsAndBobs.makeIntFormattedTextField(this);
-		widthOfAbsorbingBoundaryTextField.setValue(new Integer(widthOfAbsorbingBoundary));
+		widthOfAbsorbingBoundaryTextField.setValue(Integer.valueOf(widthOfAbsorbingBoundary));
 
 		// see http://docs.oracle.com/javase/tutorial/uiswing/components/progress.html
 		if(progressBar == null)

@@ -1,5 +1,6 @@
 package javawaveoptics.optics.environment;
 
+import javawaveoptics.optics.component.CylindricalLensSpiral.CylindricalLensSpiralType;
 import javawaveoptics.optics.environment.FractalLaserOpticalEnvironment.FractalLaserType;
 
 public class OpticalEnvironmentFactory
@@ -8,6 +9,7 @@ public class OpticalEnvironmentFactory
 	{
 		DOUBLE_SLIT("Double-slit experiment"),
 		LIMITED("Limited optical environment"),
+		ADAPTIVE_SPIRAL_FRESNEL_LENS_ARCHIMEDEAN("Adaptive Archimedean-spiral Fresnel lens"),
 		AUTOSTEREOGRAM_RESONATOR("Autostereogram resonator"),
 		KATIE("Katie's optical environment"),
 		DOVE_PRISM_INTERFEROMETER("Dove-prism interferometer"),
@@ -38,6 +40,9 @@ public class OpticalEnvironmentFactory
 		{
 			case LIMITED:
 				return new LimitedExampleOpticalEnvironment();
+				
+			case ADAPTIVE_SPIRAL_FRESNEL_LENS_ARCHIMEDEAN:
+				return new AdaptiveSpiralFresnelLensOpticalEnvironment(CylindricalLensSpiralType.ARCHIMEDEAN);
 			
 			case AUTOSTEREOGRAM_RESONATOR:
 				return new AutostereogramOpticalEnvironment();

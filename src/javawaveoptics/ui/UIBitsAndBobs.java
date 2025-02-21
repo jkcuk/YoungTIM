@@ -22,7 +22,9 @@ public class UIBitsAndBobs
 		JFormattedTextField formattedTextField;
 		
 		// see http://www.exampledepot.com/egs/java.text/FormatNumExp.html
-		formattedTextField = new MyFormattedTextField(NumberFormat.getNumberInstance());
+		NumberFormat formatter = NumberFormat.getNumberInstance();
+		formatter.setMaximumFractionDigits(6);
+		formattedTextField = new MyFormattedTextField(formatter);
 		formattedTextField.setColumns(6);
 		// formattedTextField.setFocusLostBehavior(JFormattedTextField.COMMIT);
 		
@@ -224,6 +226,31 @@ public class UIBitsAndBobs
 		JCPanel panel = new JCPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
 
+		panel.add(makeHTMLLabel(text1)); 
+		panel.add(field1);
+		panel.add(makeHTMLLabel(text2));
+		panel.add(field2);
+		panel.add(makeHTMLLabel(text3));
+
+		if(restrictMaximumSize)
+		{
+			// set the maximum size so that the BoxLayout doesn't resize it
+			panel.setMaximumSize(panel.getPreferredSize());
+		}
+
+		return panel;
+	}
+
+	/**
+	 * Creates a combined text label, interactive component, another text label, another interactive component, and another text label.
+	 * Can be used to make 2D vectors, e.g. "centre = ([text1], [text2])
+	 */
+	public static JCPanel makeRow(Component field0, String text1, Component field1, String text2, Component field2, String text3, boolean restrictMaximumSize)
+	{
+		JCPanel panel = new JCPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
+
+		panel.add(field0);
 		panel.add(makeHTMLLabel(text1)); 
 		panel.add(field1);
 		panel.add(makeHTMLLabel(text2));

@@ -99,7 +99,8 @@ public class YoungTIMJavaApplication
 		
 		// OpticalEnvironmentType type = OpticalEnvironmentType.FRACTAL_LASER_M3A6;	// fractal-laser optical environment
 		// OpticalEnvironmentType type = OpticalEnvironmentType.RESONATOR_INTERFACE;
-		OpticalEnvironmentType type = OpticalEnvironmentType.DOUBLE_SLIT;	// fractal-laser optical environment
+		OpticalEnvironmentType type = OpticalEnvironmentType.ADAPTIVE_SPIRAL_FRESNEL_LENS_ARCHIMEDEAN;
+		// OpticalEnvironmentType type = OpticalEnvironmentType.DOUBLE_SLIT;	// fractal-laser optical environment
 				
 		// Create the optical environment
 		AbstractOpticalEnvironment environment = OpticalEnvironmentFactory.createOpticalEnvironment(type);

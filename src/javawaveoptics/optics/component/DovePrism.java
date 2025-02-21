@@ -90,7 +90,7 @@ public class DovePrism extends AbstractSimpleOpticalComponent implements Seriali
 		super.initialiseWidgets();
 		
 		rotationAngleTextField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
-		rotationAngleTextField.setValue(new Double(rotationAngle));
+		rotationAngleTextField.setValue(Double.valueOf(rotationAngle));
 	}
 	
 	@Override

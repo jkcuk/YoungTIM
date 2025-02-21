@@ -74,7 +74,7 @@ public class FourierTransformPlot extends AbstractPlot implements Serializable, 
 	 */
 	public FourierTransformPlot()
 	{
-		this("FT", true, false, AreaPlotType.INTENSITY, false, false);
+		this("Fourier spectrum", true, false, AreaPlotType.INTENSITY, false, false);
 	}
 
 	/**

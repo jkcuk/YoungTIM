@@ -8,7 +8,7 @@ import javax.swing.JComboBox;
  * 
  * @author Johannes
  */
-public class LengthUnitsComboBox extends JComboBox
+public class LengthUnitsComboBox extends JComboBox<String>
 {
 	private static final long serialVersionUID = -6322252140398577913L;
 

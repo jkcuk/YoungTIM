@@ -4,6 +4,7 @@ import java.awt.event.ActionListener;
 import java.io.Serializable;
 
 import javawaveoptics.optics.component.AbstractOpticalComponent;
+import javawaveoptics.optics.component.ConvertableComponent;
 import javawaveoptics.optics.component.Plane;
 
 import javax.swing.JCheckBoxMenuItem;
@@ -44,6 +45,14 @@ public class ExtensiveWorkbenchOpticalComponentPopupMenu extends JPopupMenu impl
 			clearDataMenuItem.addActionListener(popupMenuActionListener);
 			clearDataMenuItem.setActionCommand("Clear data");
 			add(clearDataMenuItem);
+		}
+		
+		if(opticalComponent instanceof ConvertableComponent)
+		{
+			JMenuItem convertMenuItem = new JMenuItem(((ConvertableComponent)opticalComponent).getConvertMenuItemText());
+			convertMenuItem.addActionListener(popupMenuActionListener);
+			convertMenuItem.setActionCommand("Convert");
+			add(convertMenuItem);
 		}
 		
 //		if((opticalComponent instanceof LightSource) || (opticalComponent instanceof ImageOfPlane))

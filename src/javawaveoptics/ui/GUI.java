@@ -95,7 +95,7 @@ public class GUI extends AbstractUI implements ActionListener, OpticalEnvironmen
 		// buttonPanel.add(simulateLotsButton);
 		
 		roundTripsTextField = UIBitsAndBobs.makeIntFormattedTextField(null);
-		roundTripsTextField.setValue(new Integer(1));
+		roundTripsTextField.setValue(Integer.valueOf(1));
 		if(componentWorkbench.showResearchButtons())
 		{
 			buttonPanel.add(roundTripsTextField);

@@ -69,7 +69,7 @@ public class HermiteGaussianBeam extends GaussianBeam implements Serializable
 	{
 		super.createEditPanel();
 		
-		editPanel.add(UIBitsAndBobs.makeRow("Mode indices: m", mIndexTextField, ", n", nIndexTextField, "", true));
+		editPanel.add(UIBitsAndBobs.makeRow("Mode indices: <i>m</i> = ", mIndexTextField, ", <i>n</i> = ", nIndexTextField, "", true));
 	}
 	
 	protected void initialiseWidgets()
@@ -77,10 +77,10 @@ public class HermiteGaussianBeam extends GaussianBeam implements Serializable
 		super.initialiseWidgets();
 		
 		mIndexTextField = UIBitsAndBobs.makeIntFormattedTextField(this);
-		mIndexTextField.setValue(new Integer(mIndex));
+		mIndexTextField.setValue(Integer.valueOf(mIndex));
 
 		nIndexTextField = UIBitsAndBobs.makeIntFormattedTextField(this);
-		nIndexTextField.setValue(new Integer(nIndex));
+		nIndexTextField.setValue(Integer.valueOf(nIndex));
 	}
 	
 	@Override

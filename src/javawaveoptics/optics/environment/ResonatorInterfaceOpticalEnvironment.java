@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 import javawaveoptics.optics.aperture.Grating;
 import javawaveoptics.optics.component.*;
-import javawaveoptics.optics.lightsource.LaguerreGaussianBeam;
 import javawaveoptics.ui.workbench.WorkbenchFactory;
 
 /**

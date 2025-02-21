@@ -194,7 +194,7 @@ public abstract class AbstractPlot implements Serializable, ComponentListener
 			
 			if(plotImagePanel == null)
 			{
-				plotImagePanel = new ImagePanel(plotImage, 1.0, 1.0, isAspectRatioFixed(), getShowZoomButtons(), getShowFitButton(), getShowSaveButton(), false, getShowSettingsButton(), getSettingsPanel(), getControlPanelLeft(), getControlPanelRight(), getFileSaveName(), editPanelListener);
+				plotImagePanel = new ImagePanel(plotImage, 1.0, 1.0, isAspectRatioFixed(), getShowZoomButtons(), getShowFitButton(), getShowSaveButton(), getShowSettingsButton(), getShowSettingsButton(), getSettingsPanel(), getControlPanelLeft(), getControlPanelRight(), getFileSaveName(), editPanelListener);
 				if(this instanceof ZoomListener)
 				{
 					plotImagePanel.setZoomListener((ZoomListener)this);
@@ -210,7 +210,7 @@ public abstract class AbstractPlot implements Serializable, ComponentListener
 		{			
 			if(plotImagePanel == null)
 			{
-				plotImagePanel = new ImagePanel(null, 1.0, 1.0, isAspectRatioFixed(), getShowZoomButtons(), getShowFitButton(), getShowSaveButton(), false, getShowSettingsButton(), getSettingsPanel(), getControlPanelLeft(), getControlPanelRight(), getFileSaveName(), editPanelListener);
+				plotImagePanel = new ImagePanel(null, 1.0, 1.0, isAspectRatioFixed(), getShowZoomButtons(), getShowFitButton(), getShowSaveButton(), getShowSettingsButton(), getShowSettingsButton(), getSettingsPanel(), getControlPanelLeft(), getControlPanelRight(), getFileSaveName(), editPanelListener);
 				if(this instanceof ZoomListener)
 				{
 					plotImagePanel.setZoomListener((ZoomListener)this);

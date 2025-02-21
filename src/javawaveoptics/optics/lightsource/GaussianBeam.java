@@ -71,8 +71,8 @@ public class GaussianBeam extends AbstractLightSource implements Serializable, P
 	{
 		super.createEditPanel();
 		
-		editPanel.add(UIBitsAndBobs.makeRow("Waist size", waistSizeLengthField, true));
-		editPanel.add(UIBitsAndBobs.makeRow("Centre (", xCentreLengthField, ",", yCentreLengthField, ")", true));
+		editPanel.add(UIBitsAndBobs.makeRow("Waist size, <i>w</i><sub>0</sub> = ", waistSizeLengthField, true));
+		editPanel.add(UIBitsAndBobs.makeRow("Centre = (", xCentreLengthField, ",", yCentreLengthField, ")", true));
 	}
 	
 	protected void initialiseWidgets()

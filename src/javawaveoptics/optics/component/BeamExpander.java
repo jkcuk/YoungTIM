@@ -81,7 +81,7 @@ public class BeamExpander extends AbstractSimpleOpticalComponent implements Seri
 		super.initialiseWidgets();
 		
 		magnificationFactorTextField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
-		magnificationFactorTextField.setValue(new Double(magnificationFactor));
+		magnificationFactorTextField.setValue(Double.valueOf(magnificationFactor));
 	}
 	
 	@Override

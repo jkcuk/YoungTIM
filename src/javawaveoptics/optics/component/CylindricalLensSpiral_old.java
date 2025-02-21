@@ -200,10 +200,10 @@ public class CylindricalLensSpiral_old extends AbstractSimpleOpticalComponent im
 		focalLengthField.setLengthInMetres(focalLength);
 		
 		bTextField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
-		bTextField.setValue(new Double(b));
+		bTextField.setValue(Double.valueOf(b));
 
 		phi0DegTextField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
-		phi0DegTextField.setValue(new Double(MyMath.rad2deg(phi0)));
+		phi0DegTextField.setValue(Double.valueOf(MyMath.rad2deg(phi0)));
 	}
 	
 	@Override

@@ -88,7 +88,7 @@ public class Slit extends AbstractAperture implements Serializable //, PropertyC
 		slitWidthLengthField.setLengthInMetres(slitWidth);
 		
 		rotationAngleTextField = UIBitsAndBobs.makeDoubleFormattedTextField(null);
-		rotationAngleTextField.setValue(new Double(0));
+		rotationAngleTextField.setValue(Double.valueOf(0));
 
 		xCentreLengthField = new LengthField(null);
 		xCentreLengthField.setLengthInMetres(xCentre);

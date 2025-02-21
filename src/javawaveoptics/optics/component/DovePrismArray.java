@@ -88,10 +88,10 @@ public class DovePrismArray extends AbstractSimpleOpticalComponent implements Se
 		super.initialiseWidgets();
 		
 		prismWidthTextField = UIBitsAndBobs.makeIntFormattedTextField(this);
-		prismWidthTextField.setValue(new Integer(prismWidth));
+		prismWidthTextField.setValue(Integer.valueOf(prismWidth));
 		
 		rotationAngleTextField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
-		rotationAngleTextField.setValue(new Double(rotationAngle));
+		rotationAngleTextField.setValue(Double.valueOf(rotationAngle));
 	}
 	
 	@Override

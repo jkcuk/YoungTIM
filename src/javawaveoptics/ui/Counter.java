@@ -39,7 +39,7 @@ public class Counter extends JPanel implements PropertyChangeListener, ActionLis
 		value = initialValue;
 		
 		valueTextField = UIBitsAndBobs.makeIntFormattedTextField(this);
-		valueTextField.setValue(new Integer(value));
+		valueTextField.setValue(Integer.valueOf(value));
 		valueTextField.setEditable(false);
 		add(valueTextField);
 		
@@ -90,7 +90,7 @@ public class Counter extends JPanel implements PropertyChangeListener, ActionLis
 		value = newValue;
 		
 		// show the new value in the text field...
-		valueTextField.setValue(new Integer(value));
+		valueTextField.setValue(Integer.valueOf(value));
 		
 		// ... and let the propertyChangeListener (if any) know
 		if(propertyChangeListener != null)

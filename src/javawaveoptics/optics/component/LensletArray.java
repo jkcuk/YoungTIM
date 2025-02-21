@@ -111,7 +111,7 @@ public class LensletArray extends AbstractSimpleOpticalComponent implements Seri
 		focalLengthLengthField.setLengthInMetres(focalLength);
 
 		rotationAngleTextField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
-		rotationAngleTextField.setValue(new Double(rotationAngle));
+		rotationAngleTextField.setValue(Double.valueOf(rotationAngle));
 		
 		xCentreLengthField = new LengthField(this);
 		xCentreLengthField.setLengthInMetres(xCentre);

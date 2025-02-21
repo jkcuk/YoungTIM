@@ -32,6 +32,7 @@ public class ExtensiveWorkbenchOpticalComponent extends ExtensiveAbstractWorkben
 {
 	private static final long serialVersionUID = 1L;
 	
+	private ExtensiveWorkbench extensiveWorkbench;
 	private AbstractOpticalComponent opticalComponent;
 	
 	// the text field for editing the component's name
@@ -47,10 +48,11 @@ public class ExtensiveWorkbenchOpticalComponent extends ExtensiveAbstractWorkben
 	 * @param component
 	 * @param environment
 	 */
-	public ExtensiveWorkbenchOpticalComponent(AbstractOpticalComponent opticalComponent)
+	public ExtensiveWorkbenchOpticalComponent(ExtensiveWorkbench extensiveWorkbench, AbstractOpticalComponent opticalComponent)
 	{
 		super();
 		
+		setExtensiveWorkbench(extensiveWorkbench);
 		setOpticalComponent(opticalComponent);
 		
 		setBorder(defaultBorder);
@@ -262,6 +264,20 @@ public class ExtensiveWorkbenchOpticalComponent extends ExtensiveAbstractWorkben
 	}
 
 	
+	/**
+	 * @return the extensiveWorkbench
+	 */
+	public ExtensiveWorkbench getExtensiveWorkbench() {
+		return extensiveWorkbench;
+	}
+
+	/**
+	 * @param extensiveWorkbench the extensiveWorkbench to set
+	 */
+	public void setExtensiveWorkbench(ExtensiveWorkbench extensiveWorkbench) {
+		this.extensiveWorkbench = extensiveWorkbench;
+	}
+
 	@Override
 	public void keyReleased(KeyEvent keyEvent)
 	{

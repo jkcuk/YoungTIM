@@ -132,4 +132,5 @@ public abstract class AbstractAperture implements Serializable
 	{
 		return name;
 	}
+
 }

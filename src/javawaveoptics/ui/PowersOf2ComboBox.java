@@ -8,7 +8,7 @@ import javax.swing.JComboBox;
  * 
  * @author Johannes
  */
-public class PowersOf2ComboBox extends JComboBox
+public class PowersOf2ComboBox extends JComboBox<Integer>
 {
 	private static final long serialVersionUID = -8959069547387673210L;
 

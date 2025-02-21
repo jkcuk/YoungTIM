@@ -82,8 +82,8 @@ public class BesselBeam extends AbstractLightSource implements Serializable, Pro
 	{
 		super.createEditPanel();
 		
-		editPanel.add(UIBitsAndBobs.makeRow("Topological charge", topologicalChargeTextField, true));
-		editPanel.add(UIBitsAndBobs.makeRow("Radial wave number", radialWaveNumberTextField, "1/m", true));
+		editPanel.add(UIBitsAndBobs.makeRow("Topological charge, <i>m</i>", topologicalChargeTextField, true));
+		editPanel.add(UIBitsAndBobs.makeRow("Radial wave number, &beta;", radialWaveNumberTextField, "1/m", true));
 
 		editPanel.add(UIBitsAndBobs.makeRow("Centre (", xCentreLengthField, ",", yCentreLengthField, ")", true));
 	}
@@ -93,10 +93,10 @@ public class BesselBeam extends AbstractLightSource implements Serializable, Pro
 		super.initialiseWidgets();
 		
 		topologicalChargeTextField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
-		topologicalChargeTextField.setValue(new Double(topologicalCharge));
+		topologicalChargeTextField.setValue(Double.valueOf(topologicalCharge));
 
 		radialWaveNumberTextField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
-		radialWaveNumberTextField.setValue(new Double(radialWaveNumber));
+		radialWaveNumberTextField.setValue(Double.valueOf(radialWaveNumber));
 
 		xCentreLengthField = new LengthField(this);
 		xCentreLengthField.setLengthInMetres(xCentre);

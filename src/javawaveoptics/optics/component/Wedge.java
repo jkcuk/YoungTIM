@@ -98,10 +98,10 @@ public class Wedge extends AbstractSimpleOpticalComponent implements Serializabl
 		super.initialiseWidgets();
 		
 		deflectionAngleXZTextField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
-		deflectionAngleXZTextField.setValue(new Double(deflectionAngleXZ));
+		deflectionAngleXZTextField.setValue(Double.valueOf(deflectionAngleXZ));
 
 		deflectionAngleYZTextField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
-		deflectionAngleYZTextField.setValue(new Double(deflectionAngleYZ));
+		deflectionAngleYZTextField.setValue(Double.valueOf(deflectionAngleYZ));
 	}
 	
 	@Override

@@ -46,7 +46,7 @@ public class ImagePanel extends JPanel implements Serializable, ActionListener, 
 	private transient JSpinner zoomSpinner, zoomXSpinner, zoomYSpinner;
 	private transient JButton fitButton, saveButton, settingsButton;
 	// private transient JCheckBox showSettingsCheckBox;
-	private boolean showZoomButtons, showFitButton, showSaveButton, showSettingsButton, settingsShowing = false;
+	private boolean showZoomButtons, showFitButton, showSaveButton, showSettingsButton, settingsShowing = true;
 	private transient OpticalComponentEditListener editListener;
 	private String fileSaveName;
 	private ZoomListener zoomListener;
@@ -222,7 +222,7 @@ public class ImagePanel extends JPanel implements Serializable, ActionListener, 
 			settingsButton = new JButton();
 			// settingsButton.setFont(getControlPanelFont());
 			settingsButton.setToolTipText("Show/hide additional settings");
-			settingsButton.setText(settingsShowing?"Less":"More");
+			settingsButton.setText(settingsShowing?"Hide parameters":"Show parameters");
 			// not sure why the following doesn't reduce the size of the button
 //			settingsButton.setMargin(new java.awt.Insets(1, 2, 1, 2));
 //			settingsButton.setMaximumSize(settingsButton.getPreferredSize());
@@ -353,7 +353,7 @@ public class ImagePanel extends JPanel implements Serializable, ActionListener, 
 		else if(command.equals("Settings"))
 		{
 			settingsShowing = !settingsShowing;
-			settingsButton.setText(settingsShowing?"Less":"More");
+			settingsButton.setText(settingsShowing?"Hide parameters":"Show parameters");
 			// settingsShowing = showSettingsCheckBox.isSelected();
 			plotSettingsPanel.setVisible(settingsShowing);
 			revalidate();

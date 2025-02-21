@@ -124,7 +124,7 @@ public class Grating extends AbstractAperture implements Serializable, ItemListe
 		edgeWidthLengthField.setLengthInMetres(edgeWidth);
 		
 		rotationAngleTextField = UIBitsAndBobs.makeDoubleFormattedTextField(null);
-		rotationAngleTextField.setValue(new Double(rotationAngle));
+		rotationAngleTextField.setValue(Double.valueOf(rotationAngle));
 
 		xCentreLengthField = new LengthField(null);
 		xCentreLengthField.setLengthInMetres(xCentre);

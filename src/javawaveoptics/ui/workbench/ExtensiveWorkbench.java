@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import javawaveoptics.optics.ComponentInput;
 import javawaveoptics.optics.ComponentOutput;
 import javawaveoptics.optics.component.AbstractOpticalComponent;
+import javawaveoptics.optics.component.ConvertableComponent;
 import javawaveoptics.optics.component.OpticalComponentFactory;
 import javawaveoptics.optics.component.Plane;
 import javawaveoptics.optics.environment.AbstractOpticalEnvironment;
@@ -430,7 +431,7 @@ public class ExtensiveWorkbench extends AbstractWorkbench
 	private ExtensiveWorkbenchOpticalComponent createWorkbenchOpticalComponent(AbstractOpticalComponent opticalComponent)
 	{
 		// Create the workbench component
-		ExtensiveWorkbenchOpticalComponent workbenchOpticalComponent = new ExtensiveWorkbenchOpticalComponent(opticalComponent);
+		ExtensiveWorkbenchOpticalComponent workbenchOpticalComponent = new ExtensiveWorkbenchOpticalComponent(this, opticalComponent);
 		
 		// Create a popup menu for the workbench component, creating a listener for
 		// it too
@@ -478,6 +479,85 @@ public class ExtensiveWorkbench extends AbstractWorkbench
 		{
 			return null;
 		}
+	}
+	
+	/**
+	 * @return the workbenchComponents
+	 */
+	public ArrayList<ExtensiveWorkbenchOpticalComponent> getWorkbenchComponents() {
+		return workbenchComponents;
+	}
+
+	public int getOpticalTrainIndexOf(AbstractOpticalComponent component)
+	{
+		return opticalComponentTrain.indexOf(component);
+	}
+
+	public int getOpticalTrainIndexOf(ExtensiveWorkbenchOpticalComponent extensiveWorkbenchOpticalComponent)
+	{
+		return workbenchComponents.indexOf(extensiveWorkbenchOpticalComponent);
+	}
+
+	public ExtensiveWorkbenchOpticalComponent insertComponent(int opticalTrainIndex, AbstractOpticalComponent component)
+	{
+		AbstractOpticalComponent previousComponent;
+		AbstractOpticalComponent nextComponent;
+		
+		try
+		{
+			previousComponent = opticalComponentTrain.get(opticalTrainIndex - 1);
+		}
+		catch(IndexOutOfBoundsException e)
+		{
+			// There is nothing before the position we're inserting into
+			previousComponent = null;
+		}
+		
+		try
+		{
+			nextComponent = opticalComponentTrain.get(opticalTrainIndex);
+		}
+		catch(IndexOutOfBoundsException e)
+		{
+			// There is nothing after the position we're inserting into
+			nextComponent = null;
+		}
+		
+		if(previousComponent != null)
+		{
+			opticalEnvironment.addAfter(previousComponent, previousComponent.getOpticalTrainOutputIndex(), component, 0);
+		}
+		else if(nextComponent != null)
+		{
+			opticalEnvironment.addBefore(nextComponent, nextComponent.getOpticalTrainInputIndex(), component, 0);
+		}
+		else
+		{
+			// The environment is empty. Set the start component.						
+			opticalEnvironment.addFirstComponent(component);
+		}
+		
+		// Add new optical component to optical train
+		opticalComponentTrain.add(opticalTrainIndex, component);
+
+		// Add new workbench component to list of workbench components
+		ExtensiveWorkbenchOpticalComponent newExtensiveWorkbenchOpticalComponent = createWorkbenchOpticalComponent(component);
+		workbenchComponents.add(opticalTrainIndex, newExtensiveWorkbenchOpticalComponent);
+		
+		return newExtensiveWorkbenchOpticalComponent;
+	}
+	
+	public void selectAndShowComponent(ExtensiveWorkbenchOpticalComponent extensiveWorkbenchOpticalComponent)
+	{
+		// now select the new optical component
+		selectWorkbenchOpticalComponent(extensiveWorkbenchOpticalComponent);
+		
+		// Redraw the workbench
+		drawWorkbench();
+		
+		// Set the scroll pane viewport so that the selected component is always at least at
+		// the left hand side of the scroll pane
+		componentWorkbenchScrollPane.getViewport().setViewPosition(new Point(selectedOpticalComponentXDistance, 0));
 	}
 	
 	/*************************************************************************
@@ -539,6 +619,10 @@ public class ExtensiveWorkbench extends AbstractWorkbench
 			{
 				((Plane)(workbenchOpticalComponent.getOpticalComponent())).clearData();
 			}
+			else if(command.equals("Convert"))
+			{
+				((ConvertableComponent)workbenchOpticalComponent.getOpticalComponent()).convert(workbenchOpticalComponent);
+			}
 //			else if(command.equals("Replace with light source/image"))
 //			{
 //				LightSource lightSource = null;
@@ -598,63 +682,70 @@ public class ExtensiveWorkbench extends AbstractWorkbench
 			{
 				if(command.equals("Insert " + componentName))
 				{
-					AbstractOpticalComponent newComponent = OpticalComponentFactory.create(componentName);
-					
-					int flowArrowPosition = flowArrow.getOpticalTrainPosition();
-					
-					AbstractOpticalComponent previousComponent;
-					AbstractOpticalComponent nextComponent;
-					
-					try
-					{
-						previousComponent = opticalComponentTrain.get(flowArrowPosition - 1);
-					}
-					catch(IndexOutOfBoundsException e)
-					{
-						// There is nothing before the position we're inserting into
-						previousComponent = null;
-					}
-					
-					try
-					{
-						nextComponent = opticalComponentTrain.get(flowArrowPosition);
-					}
-					catch(IndexOutOfBoundsException e)
-					{
-						// There is nothing after the position we're inserting into
-						nextComponent = null;
-					}
-					
-					if(previousComponent != null)
-					{
-						opticalEnvironment.addAfter(previousComponent, previousComponent.getOpticalTrainOutputIndex(), newComponent, 0);
-					}
-					else if(nextComponent != null)
-					{
-						opticalEnvironment.addBefore(nextComponent, nextComponent.getOpticalTrainInputIndex(), newComponent, 0);
-					}
-					else
-					{
-						// The environment is empty. Set the start component.						
-						opticalEnvironment.addFirstComponent(newComponent);
-					}
-					
-					// Add new optical component to optical train
-					opticalComponentTrain.add(flowArrow.getOpticalTrainPosition(), newComponent);
+					selectAndShowComponent(
+							insertComponent(
+									flowArrow.getOpticalTrainPosition(),	// index
+									OpticalComponentFactory.create(componentName)	// component
+									)
+							);
 
-					// Add new workbench component to list of workbench components
-					ExtensiveWorkbenchOpticalComponent newExtensiveWorkbenchOpticalComponent = createWorkbenchOpticalComponent(newComponent);
-					workbenchComponents.add(flowArrow.getOpticalTrainPosition(), newExtensiveWorkbenchOpticalComponent);
-					
-					// now select the new optical component
-					selectWorkbenchOpticalComponent(newExtensiveWorkbenchOpticalComponent);
-					
-					// Redraw the workbench
-					drawWorkbench();
-					
-					// Set the scroll pane viewport so that the selected component is always at least at
-					// the left hand side of the scroll pane
-					componentWorkbenchScrollPane.getViewport().setViewPosition(new Point(selectedOpticalComponentXDistance, 0));
+//					AbstractOpticalComponent newComponent = OpticalComponentFactory.create(componentName);
+//					
+//					int flowArrowPosition = flowArrow.getOpticalTrainPosition();
+//					
+//					AbstractOpticalComponent previousComponent;
+//					AbstractOpticalComponent nextComponent;
+//					
+//					try
+//					{
+//						previousComponent = opticalComponentTrain.get(flowArrowPosition - 1);
+//					}
+//					catch(IndexOutOfBoundsException e)
+//					{
+//						// There is nothing before the position we're inserting into
+//						previousComponent = null;
+//					}
+//					
+//					try
+//					{
+//						nextComponent = opticalComponentTrain.get(flowArrowPosition);
+//					}
+//					catch(IndexOutOfBoundsException e)
+//					{
+//						// There is nothing after the position we're inserting into
+//						nextComponent = null;
+//					}
+//					
+//					if(previousComponent != null)
+//					{
+//						opticalEnvironment.addAfter(previousComponent, previousComponent.getOpticalTrainOutputIndex(), newComponent, 0);
+//					}
+//					else if(nextComponent != null)
+//					{
+//						opticalEnvironment.addBefore(nextComponent, nextComponent.getOpticalTrainInputIndex(), newComponent, 0);
+//					}
+//					else
+//					{
+//						// The environment is empty. Set the start component.						
+//						opticalEnvironment.addFirstComponent(newComponent);
+//					}
+//					
+//					// Add new optical component to optical train
+//					opticalComponentTrain.add(flowArrow.getOpticalTrainPosition(), newComponent);
+//
+//					// Add new workbench component to list of workbench components
+//					ExtensiveWorkbenchOpticalComponent newExtensiveWorkbenchOpticalComponent = createWorkbenchOpticalComponent(newComponent);
+//					workbenchComponents.add(flowArrow.getOpticalTrainPosition(), newExtensiveWorkbenchOpticalComponent);
+//					
+//					// now select the new optical component
+//					selectWorkbenchOpticalComponent(newExtensiveWorkbenchOpticalComponent);
+//					
+//					// Redraw the workbench
+//					drawWorkbench();
+//					
+//					// Set the scroll pane viewport so that the selected component is always at least at
+//					// the left hand side of the scroll pane
+//					componentWorkbenchScrollPane.getViewport().setViewPosition(new Point(selectedOpticalComponentXDistance, 0));
 				}
 			}
 		}

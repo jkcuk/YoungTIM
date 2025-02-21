@@ -31,6 +31,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingWorker;
@@ -383,8 +384,9 @@ public class SelfSimilarityPlot extends AbstractPlot implements Serializable, Ac
 		JPanel measurementArea = new JPanel();
 		measurementArea.setLayout(new BoxLayout(measurementArea, BoxLayout.Y_AXIS));
 		measurementArea.setBorder(UIBitsAndBobs.getTitledBorder("Measurement area"));
-		measurementArea.add(UIBitsAndBobs.makeRow("central rectangle of width", measurementWidthFractionField, "*(image width)", true));
-		measurementArea.add(UIBitsAndBobs.makeRow("and height", measurementHeightFractionField, "*(image height)", true));
+		measurementArea.add(new JLabel("central rectangle, "));
+		measurementArea.add(UIBitsAndBobs.makeRow("width&nbsp;fraction", measurementWidthFractionField, true));
+		measurementArea.add(UIBitsAndBobs.makeRow("height&nbsp;fraction", measurementHeightFractionField, true));
 		container.add(measurementArea);
 
 		// container.add(UIBitsAndBobs.makeRow("Plot", plotTypeComboBox));
@@ -436,17 +438,17 @@ public class SelfSimilarityPlot extends AbstractPlot implements Serializable, Ac
 	protected void initialiseWidgets()
 	{
 		stretchFactorField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
-		stretchFactorField.setValue(new Double(stretchFactor));
+		stretchFactorField.setValue(Double.valueOf(stretchFactor));
 		
 		intensityDifferenceMeasureTypeComboBox = new JComboBox<IntensityDifferenceMeasureType>(IntensityDifferenceMeasureType.values());
 		intensityDifferenceMeasureTypeComboBox.addActionListener(this);
 		intensityDifferenceMeasureTypeComboBox.setSelectedItem(intensityDifferenceMeasureType);
 		
 		measurementWidthFractionField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
-		measurementWidthFractionField.setValue(new Double(measurementWidthFraction));
+		measurementWidthFractionField.setValue(Double.valueOf(measurementWidthFraction));
 
 		measurementHeightFractionField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
-		measurementHeightFractionField.setValue(new Double(measurementHeightFraction));
+		measurementHeightFractionField.setValue(Double.valueOf(measurementHeightFraction));
 		
 		deltaZMinLengthField = new LengthField(this);
 		deltaZMinLengthField.setMaximumSize(deltaZMinLengthField.getPreferredSize());
@@ -460,7 +462,7 @@ public class SelfSimilarityPlot extends AbstractPlot implements Serializable, Ac
 
 		numberOfZStepsField = UIBitsAndBobs.makeIntFormattedTextField(this);
 		// numberOfZStepsField.setAlignmentX(Component.LEFT_ALIGNMENT);
-		numberOfZStepsField.setValue(new Integer(numberOfZSteps));
+		numberOfZStepsField.setValue(Integer.valueOf(numberOfZSteps));
 
 		showGridCheckBox = new JCheckBox("show grid");
 		showGridCheckBox.setAlignmentX(Component.CENTER_ALIGNMENT);
