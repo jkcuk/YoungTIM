@@ -25,6 +25,11 @@ public class Point3D
 		this(0, 0, 0);
 	}
 	
+	public Point3D clone()
+	{
+		return new Point3D(i, j, k);
+	}
+	
 	public double getISquared()
 	{
 		return i * i;

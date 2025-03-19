@@ -57,14 +57,21 @@ public class HologramFromBitmap extends AbstractSimpleOpticalComponent implement
 	
 	private transient JLabel fileInformationField;
 	
-	public HologramFromBitmap(String name)
+	public HologramFromBitmap(String name, File hologramImageBitmap)
 	{
 		super(name);
+		this.hologramImageBitmap = hologramImageBitmap;
 	}
 	
 	public HologramFromBitmap()
 	{
-		this("Hologram (from bitmap)");
+		this("Hologram (from bitmap)", null);
+	}
+	
+	@Override
+	public HologramFromBitmap clone()
+	{
+		return new HologramFromBitmap(name, hologramImageBitmap);
 	}
 
 	@Override

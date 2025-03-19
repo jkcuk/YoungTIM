@@ -34,6 +34,12 @@ public class TransparentComponent extends AbstractSimpleOpticalComponent impleme
 	}
 	
 	@Override
+	public TransparentComponent clone()
+	{
+		return new TransparentComponent();
+	}
+	
+	@Override
 	public String getComponentTypeName() 
 	{
 		return "Transparent component";

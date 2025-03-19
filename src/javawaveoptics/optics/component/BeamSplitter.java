@@ -90,6 +90,12 @@ public class BeamSplitter extends AbstractOpticalComponent implements Serializab
 	}
 	
 	@Override
+	public BeamSplitter clone()
+	{
+		return new BeamSplitter(name);
+	}
+	
+	@Override
 	public String getComponentTypeName()
 	{
 		return "Beam splitter";

@@ -23,4 +23,6 @@ public interface SimplePixelWiseOpticalComponentInterface
 	 * @return				The output beam
 	 */
 	public BeamCrossSection changePixelInInputBeam(int i, int j, BeamCrossSection inputBeam);
+	
+	public SimplePixelWiseOpticalComponentInterface clone();
 }

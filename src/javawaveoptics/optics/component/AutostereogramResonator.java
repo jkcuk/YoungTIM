@@ -30,19 +30,29 @@ public class AutostereogramResonator extends AbstractSimpleOpticalComponent impl
 		leftEyePosition,
 		rightEyePosition;
 	
-	public AutostereogramResonator(String name)
+	public AutostereogramResonator(String name, AbstractSurface3D autostereogramPlane, AbstractSurface3D otherMirrorSurface, Point3D leftEyePosition, Point3D rightEyePosition)
 	{
 		super(name);
 		
-		autostereogramPlane = new ZPlane3D(0.);
-		otherMirrorSurface = new ZPlane3D(5e-3);
+		this.autostereogramPlane = autostereogramPlane;
+		this.otherMirrorSurface = otherMirrorSurface;
+		this.leftEyePosition = leftEyePosition;
+		this.rightEyePosition = rightEyePosition;
+	}
+	
+	public AutostereogramResonator(String name)
+	{
+		this(
+			name,
+			new ZPlane3D(0.),
+			new ZPlane3D(5e-3),
 //		otherMirrorSurface = new Hemisphere3D(
 //				1e-3,	// radius
 //				new Point3D(0, 0, 2e-3)	// centre
 //			);
-		
-		leftEyePosition = new Point3D(-2e-3, 0e-3, -1);
-		rightEyePosition = new Point3D(2e-3, 0e-3, -1);
+			new Point3D(-2e-3, 0e-3, -1),
+			new Point3D(2e-3, 0e-3, -1)
+		);
 	}
 	
 	/**
@@ -52,6 +62,12 @@ public class AutostereogramResonator extends AbstractSimpleOpticalComponent impl
 	public AutostereogramResonator()
 	{
 		this("Autostereogram resonator");
+	}
+	
+	@Override
+	public AutostereogramResonator clone()
+	{
+		return new AutostereogramResonator(name, autostereogramPlane.clone(), otherMirrorSurface.clone(), leftEyePosition.clone(), rightEyePosition.clone());
 	}
 	
 	@Override

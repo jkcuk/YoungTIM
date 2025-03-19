@@ -609,6 +609,15 @@ public class ExtensiveWorkbench extends AbstractWorkbench
 				componentEditPanel.revalidate();
 				componentEditPanel.repaint();
 			}
+			else if(command.equals("Duplicate"))
+			{
+				selectAndShowComponent(
+					insertComponent(
+						workbenchOpticalComponent.getExtensiveWorkbench().getOpticalTrainIndexOf(workbenchOpticalComponent),	// index
+						workbenchOpticalComponent.getOpticalComponent().clone()	// component
+					)
+				);
+			}
 			else if(command.equals("Enabled"))
 			{
 				// Toggle disabled switch

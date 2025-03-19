@@ -64,6 +64,12 @@ public class Distance extends AbstractSimpleOpticalComponent implements Serializ
 		this(name, distance, 1., 0, false);
 	}
 	
+	@Override
+	public Distance clone()
+	{
+		return new Distance(name, distance, stepSize, widthOfAbsorbingBoundary, BPM);
+	}
+	
 	/**
 	 * Null constructor. Creates a propagation with default values. This requires
 	 * no parameters.

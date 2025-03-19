@@ -47,6 +47,12 @@ public class AbsorbingBoundary extends AbstractAperture implements Serializable 
 	{
 		this("Absorbing boundary", 10);
 	}
+
+	@Override
+	public AbsorbingBoundary clone()
+	{
+		return new AbsorbingBoundary(name, widthOfAbsorbingBoundary);
+	}
 	
 	@Override
 	public String getApertureTypeName()

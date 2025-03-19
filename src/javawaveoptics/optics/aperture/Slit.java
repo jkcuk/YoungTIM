@@ -45,6 +45,12 @@ public class Slit extends AbstractAperture implements Serializable //, PropertyC
 	{
 		this("Slit", 2.5e-4, 0, 0, 0);
 	}
+	
+	@Override
+	public Slit clone()
+	{
+		return new Slit(name, slitWidth, rotationAngle, xCentre, yCentre);
+	}
 
 	@Override
 	public String getApertureTypeName()

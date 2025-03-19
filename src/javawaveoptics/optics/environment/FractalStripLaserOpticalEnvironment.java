@@ -48,7 +48,7 @@ public class FractalStripLaserOpticalEnvironment extends AbstractOpticalEnvironm
 //		((Slit)(aperture.getSelectedAperture())).setSlitWidth(20.8e-3);
 
 		// Image of plane S, plus initialisation
-		ImageOfPlaneNonInitialising imageOfPlane = new ImageOfPlaneNonInitialising("(S)'");
+		ImageOfPlaneNonInitialising imageOfPlane = new ImageOfPlaneNonInitialising("(S)'", null);
 		imageOfPlane.setSelectedImageableComponent(selfConjugatePlane);
 		double width = 4e-2;	// optimised so that on-axis intensity has maximum in magnified self-conjugate plane
 		int pixelsX = 4096, pixelsY = 1;

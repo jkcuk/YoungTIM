@@ -65,6 +65,12 @@ public class Aperture extends AbstractSimpleOpticalComponent implements Serializ
 	{
 		this("Aperture", ApertureType.getAperture(ApertureType.CIRCULAR_APERTURE));
 	}
+	
+	@Override
+	public Aperture clone()
+	{
+		return new Aperture(name, aperture.clone());
+	}
 
 	@Override
 	public String getComponentTypeName()

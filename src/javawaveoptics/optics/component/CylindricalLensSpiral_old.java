@@ -85,6 +85,12 @@ public class CylindricalLensSpiral_old extends AbstractSimpleOpticalComponent im
 	{
 		this(COMPONENT_TYPE_NAME, 1, 0.1, 0);
 	}
+	
+	@Override
+	public CylindricalLensSpiral_old clone()
+	{
+		return new CylindricalLensSpiral_old(name, focalLength, b, phi0);
+	}
 
 	@Override
 	public String getComponentTypeName()

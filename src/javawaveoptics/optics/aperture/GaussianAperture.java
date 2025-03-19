@@ -49,6 +49,12 @@ public class GaussianAperture extends AbstractAperture implements Serializable /
 	}
 	
 	@Override
+	public GaussianAperture clone()
+	{
+		return new GaussianAperture(name, sigma, xCentre, yCentre);
+	}
+	
+	@Override
 	public String getApertureTypeName()
 	{
 		return "Gaussian aperture";

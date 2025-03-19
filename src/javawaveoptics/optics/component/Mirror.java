@@ -145,6 +145,12 @@ public class Mirror extends AbstractOpticalComponent implements Serializable, Ac
 	}
 	
 	@Override
+	public Mirror clone()
+	{
+		return new Mirror(name, lossless, reflectionCoefficient, transmissionCoefficient);
+	}
+	
+	@Override
 	public String getComponentTypeName()
 	{
 		return "Mirror";

@@ -155,6 +155,21 @@ implements SimplePixelWiseOpticalComponentInterface, Serializable, PropertyChang
 	{
 		this(COMPONENT_TYPE_NAME, CylindricalLensSpiralType.LOGARITHMIC, 1, 0.1, 0, WindingBoundaryPlacementType.HALF_WAY, true, true);
 	}
+	
+	@Override
+	public CylindricalLensSpiral clone()
+	{
+		return new CylindricalLensSpiral(
+				name, 
+				cylindricalLensSpiralType, 
+				f1, 
+				b, 
+				phi0,
+				windingBoundaryPlacement,
+				alvarezLohmannWindingFocussing,
+				azimuthalPhaseComponensation
+			);
+	}
 
 	@Override
 	public String getComponentTypeName()

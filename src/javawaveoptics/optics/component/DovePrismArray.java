@@ -18,7 +18,7 @@ public class DovePrismArray extends AbstractSimpleOpticalComponent implements Se
 	 * Fields
 	 */
 
-	// Dove prism width
+	// prism width (in elements)
 	protected int prismWidth;
 	
 	// Rotation angle
@@ -33,17 +33,23 @@ public class DovePrismArray extends AbstractSimpleOpticalComponent implements Se
 		rotationAngleTextField;
 
 	
-	public DovePrismArray(String name, int numberOfPrisms, double rotationAngle)
+	public DovePrismArray(String name, int prismWidth, double rotationAngle)
 	{
 		super(name);
 		
-		this.prismWidth = numberOfPrisms;
+		this.prismWidth = prismWidth;
 		this.rotationAngle = rotationAngle;
 	}
 	
 	public DovePrismArray()
 	{
 		this("Dove-prism array", 8, 45);
+	}
+	
+	@Override
+	public DovePrismArray clone()
+	{
+		return new DovePrismArray(name, prismWidth, rotationAngle);
 	}
 
 	@Override

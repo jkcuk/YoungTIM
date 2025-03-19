@@ -23,6 +23,8 @@ public abstract class AbstractLightSourceComponent extends AbstractOpticalCompon
 		super(name, 0, 1);
 	}
 	
+	public abstract AbstractLightSourceComponent clone();
+	
 	/**
 	 * The light source simulate method implementation.
 	 * 

@@ -55,6 +55,12 @@ public class PolygonalAperture extends AbstractAperture implements Serializable 
 	{
 		this("Polygonal aperture", 3, 2.5e-4, 0, 0, 0);
 	}
+	
+	@Override
+	public PolygonalAperture clone()
+	{
+		return new PolygonalAperture(name, numberOfSides, radius, rotationAngle, xCentre, yCentre);
+	}
 
 	@Override
 	public String getApertureTypeName()

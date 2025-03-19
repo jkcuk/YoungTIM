@@ -69,6 +69,12 @@ implements Serializable, ActionListener, ImageableLightSourceInterface // Proper
 	{
 		this("Clone");
 	}
+	
+	@Override
+	public CloneOfComponent clone()
+	{
+		return new CloneOfComponent(name, selectedComponent);
+	}
 
 	@Override
 	public String getComponentTypeName()

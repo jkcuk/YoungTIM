@@ -40,6 +40,12 @@ public class BeamExpander extends AbstractSimpleOpticalComponent implements Seri
 	}
 	
 	@Override
+	public BeamExpander clone()
+	{
+		return new BeamExpander(name, magnificationFactor);
+	}
+	
+	@Override
 	public String getComponentTypeName()
 	{
 		return "Beam expander";

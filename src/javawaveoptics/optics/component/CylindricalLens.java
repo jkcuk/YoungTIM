@@ -56,6 +56,12 @@ public class CylindricalLens extends AbstractSimpleOpticalComponent implements S
 	{
 		this("Cylindrical lens", 1, 0);
 	}
+	
+	@Override
+	public CylindricalLens clone()
+	{
+		return new CylindricalLens(name, focalLength, angleOfModulationWithXDirection);
+	}
 
 	@Override
 	public String getComponentTypeName()

@@ -52,6 +52,13 @@ public class AnnularAperture extends AbstractAperture implements Serializable //
 	}
 	
 	@Override
+	public AnnularAperture clone()
+	{
+		return new AnnularAperture(name, outerRadius, innerRadius, xCentre, yCentre);
+	}
+
+	
+	@Override
 	public String getApertureTypeName()
 	{
 		return "Annular aperture";

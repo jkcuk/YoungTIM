@@ -75,6 +75,12 @@ public class Hologrammifier extends AbstractSimpleOpticalComponent implements Se
 	{
 		this("Hologrammifier", HologrammifierType.PHASE, 1);
 	}
+	
+	@Override
+	public Hologrammifier clone()
+	{
+		return new Hologrammifier(name, hologrammifierType, phaseStepHeightFactor);
+	}
 
 	@Override
 	public String getComponentTypeName()

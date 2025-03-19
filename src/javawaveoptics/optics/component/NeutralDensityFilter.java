@@ -1,5 +1,7 @@
 package javawaveoptics.optics.component;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.Serializable;
@@ -15,7 +17,7 @@ import javawaveoptics.ui.UIBitsAndBobs;
  * 
  * @author Johannes
  */
-public class NeutralDensityFilter extends AbstractSimpleOpticalComponent implements Serializable, PropertyChangeListener
+public class NeutralDensityFilter extends AbstractSimpleOpticalComponent implements Serializable, PropertyChangeListener, ActionListener
 {
 	private static final long serialVersionUID = 760982217080336305L;
 
@@ -23,27 +25,43 @@ public class NeutralDensityFilter extends AbstractSimpleOpticalComponent impleme
 	 * Fields
 	 */
 
+	public enum ScalingType
+	{
+		FACTOR("multiply intensity by factor"),
+		OPTICAL_DENSITY("optical density"),
+		MAX_INTENSITY("set maximum intensity to"),
+		POWER("set power in beam to");
+		
+		private String description;
+		private ScalingType(String description) {this.description = description;}	
+		@Override
+		public String toString() {return description;}
+	}
+	
+	ScalingType scalingType;
+
 	// the number can be the intensity scaling factor, the maximum intensity, ...
 	double number;
-	
+
 	/*
 	 * GUI edit controls
 	 */
 	
+	private transient JComboBox<ScalingType> scalingTypeComboBox;
 	private transient JFormattedTextField numberField;
-	private transient JComboBox scalingTypeComboBox;
 	
-	private static String[] scalingTypes = {
-		"multiply intensity by factor",
-		"optical density",
-		"set maximum intensity to",
-		"set power in beam to"
-	};
+//	private static String[] scalingTypes = {
+//		"multiply intensity by factor",
+//		"optical density",
+//		"set maximum intensity to",
+//		"set power in beam to"
+//	};
 
-	public NeutralDensityFilter(String name, double number)
+	public NeutralDensityFilter(String name, ScalingType scalingType, double number)
 	{
 		super(name);
 		
+		this.scalingType = scalingType;
 		this.number = number;
 	}
 	
@@ -53,7 +71,13 @@ public class NeutralDensityFilter extends AbstractSimpleOpticalComponent impleme
 	 */
 	public NeutralDensityFilter()
 	{
-		this("ND filter", 1);
+		this("ND filter", ScalingType.FACTOR, 1);
+	}
+	
+	@Override
+	public NeutralDensityFilter clone()
+	{
+		return new NeutralDensityFilter(name, scalingType, number);
 	}
 
 	@Override
@@ -71,7 +95,7 @@ public class NeutralDensityFilter extends AbstractSimpleOpticalComponent impleme
 				width = inputBeam.getWidth(),
 				height = inputBeam.getHeight();
 	
-			String scalingType = scalingTypes[scalingTypeComboBox.getSelectedIndex()];
+			// String scalingType = scalingTypes[scalingTypeComboBox.getSelectedIndex()];
 			
 			double amplitudeFactor;
 			
@@ -141,10 +165,11 @@ public class NeutralDensityFilter extends AbstractSimpleOpticalComponent impleme
 		numberField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
 		numberField.setValue(Double.valueOf(number));
 		
-		scalingTypeComboBox = new JComboBox(scalingTypes);
-		
-		// Set beam selection
-		scalingTypeComboBox.setSelectedItem(scalingTypes[0]);
+		scalingTypeComboBox = new JComboBox<ScalingType>(ScalingType.values());
+		scalingTypeComboBox.setToolTipText("Type of scaling performed by this component");
+		scalingTypeComboBox.addActionListener(this);
+		scalingTypeComboBox.setSelectedItem(scalingType);
+		scalingTypeComboBox.setMaximumSize(scalingTypeComboBox.getPreferredSize());
 	}
 	
 	@Override
@@ -152,6 +177,8 @@ public class NeutralDensityFilter extends AbstractSimpleOpticalComponent impleme
 	{
 		super.readWidgets();
 
+		scalingType = (ScalingType)(scalingTypeComboBox.getSelectedItem());
+		
         if(numberField != null) number = ((Number)numberField.getValue()).doubleValue();
         // scalingTypeComboBox is read out in fromInputBeamCalculateOutputBeam
 	}
@@ -168,6 +195,15 @@ public class NeutralDensityFilter extends AbstractSimpleOpticalComponent impleme
 	    
 		// Fire an edit panel event
 		editListener.editMade();
+	}
+	
+	@Override
+	public void actionPerformed(ActionEvent e)
+	{
+		if (e.getSource().equals(scalingTypeComboBox))
+		{
+			scalingType = (ScalingType)(scalingTypeComboBox.getSelectedItem());
+		}
 	}
 	
 	@Override

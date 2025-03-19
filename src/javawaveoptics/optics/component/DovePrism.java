@@ -48,6 +48,12 @@ public class DovePrism extends AbstractSimpleOpticalComponent implements Seriali
 	{
 		this("Dove prism", 0);
 	}
+	
+	@Override
+	public DovePrism clone()
+	{
+		return new DovePrism(name, rotationAngle);
+	}
 
 	@Override
 	public String getComponentTypeName()

@@ -18,7 +18,12 @@ public class Vector3D
 	{
 		this.point = new Point3D();
 	}
-	
+
+	public Vector3D clone()
+	{
+		return new Vector3D(point.clone());
+	}
+
 	public void rotate(double azimuth, double zenith)
 	{		
 		double length = getLength();

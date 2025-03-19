@@ -48,7 +48,7 @@ public class LightSource extends AbstractLightSourceComponent implements Seriali
 	 */
 	
 	// List of light sources
-	private ArrayList<AbstractLightSource> lightSources;
+	private static ArrayList<AbstractLightSource> lightSources;
 	
 	// Selected light source
 	// private AbstractLightSource selectedLightSource;
@@ -114,7 +114,7 @@ public class LightSource extends AbstractLightSourceComponent implements Seriali
 		this.beamType = beamType;
 		
 		// Set up the light sources
-		initialiseLightSources();
+		if(lightSources == null) initialiseLightSources();
 	}
 	
 	/**
@@ -129,6 +129,12 @@ public class LightSource extends AbstractLightSourceComponent implements Seriali
 				256, 256,	// amplitude-matrix size
 				BEAM_GAUSSIAN
 			);
+	}
+	
+	@Override
+	public LightSource clone()
+	{
+		return new LightSource(name, physicalWidth, physicalHeight, wavelength, amplitudeMatrixColumns, amplitudeMatrixRows, beamType);
 	}
 	
 	@Override

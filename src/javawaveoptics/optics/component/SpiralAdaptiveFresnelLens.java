@@ -78,7 +78,7 @@ public class SpiralAdaptiveFresnelLens extends AbstractSimpleOpticalComponent im
 	/**
 	 * a specific rotation angle...
 	 */
-	private double deltaPhi0;
+	private double deltaTheta0;
 	
 	/**
 	 * ... for which the focal length takes this value:
@@ -103,9 +103,9 @@ public class SpiralAdaptiveFresnelLens extends AbstractSimpleOpticalComponent im
 		CylindricalLensSpiralType cylindricalLensSpiralType, 
 		double b,
 		double f1,
-		double deltaPhi,
+		double deltaTheta,
 		double deltaZ,
-		double deltaPhi0,
+		double deltaTheta0,
 		double focalLength0,
 		double r0,
 		double w0,
@@ -121,9 +121,9 @@ public class SpiralAdaptiveFresnelLens extends AbstractSimpleOpticalComponent im
 		setCylindricalLensSpiralType(cylindricalLensSpiralType);
 		setB(b);
 		setF1(f1);
-		setDeltaTheta(deltaPhi);
+		setDeltaTheta(deltaTheta);
 		setDeltaZ(deltaZ);
-		setDeltaPhi0(deltaPhi0);
+		setDeltaTheta0(deltaTheta0);
 		setFocalLength0(focalLength0);
 		setR0(r0);
 		setW0(w0);
@@ -145,9 +145,9 @@ public class SpiralAdaptiveFresnelLens extends AbstractSimpleOpticalComponent im
 			CylindricalLensSpiralType.LOGARITHMIC,	// cylindricalLensSpiralType
 			0.01,	// b
 			1e-3,	// f1
-			MyMath.deg2rad(10),	// deltaPhi
+			MyMath.deg2rad(10),	// deltaTheta
 			0.0,	// deltaZ
-			MyMath.deg2rad(10),	// deltaPhi0
+			MyMath.deg2rad(10),	// deltaTheta0
 			1,	// focalLength0
 			1e-2,	// r0
 			1e-3,	// w0
@@ -158,6 +158,28 @@ public class SpiralAdaptiveFresnelLens extends AbstractSimpleOpticalComponent im
 			true	// showComponent2
 		);
 	}
+	
+	@Override
+	public SpiralAdaptiveFresnelLens clone()
+	{
+		return new SpiralAdaptiveFresnelLens(
+				name, 
+				cylindricalLensSpiralType, 
+				b,
+				f1,
+				deltaTheta,
+				deltaZ,
+				deltaTheta0,
+				focalLength0,
+				r0,
+				w0,
+				windingBoundaryPlacement,
+				alvarezLohmannWindingFocussing,
+				azimuthalPhaseComponensation,
+				showComponent1,
+				showComponent2
+			);
+	}
 
 	@Override
 	public String getComponentTypeName()
@@ -165,7 +187,7 @@ public class SpiralAdaptiveFresnelLens extends AbstractSimpleOpticalComponent im
 		return COMPONENT_TYPE_NAME;
 	}
 	
-	// public static double dPdDeltaPhi()
+	// public static double dPdDeltaTheta()
 	
 	public static double r0w02b(CylindricalLensSpiralType cylindricalLensSpiralType, double r0, double w0)
 	{
@@ -184,9 +206,9 @@ public class SpiralAdaptiveFresnelLens extends AbstractSimpleOpticalComponent im
 		}
 	}
 
-	public static double focalLenth0DeltaPhi0b2f1(double focalLength0, double deltaPhi0, double b)
+	public static double focalLenth0DeltaTheta0b2f1(double focalLength0, double deltaTheta0, double b)
 	{
-		return focalLength0*b*deltaPhi0;
+		return focalLength0*b*deltaTheta0;
 	}
 	
 	@Override
@@ -326,7 +348,7 @@ public class SpiralAdaptiveFresnelLens extends AbstractSimpleOpticalComponent im
 //		b = r0w02b(r0, w0);
 //		
 //		// calculate f1
-//		f1 = focalLength0*b*deltaPhi0;
+//		f1 = focalLength0*b*deltaTheta0;
 //
 //		updateInfo();
 //	}
@@ -339,7 +361,7 @@ public class SpiralAdaptiveFresnelLens extends AbstractSimpleOpticalComponent im
 	private transient JComboBox<CylindricalLensSpiralType> cylindricalLensSpiralTypeComboBox;
 	private transient JComboBox<WindingBoundaryPlacementType> windingBoundaryPlacementComboBox;
 	private transient LengthField f1LengthField, deltaZLengthField, focalLength0LengthField, r0LengthField, w0LengthField;
-	private transient JFormattedTextField bTextField, deltaThetaDegTextField, deltaPhi0DegTextField, FTextField;
+	private transient JFormattedTextField bTextField, deltaThetaDegTextField, deltaTheta0DegTextField, FTextField;
 	private transient JCheckBox alvarezLohmannWindingFocussingCheckBox, azimuthalPhaseComponensationCheckBox, showComponent1CheckBox, showComponent2CheckBox;
 	private transient JTextPane infoTextPane;
 	private transient JButton setBButton, setF1Button, setDeltaZButton;
@@ -364,7 +386,7 @@ public class SpiralAdaptiveFresnelLens extends AbstractSimpleOpticalComponent im
 		editPanel.add(UIBitsAndBobs.makeRow("Resulting focal length, <i>F</i> = ", FTextField, "m", true));
 		editPanel.add(new JSeparator(SwingConstants.HORIZONTAL));
 		editPanel.add(UIBitsAndBobs.makeRow(setBButton, "from the winding <i>w</i> &#8773; ", w0LengthField, "at <i>r</i> = ", r0LengthField, "", true));
-		editPanel.add(UIBitsAndBobs.makeRow(setF1Button, "from <i>b</i> and the focal length <i>F</i> = ", focalLength0LengthField, "for &Delta;&phi; = ", deltaPhi0DegTextField, "&deg;", true));
+		editPanel.add(UIBitsAndBobs.makeRow(setF1Button, "from <i>b</i> and the focal length <i>F</i> = ", focalLength0LengthField, "for &Delta;&theta; = ", deltaTheta0DegTextField, "&deg;", true));
 		// editPanel.add(new JSeparator(SwingConstants.HORIZONTAL));
 		// editPanel.add(infoTextPane);
 	}
@@ -410,8 +432,8 @@ public class SpiralAdaptiveFresnelLens extends AbstractSimpleOpticalComponent im
 		deltaThetaDegTextField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
 		deltaThetaDegTextField.setValue(Double.valueOf(MyMath.rad2deg(deltaTheta)));
 
-		deltaPhi0DegTextField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
-		deltaPhi0DegTextField.setValue(Double.valueOf(MyMath.rad2deg(deltaPhi0)));
+		deltaTheta0DegTextField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
+		deltaTheta0DegTextField.setValue(Double.valueOf(MyMath.rad2deg(deltaTheta0)));
 		
 		focalLength0LengthField = new LengthField(this);
 		focalLength0LengthField.setLengthInMetres(focalLength0);
@@ -474,7 +496,7 @@ public class SpiralAdaptiveFresnelLens extends AbstractSimpleOpticalComponent im
         if(w0LengthField != null) setW0(w0LengthField.getLengthInMetres());
                // if(bTextField != null) setB(((Number)bTextField.getValue()).doubleValue());
         if(deltaThetaDegTextField != null) setDeltaTheta(MyMath.deg2rad(((Number)deltaThetaDegTextField.getValue()).doubleValue()));
-        if(deltaPhi0DegTextField != null) setDeltaPhi0(MyMath.deg2rad(((Number)deltaPhi0DegTextField.getValue()).doubleValue()));
+        if(deltaTheta0DegTextField != null) setDeltaTheta0(MyMath.deg2rad(((Number)deltaTheta0DegTextField.getValue()).doubleValue()));
         if(focalLength0LengthField != null) setFocalLength0(focalLength0LengthField.getLengthInMetres());
         if(windingBoundaryPlacementComboBox != null) windingBoundaryPlacement = (WindingBoundaryPlacementType)(windingBoundaryPlacementComboBox.getSelectedItem());
         if(alvarezLohmannWindingFocussingCheckBox != null) alvarezLohmannWindingFocussing = alvarezLohmannWindingFocussingCheckBox.isSelected();
@@ -528,9 +550,9 @@ public class SpiralAdaptiveFresnelLens extends AbstractSimpleOpticalComponent im
 	        // calculateBAndF1();
 	        // updateInfo();
 	    }
-	    else if (source.equals(deltaPhi0DegTextField))
+	    else if (source.equals(deltaTheta0DegTextField))
 	    {
-	        setDeltaPhi0(MyMath.deg2rad(((Number)deltaPhi0DegTextField.getValue()).doubleValue()));
+	        setDeltaTheta0(MyMath.deg2rad(((Number)deltaTheta0DegTextField.getValue()).doubleValue()));
 	        // calculateBAndF1();
 	        // updateInfo();
 	    }
@@ -602,7 +624,7 @@ public class SpiralAdaptiveFresnelLens extends AbstractSimpleOpticalComponent im
 		else if(source.equals(setF1Button))
 		{
 			readWidgets();
-			f1 = focalLength0*b*deltaPhi0;
+			f1 = focalLength0*b*deltaTheta0;
 			f1LengthField.setLengthInMetres(f1);
 			recalculateF();
 		}
@@ -676,17 +698,17 @@ public class SpiralAdaptiveFresnelLens extends AbstractSimpleOpticalComponent im
 	}
 
 	/**
-	 * @return the deltaPhi0
+	 * @return the deltaTheta0
 	 */
-	public double getDeltaPhi0() {
-		return deltaPhi0;
+	public double getDeltaTheta0() {
+		return deltaTheta0;
 	}
 
 	/**
-	 * @param deltaPhi0 the deltaPhi0 to set
+	 * @param deltaTheta0 the deltaTheta0 to set
 	 */
-	public void setDeltaPhi0(double deltaPhi0) {
-		this.deltaPhi0 = deltaPhi0;
+	public void setDeltaTheta0(double deltaTheta0) {
+		this.deltaTheta0 = deltaTheta0;
 	}
 
 	/**

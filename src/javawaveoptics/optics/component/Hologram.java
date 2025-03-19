@@ -77,6 +77,12 @@ public class Hologram extends AbstractOpticalComponent implements Serializable, 
 	}
 	
 	@Override
+	public Hologram clone()
+	{
+		return new Hologram(name);
+	}
+	
+	@Override
 	public String getComponentTypeName()
 	{
 		return "Hologram";

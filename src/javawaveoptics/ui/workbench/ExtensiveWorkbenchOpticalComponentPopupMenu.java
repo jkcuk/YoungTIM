@@ -3,6 +3,7 @@ package javawaveoptics.ui.workbench;
 import java.awt.event.ActionListener;
 import java.io.Serializable;
 
+import javawaveoptics.optics.component.AbstractLightSourceComponent;
 import javawaveoptics.optics.component.AbstractOpticalComponent;
 import javawaveoptics.optics.component.ConvertableComponent;
 import javawaveoptics.optics.component.Plane;
@@ -33,6 +34,17 @@ public class ExtensiveWorkbenchOpticalComponentPopupMenu extends JPopupMenu impl
 		removeMenuItem.setActionCommand("Remove");
 		add(removeMenuItem);
 
+		// TODO uncomment
+		// at the same time, uncomment public abstract AbstractOpticalComponent clone();
+
+		if(!(opticalComponent instanceof AbstractLightSourceComponent))
+		{
+			JMenuItem duplicateMenuItem = new JMenuItem("Duplicate");
+			duplicateMenuItem.addActionListener(popupMenuActionListener);
+			duplicateMenuItem.setActionCommand("Duplicate");
+			add(duplicateMenuItem);
+		}
+
 		JMenuItem enabledMenuItem = new JCheckBoxMenuItem("Enabled");
 		enabledMenuItem.setSelected(true);
 		enabledMenuItem.addActionListener(popupMenuActionListener);
@@ -54,6 +66,10 @@ public class ExtensiveWorkbenchOpticalComponentPopupMenu extends JPopupMenu impl
 			convertMenuItem.setActionCommand("Convert");
 			add(convertMenuItem);
 		}
+		
+		// TODO add shift-to-right menu item (provided optical-train position < 
+		
+		// TODO add shift-to-left menu item (provided opticalTrainPosition > 0)
 		
 //		if((opticalComponent instanceof LightSource) || (opticalComponent instanceof ImageOfPlane))
 //		{

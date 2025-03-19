@@ -66,6 +66,12 @@ public class LensletArray extends AbstractSimpleOpticalComponent implements Seri
 	{
 		this("Lenslet array", 1e-3, 1, 0, 0, 0);
 	}
+	
+	@Override
+	public LensletArray clone()
+	{
+		return new LensletArray(name, arrayPeriod, focalLength, rotationAngle, xCentre, yCentre);
+	}
 
 	@Override
 	public String getComponentTypeName()

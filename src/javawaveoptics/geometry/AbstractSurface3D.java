@@ -15,4 +15,6 @@ public abstract class AbstractSurface3D
 	 * @return
 	 */
 	public abstract double getZ(double x, double y);
+	
+	public abstract AbstractSurface3D clone();
 }

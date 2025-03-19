@@ -56,6 +56,12 @@ public class BeamRotator extends AbstractSimpleOpticalComponent implements Seria
 	}
 	
 	@Override
+	public BeamRotator clone()
+	{
+		return new BeamRotator(name, rotationAngle, zoomFactor, clip);
+	}
+	
+	@Override
 	public String getComponentTypeName()
 	{
 		return "Beam rotator";

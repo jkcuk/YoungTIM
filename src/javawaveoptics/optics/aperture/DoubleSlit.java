@@ -46,6 +46,13 @@ public class DoubleSlit extends AbstractAperture implements Serializable //, Pro
 	{
 		this("Double slit", 1e-3, 2.5e-4, 0, 0, 0);
 	}
+	
+	@Override
+	public DoubleSlit clone()
+	{
+		return new DoubleSlit(name, slitSeparation, slitWidth, rotationAngle, xCentre, yCentre);
+	}
+
 
 	@Override
 	public String getApertureTypeName()

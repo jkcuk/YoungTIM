@@ -109,6 +109,12 @@ implements Serializable, ImageableLightSourceInterface, OpticalComponentEditList
 	}
 	
 	@Override
+	public ImageOfPlane clone()
+	{
+		return new ImageOfPlane(name, imageOfPlane, lightSource.clone(), initialiseToNull);
+	}
+	
+	@Override
 	public String getComponentTypeName()
 	{
 		return "Image of a plane";

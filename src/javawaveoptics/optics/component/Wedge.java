@@ -50,6 +50,12 @@ public class Wedge extends AbstractSimpleOpticalComponent implements Serializabl
 	}
 	
 	@Override
+	public Wedge clone()
+	{
+		return new Wedge(name, deflectionAngleXZ, deflectionAngleYZ);
+	}
+	
+	@Override
 	public String getComponentTypeName()
 	{
 		return "Wedge";

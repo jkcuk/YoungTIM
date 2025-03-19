@@ -62,6 +62,12 @@ public class CylindricalLensModeConverter extends AbstractSimpleOpticalComponent
 	{
 		this("Cylindrical-lens mode converter", 1e-3, 632.8e-9, MyMath.deg2rad(45));
 	}
+	
+	@Override
+	public CylindricalLensModeConverter clone()
+	{
+		return new CylindricalLensModeConverter(name, designWaistSize, designWavelength, axisAngleWithXAxis);
+	}
 
 	@Override
 	public String getComponentTypeName()

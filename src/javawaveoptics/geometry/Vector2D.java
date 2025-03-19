@@ -19,6 +19,11 @@ public class Vector2D
 		this.point = new Point2D();
 	}
 	
+	public Vector2D clone()
+	{
+		return new Vector2D(point.clone());
+	}
+	
 	public void rotate(double angle)
 	{
 		rotate(Math.cos(angle), Math.sin(angle));

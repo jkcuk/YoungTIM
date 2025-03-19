@@ -41,6 +41,12 @@ public class SpiralPhasePlate extends AbstractSimpleOpticalComponent implements 
 	}
 	
 	@Override
+	public SpiralPhasePlate clone()
+	{
+		return new SpiralPhasePlate(name, topologicalCharge);
+	}
+	
+	@Override
 	public String getComponentTypeName()
 	{
 		return "Spiral phase plate";

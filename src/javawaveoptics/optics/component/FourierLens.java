@@ -31,6 +31,12 @@ public class FourierLens extends Lens implements Serializable, ActionListener
 	
 	protected transient JCheckBox keepPhysicalDimensionsCheckBox;
 	
+	public FourierLens(String name, double focalLength, boolean keepPhysicalDimensions)
+	{
+		super(name, focalLength);
+		this.keepPhysicalDimensions = keepPhysicalDimensions;
+	}
+
 	public FourierLens(String name, double focalLength)
 	{
 		super(name, focalLength);
@@ -43,6 +49,12 @@ public class FourierLens extends Lens implements Serializable, ActionListener
 	public FourierLens()
 	{
 		this("Fourier lens", 1);
+	}
+	
+	@Override
+	public FourierLens clone()
+	{
+		return new FourierLens(name, focalLength, keepPhysicalDimensions);
 	}
 
 	@Override

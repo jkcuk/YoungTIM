@@ -76,6 +76,12 @@ public class ApertureStack extends AbstractSimpleOpticalComponent implements Ser
 	{
 		this("Aperture stack", ApertureType.getAperture(ApertureType.GRATING), 10, 1e-3);
 	}
+	
+	@Override
+	public ApertureStack clone()
+	{
+		return new ApertureStack(name, aperture.clone(), noOfApertures, separation);
+	}
 
 	@Override
 	public String getComponentTypeName()

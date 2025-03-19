@@ -63,6 +63,12 @@ public class Grating extends AbstractAperture implements Serializable, ItemListe
 	{
 		this("Grating", 1e-3, 2.5e-4, 0, 0, 0, false, 0, false);
 	}
+	
+	@Override
+	public Grating clone()
+	{
+		return new Grating(name, gratingPeriod, slitWidth, rotationAngle, xCentre, yCentre, softEdges, edgeWidth, showAlsoPerpendicularGrating);
+	}
 
 	@Override
 	public String getApertureTypeName()

@@ -21,6 +21,11 @@ public class Point2D
 		this(0, 0);
 	}
 	
+	public Point2D clone()
+	{
+		return new Point2D(i, j);
+	}
+	
 	public double getISquared()
 	{
 		return i * i;

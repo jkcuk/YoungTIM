@@ -18,6 +18,12 @@ public class Hemisphere3D extends AbstractSurface3D
 	}
 	
 	@Override
+	public Hemisphere3D clone()
+	{
+		return new Hemisphere3D(radius, centre.clone());
+	}
+	
+	@Override
 	public double getZ(double x, double y)
 	{
 		double xRelative = x - centre.getI();

@@ -77,6 +77,19 @@ public class Plane extends AbstractSimpleOpticalComponent implements Serializabl
 	}
 	
 	@Override
+	public Plane clone()
+	{
+		Plane copy = new Plane( name );
+		copy.setBeamCopy(beamCopy);
+		return copy;
+	}
+	
+	public void setBeamCopy(BeamCrossSection beamCopy)
+	{
+		this.beamCopy = beamCopy;
+	}
+	
+	@Override
 	public String getComponentTypeName()
 	{
 		return "Plane";

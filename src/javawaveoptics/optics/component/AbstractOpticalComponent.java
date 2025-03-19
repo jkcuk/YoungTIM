@@ -116,6 +116,8 @@ public abstract class AbstractOpticalComponent implements Serializable
 		componentOutputs = new ComponentInput[numberOfOutputs];
 	}
 	
+	// TODO uncomment and implement clone() method for all (non-abstract) optical components
+	public abstract AbstractOpticalComponent clone();
 	
 	/**
 	 * @return	the name of the component type

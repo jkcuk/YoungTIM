@@ -57,17 +57,24 @@ implements Serializable, ActionListener, ImageableLightSourceInterface // Proper
 	private transient Counter roundTripCounter;
 
 
-	public ImageOfPlaneNonInitialising(String name)
+	public ImageOfPlaneNonInitialising(String name, ImageableInterface selectedImageableComponent)
 	{
 		super(name);
 		
+		this.selectedImageableComponent = selectedImageableComponent;
 		searchTreeStartComponent = this;
 		roundTripCounter = new Counter(0, false, false, true);
 	}
 	
 	public ImageOfPlaneNonInitialising()
 	{
-		this("Image");
+		this("Image", null);
+	}
+	
+	@Override
+	public ImageOfPlaneNonInitialising clone()
+	{
+		return new ImageOfPlaneNonInitialising(name, selectedImageableComponent);
 	}
 
 	@Override

@@ -42,7 +42,7 @@ public class AdaptiveSpiralFresnelLensOpticalEnvironment extends AbstractOptical
 		// calculate f1 such that, for deltaPhi = deltaPhi0, the focal length is focalLength0
 		double focalLength0 = 1;
 		double deltaPhi0 = MyMath.deg2rad(30);
-		double f1 = SpiralAdaptiveFresnelLens.focalLenth0DeltaPhi0b2f1(focalLength0, deltaPhi0, b);
+		double f1 = SpiralAdaptiveFresnelLens.focalLenth0DeltaTheta0b2f1(focalLength0, deltaPhi0, b);
 		
 		SpiralAdaptiveFresnelLens adaptiveFresnelLens = new SpiralAdaptiveFresnelLens(
 				"Adaptive lens",	// name

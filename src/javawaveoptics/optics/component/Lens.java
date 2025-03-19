@@ -48,6 +48,12 @@ public class Lens extends AbstractSimpleOpticalComponent implements Serializable
 	{
 		this("Lens", 1);
 	}
+	
+	@Override
+	public Lens clone()
+	{
+		return new Lens(name, focalLength);
+	}
 
 	@Override
 	public String getComponentTypeName()

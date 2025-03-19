@@ -45,6 +45,8 @@ public abstract class AbstractAperture implements Serializable
 		this.name = name;
 	}
 	
+	public abstract AbstractAperture clone();
+	
 	public abstract String getApertureTypeName();
 	
 	/**

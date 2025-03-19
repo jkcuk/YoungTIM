@@ -55,16 +55,23 @@ public class EitherOrPhaseConjugateSurface extends AbstractSimpleOpticalComponen
 	private transient JButton phaseConjugateFileChooserButton;		
 	private transient JLabel fileInformationField;
 		
-	public EitherOrPhaseConjugateSurface(String name) {
+	public EitherOrPhaseConjugateSurface(String name, File imageFile) {
 				
-		super(name);		
+		super(name);
+		this.phaseConjugateImageFile = imageFile;
 	}
 
 	// Null constructor. Creates a PhaseConjugateSurface with default values.
 	// Requires no parameters.
 	public EitherOrPhaseConjugateSurface()
 	{	
-		this("Phase-conjugate surface");
+		this("Phase-conjugate surface", null);
+	}
+	
+	@Override
+	public EitherOrPhaseConjugateSurface clone()
+	{
+		return new EitherOrPhaseConjugateSurface(name, phaseConjugateImageFile);
 	}
 	
 	@Override

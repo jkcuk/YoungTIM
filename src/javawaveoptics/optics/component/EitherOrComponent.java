@@ -45,7 +45,7 @@ public class EitherOrComponent extends AbstractSimpleOpticalComponent implements
 	
 	// the two components (either-or, you know!?)
 	// The either component is used as a phase conjugator, and the or component is used as a transparent component
-	SimplePixelWiseOpticalComponentInterface eitherComponent = new PhaseConjugator(), orComponent = new TransparentComponent();
+	SimplePixelWiseOpticalComponentInterface eitherComponent, orComponent;
 	
 	/*
 	 * GUI variables
@@ -58,16 +58,30 @@ public class EitherOrComponent extends AbstractSimpleOpticalComponent implements
 	private transient JButton fileChooserButton;		
 	private transient JLabel fileInformationField;
 		
-	public EitherOrComponent(String name) {
+	public EitherOrComponent(String name, File imageFile, SimplePixelWiseOpticalComponentInterface eitherComponent, SimplePixelWiseOpticalComponentInterface orComponent) {
 				
-		super(name);		
+		super(name);
+		this.imageFile = imageFile;
+		this.eitherComponent = eitherComponent;
+		this.orComponent = orComponent;
 	}
 
 	// Null constructor. Creates a PhaseConjugateSurface with default values.
 	// Requires no parameters.
-	public EitherOrComponent() {
+	public EitherOrComponent(String name) {
 		
-		this("Either-or surface");
+		this(name, null, new PhaseConjugator(), new TransparentComponent());
+	}
+	
+	public EitherOrComponent()
+	{
+		this("Either-or component");
+	}
+	
+	@Override
+	public EitherOrComponent clone()
+	{
+		return new EitherOrComponent(name, imageFile, eitherComponent.clone(), orComponent.clone());
 	}
 	
 	@Override

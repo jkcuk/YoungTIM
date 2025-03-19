@@ -34,6 +34,12 @@ public class PhaseConjugator extends AbstractSimpleOpticalComponent implements S
 	}
 	
 	@Override
+	public PhaseConjugator clone()
+	{
+		return new PhaseConjugator();
+	}
+	
+	@Override
 	public String getComponentTypeName() 
 	{
 		return "Phase-conjugator";

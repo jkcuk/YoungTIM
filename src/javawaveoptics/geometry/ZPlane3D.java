@@ -15,6 +15,12 @@ public class ZPlane3D extends AbstractSurface3D
 	}
 	
 	@Override
+	public ZPlane3D clone()
+	{
+		return new ZPlane3D(z);
+	}
+	
+	@Override
 	public double getZ(double x, double y)
 	{
 		return z;
