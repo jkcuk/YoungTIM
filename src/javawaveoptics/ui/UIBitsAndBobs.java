@@ -34,7 +34,7 @@ public class UIBitsAndBobs
 	public static JFormattedTextField makeDoubleFormattedTextField(PropertyChangeListener propertyChangeListener)
 	{
 		JFormattedTextField formattedTextField = makeDoubleFormattedTextField();
-		formattedTextField.addPropertyChangeListener("value", propertyChangeListener);
+		if(propertyChangeListener != null) formattedTextField.addPropertyChangeListener("value", propertyChangeListener);
 		// formattedTextField.setFocusLostBehavior(JFormattedTextField.COMMIT);
 		
 		return formattedTextField;
@@ -47,7 +47,7 @@ public class UIBitsAndBobs
 		// see http://www.exampledepot.com/egs/java.text/FormatNumExp.html
 		formattedTextField = new MyFormattedTextField(new DecimalFormat("###E0"));	// NumberFormat.getNumberInstance());
 		formattedTextField.setColumns(6);
-		formattedTextField.addPropertyChangeListener("value", propertyChangeListener);
+		if(propertyChangeListener != null) formattedTextField.addPropertyChangeListener("value", propertyChangeListener);
 		
 		return formattedTextField;
 	}

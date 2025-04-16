@@ -605,6 +605,21 @@ public class LinePlot extends AbstractPlot implements Serializable, ActionListen
 		progressBar = new JCProgressBar(0, 1);
 		progressBar.setVisible(false);
 	}
+
+	@Override
+	public void readWidgets()
+	{
+		plotType = (LinePlotType)(plotTypeComboBox.getSelectedItem());
+		coordinate1 = (Coordinate)(coordinate1ComboBox.getSelectedItem());
+		coordinate2 = (Coordinate)(coordinate2ComboBox.getSelectedItem());
+    	numberOfZSteps = ((Number)numberOfZStepsField.getValue()).intValue();
+    	coordinate1Value = coordinate1ValueLengthField.getLengthInMetres();
+    	coordinate2Value = coordinate2ValueLengthField.getLengthInMetres();
+    	zStart = zStartLengthField.getLengthInMetres();
+    	zEnd = zEndLengthField.getLengthInMetres();
+    	logPlot = logPlotCheckBox.isSelected();
+    	showGrid = showGridCheckBox.isSelected();
+	}
 	
 	/**
 	 * @return	true if the plot is in a longitudinal ((x,z) or (y,z)) plane, false if it is in a transverse (x,y) plane
@@ -693,6 +708,8 @@ public class LinePlot extends AbstractPlot implements Serializable, ActionListen
 		}
 		else if(source == calculateCrossSectionButton)
 		{
+			readWidgets();
+			
 			// Define thread
 			Thread thread = new Thread(new CrossSectionWorker());
 

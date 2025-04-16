@@ -182,6 +182,12 @@ public class Plane extends AbstractSimpleOpticalComponent implements Serializabl
 	public void readWidgets()
 	{
 		super.readWidgets();
+		
+		if(plotPanels != null)
+			for(PlotPanel plotPanel : plotPanels)
+			{
+				if(plotPanel != null) plotPanel.getPlot().readWidgets();
+			}
 	}
 	
 	private void populatePlotTabbedPane()

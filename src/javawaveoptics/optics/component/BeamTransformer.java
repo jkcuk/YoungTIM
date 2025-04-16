@@ -12,7 +12,7 @@ import javax.swing.JFormattedTextField;
 import javawaveoptics.optics.BeamCrossSection;
 import javawaveoptics.ui.UIBitsAndBobs;
 
-public class BeamRotator extends AbstractSimpleOpticalComponent implements Serializable, PropertyChangeListener, ItemListener
+public class BeamTransformer extends AbstractSimpleOpticalComponent implements Serializable, PropertyChangeListener, ItemListener
 {	
 	private static final long serialVersionUID = 5424504744184150913L;
 	
@@ -41,7 +41,7 @@ public class BeamRotator extends AbstractSimpleOpticalComponent implements Seria
 	// Clip edit control
 	private transient JCheckBox editClipCheckBox;
 	
-	public BeamRotator(String name, double rotationAngle, double zoomFactor, boolean clip)
+	public BeamTransformer(String name, double rotationAngle, double zoomFactor, boolean clip)
 	{
 		super(name);
 		
@@ -50,21 +50,21 @@ public class BeamRotator extends AbstractSimpleOpticalComponent implements Seria
 		this.clip = clip;
 	}
 	
-	public BeamRotator()
+	public BeamTransformer()
 	{
-		this("Beam rotator", 0, 1, true);
+		this("Beam transformer", 0, 1, true);
 	}
 	
 	@Override
-	public BeamRotator clone()
+	public BeamTransformer clone()
 	{
-		return new BeamRotator(name, rotationAngle, zoomFactor, clip);
+		return new BeamTransformer(name, rotationAngle, zoomFactor, clip);
 	}
 	
 	@Override
 	public String getComponentTypeName()
 	{
-		return "Beam rotator";
+		return "Beam transformer";
 	}
 	
 	@Override

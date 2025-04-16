@@ -20,6 +20,8 @@ import javawaveoptics.optics.component.ImageOfPlaneNonInitialising;
 import javawaveoptics.optics.component.Plane;
 import javawaveoptics.optics.environment.AbstractOpticalEnvironment;
 import javawaveoptics.ui.workbench.AbstractWorkbench;
+import javawaveoptics.ui.workbench.ExtensiveWorkbench;
+import javawaveoptics.ui.workbench.ExtensiveWorkbenchOpticalComponent;
 import javawaveoptics.ui.workbench.WorkbenchFactory;
 
 import javax.swing.JButton;
@@ -203,6 +205,8 @@ public class GUI extends AbstractUI implements ActionListener, OpticalEnvironmen
 		
 		if(command.equals("Simulate"))
 		{
+			if(componentWorkbench instanceof ExtensiveWorkbench) ((ExtensiveWorkbench)componentWorkbench).readWidgetsOfOpticalComponentBeingEdited();
+
 	        int roundTrips = ((Number)roundTripsTextField.getValue()).intValue();
 
 			// Define thread
@@ -281,6 +285,8 @@ public class GUI extends AbstractUI implements ActionListener, OpticalEnvironmen
 		}
 		else if(command.equals("Save"))
 		{
+			if(componentWorkbench instanceof ExtensiveWorkbench) ((ExtensiveWorkbench)componentWorkbench).readWidgetsOfOpticalComponentBeingEdited();
+
 			// Set up file chooser
 			TIMFileChooser fileChooser = new TIMFileChooser();
 			

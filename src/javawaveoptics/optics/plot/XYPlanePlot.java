@@ -253,6 +253,14 @@ public class XYPlanePlot extends AbstractPlot implements Serializable, ActionLis
 		// deltaZLengthField.setFont(ImagePanel.getControlPanelFont());	// doesn't work!
 		deltaZLengthField.setLengthInMetres(deltaZ);
 	}
+	
+	@Override
+	public void readWidgets()
+	{
+		plotType = (AreaPlotType)(plotTypeComboBox.getSelectedItem());
+        deltaZ = deltaZLengthField.getLengthInMetres();
+        // exposureCompensationValue = ((Double)exposureCompensationSpinner.getValue()).doubleValue();
+	}
 
 	@Override
 	public boolean getShowSettingsButton()

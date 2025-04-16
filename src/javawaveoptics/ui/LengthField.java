@@ -70,7 +70,7 @@ public class LengthField extends JCPanel implements PropertyChangeListener, Acti
 		// valueSpinner.setValue(0.0);
 		// valueTextField.setValue(new Double(0));
 		
-		this.propertyChangeListener = propertyChangeListener;
+		if(propertyChangeListener != null) this.propertyChangeListener = propertyChangeListener;
 	}	
 
 	public void setLengthInMetres(double lengthInMetres)

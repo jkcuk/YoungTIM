@@ -45,10 +45,10 @@ implements SimplePixelWiseOpticalComponentInterface, Serializable, PropertyChang
 	
 	public enum CylindricalLensSpiralType
 	{
-		ARCHIMEDEAN("<html>Archimedean (<i>R</i> = <i>b</i> &phi; m)</html>"),
-		FERMAT("<html>Fermat (<i>R</i> = (<i>b</i> &phi;)<sup>(1/2)</sup> m) - Under construction!</html>"),
-		HYPERBOLIC("<html>Hyperbolic (<i>R</i> = -1/(<i>b</i> &phi;) m)</html>"),
-		LOGARITHMIC("<html>Logarithmic (<i>R</i> = exp(<i>b</i> &phi;) m)</html>");
+		ARCHIMEDEAN("<html>Archimedean (<i>R</i> = <i>b</i> &theta; m)</html>"),
+		FERMAT("<html>Fermat (<i>R</i> = (<i>b</i> &theta;)<sup>(1/2)</sup> m) - Under construction!</html>"),
+		HYPERBOLIC("<html>Hyperbolic (<i>R</i> = -1/(<i>b</i> &theta;) m)</html>"),
+		LOGARITHMIC("<html>Logarithmic (<i>R</i> = exp(<i>b</i> &theta;) m)</html>");
 		
 		private String description;
 		private CylindricalLensSpiralType(String description) {this.description = description;}	

@@ -255,6 +255,9 @@ public abstract class AbstractPlot implements Serializable, ComponentListener
 		return null;
 	}
 
+	public void readWidgets()
+	{}
+	
 	/**
 	 * Fires an edit event on the edit panel listener.
 	 */

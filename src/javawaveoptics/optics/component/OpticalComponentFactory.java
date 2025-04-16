@@ -25,8 +25,8 @@ public class OpticalComponentFactory
 //	{
 //		APERTURE("Aperture"),
 //		BEAM_EXPANDER("Beam expander"),
-//		BEAM_ROTATOR("Beam rotator"),
 //		BEAM_SPLITTER("Beam splitter"),
+//		BEAM_TRANSFORMER("Beam transformer"),
 //		CYLINDRICAL_LENS("Cylindrical lens"),
 //		CYLINDRICAL_LENS_MODE_CONVERTER("Cylindrical-lens mode converter"),
 //		DISTANCE("Distance"),
@@ -54,8 +54,8 @@ public class OpticalComponentFactory
 			"Aperture",
 			"Aperture stack",
 			"Beam expander",
-			"Beam rotator",
 			"Beam splitter",
+			"Beam transformer",
 			"Clone of component",
 			"Cylindrical lens",
 			"Cylindrical-lens mode converter",
@@ -159,9 +159,9 @@ public class OpticalComponentFactory
 		{
 			opticalComponent = new ImageOfPlane();
 		}
-		else if(name.equals("Beam rotator"))
+		else if(name.equals("Beam transformer"))
 		{
-			opticalComponent = new BeamRotator();
+			opticalComponent = new BeamTransformer();
 		}
 		else if(name.equals("Dove prism"))
 		{

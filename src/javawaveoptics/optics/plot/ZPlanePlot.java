@@ -438,6 +438,17 @@ public class ZPlanePlot extends AbstractPlot implements Serializable, ActionList
 		progressBar.setVisible(false);
 	}
 	
+	@Override
+	public void readWidgets()
+	{
+		coordinate = (TransverseCoordinate)(coordinateComboBox.getSelectedItem());
+    	coordinateValue = coordinateValueLengthField.getLengthInMetres();
+    	deltaZMin = deltaZMinLengthField.getLengthInMetres();
+    	deltaZMax = deltaZMaxLengthField.getLengthInMetres();
+		numberOfZSteps = ((Number)numberOfZStepsField.getValue()).intValue();
+		// exposureCompensationValue = ((Double)exposureCompensationSpinner.getValue()).doubleValue();
+	}
+	
 //	@Override
 //	public double getAspectRatio(BeamCrossSection beam)
 //	{
@@ -491,6 +502,8 @@ public class ZPlanePlot extends AbstractPlot implements Serializable, ActionList
 //		}
 		else if(source == calculateCrossSectionButton)
 		{
+			readWidgets();
+			
 			// Define thread
 			Thread thread = new Thread(new CrossSectionWorker());
 

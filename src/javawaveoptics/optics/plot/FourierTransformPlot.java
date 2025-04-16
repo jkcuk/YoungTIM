@@ -335,6 +335,15 @@ public class FourierTransformPlot extends AbstractPlot implements Serializable, 
 		exposureCompensationSpinner = UIBitsAndBobs.createExposureCompensationSpinner(exposureCompensationValue);
 		exposureCompensationSpinner.addChangeListener(this);
 	}
+	
+	@Override
+	public void readWidgets()
+	{
+		quadrantSwapping = quadrantSwappingCheckBox.isSelected();
+		halfElementShift = halfElementShiftCheckBox.isSelected();
+		plotType = (AreaPlotType)(plotTypeComboBox.getSelectedItem());
+		// exposureCompensationValue = ((Double)exposureCompensationSpinner.getValue()).doubleValue();
+	}
 
 	@Override
 	public void itemStateChanged(ItemEvent e)

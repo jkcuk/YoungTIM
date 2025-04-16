@@ -156,6 +156,19 @@ public class AnaglyphPlot extends AbstractPlot implements Serializable, Property
 	}
 	
 	@Override
+	public void readWidgets()
+	{
+        pupilRadius = pupilRadiusLengthField.getLengthInMetres();
+        interpupillaryDistance = interpupillaryDistanceLengthField.getLengthInMetres();
+        pupilsMidpointX = pupilsMidpointXLengthField.getLengthInMetres();
+        pupilsMidpointY = pupilsMidpointYLengthField.getLengthInMetres();
+    	deltaZ = deltaZLengthField.getLengthInMetres();
+        focussingDistance = focussingDistanceLengthField.getLengthInMetres();
+		setOverlapFactor(overlapFactorSlider.getValue());
+		// exposureCompensationValue = ((Double)exposureCompensationSpinner.getValue()).doubleValue();
+	}
+	
+	@Override
 	public BufferedImage getPlotImage(BeamCrossSection beam)
 	{
 		if(deltaZ == 0.0)

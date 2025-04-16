@@ -397,6 +397,17 @@ public class PowerFractionVsDistancePlot extends AbstractPlot implements Seriali
 	}
 	
 	@Override
+	public void readWidgets()
+	{
+    	numberOfDistanceSteps = ((Number)numberOfDistanceStepsField.getValue()).intValue();
+    	xCentre = xCentreLengthField.getLengthInMetres();
+    	yCentre = yCentreLengthField.getLengthInMetres();
+    	maxDistance = maxDistanceLengthField.getLengthInMetres();
+    	logPlot = logPlotCheckBox.isSelected();
+    	showGrid = showGridCheckBox.isSelected();
+	}
+	
+	@Override
 	public boolean getShowFitButton()
 	{
 		return false;
@@ -409,6 +420,8 @@ public class PowerFractionVsDistancePlot extends AbstractPlot implements Seriali
 
 		if(source == calculatePowerFractionsButton)
 		{
+			readWidgets();
+			
 			// Define thread
 			Thread thread = new Thread(new CrossSectionWorker());
 

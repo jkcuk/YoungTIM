@@ -489,6 +489,20 @@ public class SelfSimilarityPlot extends AbstractPlot implements Serializable, Ac
 		updateButton.setVisible(false);
 	}
 	
+	@Override
+	public void readWidgets()
+	{
+		intensityDifferenceMeasureType = (IntensityDifferenceMeasureType)(intensityDifferenceMeasureTypeComboBox.getSelectedItem());
+	
+    	stretchFactor = ((Number)stretchFactorField.getValue()).doubleValue();
+    	measurementWidthFraction = ((Number)measurementWidthFractionField.getValue()).doubleValue();
+    	measurementHeightFraction = ((Number)measurementHeightFractionField.getValue()).doubleValue();
+    	numberOfZSteps = ((Number)numberOfZStepsField.getValue()).intValue();
+    	deltaZMin = deltaZMinLengthField.getLengthInMetres();
+    	deltaZMax = deltaZMaxLengthField.getLengthInMetres();
+    	showGrid = showGridCheckBox.isSelected();
+	}
+	
 //	@Override
 //	public double getAspectRatio(BeamCrossSection beam)
 //	{
@@ -519,11 +533,15 @@ public class SelfSimilarityPlot extends AbstractPlot implements Serializable, Ac
 		}
 		else if(source == updateButton)
 		{
+			readWidgets();
+			
 			// Fire an edit event, i.e. make sure plot is re-drawn
 			fireEditEvent();	    			
 		}
 		else if(source == calculateSelfSimilarityMeasureButton)
 		{
+			readWidgets();
+			
 			// Define thread
 			Thread thread = new Thread(new CrossSectionWorker());
 

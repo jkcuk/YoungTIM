@@ -55,6 +55,7 @@ public class ExtensiveWorkbench extends AbstractWorkbench
 	
 	// Edit panel
 	private JPanel componentEditPanel;
+	private ExtensiveWorkbenchOpticalComponent opticalComponentBeingEdited;
 	
 	// List of current workbench components
 	private ArrayList<ExtensiveWorkbenchOpticalComponent> workbenchComponents = new ArrayList<ExtensiveWorkbenchOpticalComponent>();
@@ -402,6 +403,7 @@ public class ExtensiveWorkbench extends AbstractWorkbench
 		// Show the edit panel for the specified workbench component
 		componentEditPanel.removeAll();
 		componentEditPanel.add(workbenchOpticalComponent.getOpticalComponent().getEditPanel());
+		opticalComponentBeingEdited = workbenchOpticalComponent;
 		
 		// Needed to make edit panel contents visible...
 		componentEditPanel.revalidate();
@@ -549,6 +551,10 @@ public class ExtensiveWorkbench extends AbstractWorkbench
 	
 	public void selectAndShowComponent(ExtensiveWorkbenchOpticalComponent extensiveWorkbenchOpticalComponent)
 	{
+		// System.out.println("Selected different workbench optical component");
+		// read the values in the panel of the current selected workbench optical component
+		if(opticalComponentBeingEdited != null) opticalComponentBeingEdited.getOpticalComponent().readWidgets();
+		
 		// now select the new optical component
 		selectWorkbenchOpticalComponent(extensiveWorkbenchOpticalComponent);
 		
@@ -611,6 +617,8 @@ public class ExtensiveWorkbench extends AbstractWorkbench
 			}
 			else if(command.equals("Duplicate"))
 			{
+				opticalComponentBeingEdited.getOpticalComponent().readWidgets();
+
 				selectAndShowComponent(
 					insertComponent(
 						workbenchOpticalComponent.getExtensiveWorkbench().getOpticalTrainIndexOf(workbenchOpticalComponent),	// index
@@ -630,6 +638,8 @@ public class ExtensiveWorkbench extends AbstractWorkbench
 			}
 			else if(command.equals("Convert"))
 			{
+				opticalComponentBeingEdited.getOpticalComponent().readWidgets();
+
 				((ConvertableComponent)workbenchOpticalComponent.getOpticalComponent()).convert(workbenchOpticalComponent);
 			}
 //			else if(command.equals("Replace with light source/image"))
@@ -691,6 +701,8 @@ public class ExtensiveWorkbench extends AbstractWorkbench
 			{
 				if(command.equals("Insert " + componentName))
 				{
+					if(opticalComponentBeingEdited != null) opticalComponentBeingEdited.getOpticalComponent().readWidgets();
+
 					selectAndShowComponent(
 							insertComponent(
 									flowArrow.getOpticalTrainPosition(),	// index
@@ -931,5 +943,10 @@ public class ExtensiveWorkbench extends AbstractWorkbench
 	public boolean showResearchButtons()
 	{
 		return true;
+	}
+	
+	public void readWidgetsOfOpticalComponentBeingEdited()
+	{
+		if(opticalComponentBeingEdited != null) opticalComponentBeingEdited.getOpticalComponent().readWidgets();
 	}
 }
