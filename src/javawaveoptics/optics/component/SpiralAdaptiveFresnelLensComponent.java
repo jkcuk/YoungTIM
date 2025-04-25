@@ -12,7 +12,6 @@ import javax.swing.JComboBox;
 import javax.swing.JFormattedTextField;
 
 import javawaveoptics.optics.BeamCrossSection;
-import javawaveoptics.ui.LengthField;
 import javawaveoptics.ui.UIBitsAndBobs;
 import library.maths.Complex;
 import library.maths.MyMath;
@@ -32,12 +31,12 @@ import library.maths.MyMath;
  * 
  * @author Johannes
  */
-public class CylindricalLensSpiral extends AbstractSimpleOpticalComponent
+public class SpiralAdaptiveFresnelLensComponent extends AbstractSimpleOpticalComponent
 implements SimplePixelWiseOpticalComponentInterface, Serializable, PropertyChangeListener, ActionListener
 {
 	private static final long serialVersionUID = -588166946856356389L;
 
-	private static final String COMPONENT_TYPE_NAME = "Cylindrical-lens spiral";
+	private static final String COMPONENT_TYPE_NAME = "Spiral-adaptive-Fresnel-lens component";
 	
 	/*
 	 * Fields
@@ -65,8 +64,13 @@ implements SimplePixelWiseOpticalComponentInterface, Serializable, PropertyChang
 	 * the cylindrical lens's focal length (at distance r=1);
 	 * the cross-section of the cylindrical lens is Phi(t) = (pi d^2)(lambda f), where d is the distance from the nearest point on the spiral
 	 */
-	private double f1;
+	// private double f1;
 	
+	/**
+	 * the ratio of focussing power and rotation angle between the components, in diopters / radians
+	 */
+	private double p;
+
 	/**
 	 * the centre of the cylindrical lens follows either the logarithmic spiral r = exp(b (phi-phi0)), or the Archimedean spiral r = b (phi-phi0);
 	 * set this using setB(), so that deltaNu is pre-calculated accordingly!
@@ -114,21 +118,10 @@ implements SimplePixelWiseOpticalComponentInterface, Serializable, PropertyChang
 	 */
 	// private double deltaNu;
 	
-	/*
-	 * GUI edit controls
-	 */
-	
-	private transient JComboBox<CylindricalLensSpiralType> cylindricalLensSpiralTypeComboBox;
-	private transient JComboBox<WindingBoundaryPlacementType> windingBoundaryPlacementComboBox;
-	private transient LengthField focalLengthField;
-	private transient JFormattedTextField bTextField, phi0DegTextField;
-	private transient JCheckBox alvarezLohmannWindingFocussingCheckBox, azimuthalPhaseComponensationCheckBox;
-	
-	
-	public CylindricalLensSpiral(
+	public SpiralAdaptiveFresnelLensComponent(
 		String name, 
 		CylindricalLensSpiralType cylindricalLensSpiralType, 
-		double focalLength, 
+		double p, 
 		double b, 
 		double phi0,
 		WindingBoundaryPlacementType windingBoundaryPlacement,
@@ -139,7 +132,7 @@ implements SimplePixelWiseOpticalComponentInterface, Serializable, PropertyChang
 		super(name);
 		
 		setCylindricalLensSpiralType(cylindricalLensSpiralType);
-		setFocalLength(focalLength);
+		setP(p);
 		setB(b);
 		setPhi0(phi0);
 		setWindingBoundaryPlacement(windingBoundaryPlacement);
@@ -151,18 +144,27 @@ implements SimplePixelWiseOpticalComponentInterface, Serializable, PropertyChang
 	 * Null constructor. Creates a lens with default values. This requires no
 	 * parameters.
 	 */
-	public CylindricalLensSpiral()
+	public SpiralAdaptiveFresnelLensComponent()
 	{
-		this(COMPONENT_TYPE_NAME, CylindricalLensSpiralType.LOGARITHMIC, 1, 0.1, 0, WindingBoundaryPlacementType.HALF_WAY, true, true);
+		this(
+				COMPONENT_TYPE_NAME, 
+				CylindricalLensSpiralType.LOGARITHMIC, 
+				1/MyMath.deg2rad(10),	// p
+				0.1,	// b
+				0,	// phi0
+				WindingBoundaryPlacementType.HALF_WAY, 
+				true,	// AL winding focussing
+				true	// APC
+			);
 	}
 	
 	@Override
-	public CylindricalLensSpiral clone()
+	public SpiralAdaptiveFresnelLensComponent clone()
 	{
-		return new CylindricalLensSpiral(
+		return new SpiralAdaptiveFresnelLensComponent(
 				name, 
 				cylindricalLensSpiralType, 
-				f1, 
+				p, 
 				b, 
 				phi0,
 				windingBoundaryPlacement,
@@ -250,7 +252,8 @@ implements SimplePixelWiseOpticalComponentInterface, Serializable, PropertyChang
 		double psi = phi+n*2*Math.PI-phi0;
 		
 		// calculate the radial coordinate for the centre of the nth winding in the phi direction, and the focal length
-		double R, f;
+		double R, f1, f;
+		f1 = calculateF1();
 		switch(cylindricalLensSpiralType)
 		{
 		case ARCHIMEDEAN:
@@ -362,128 +365,10 @@ implements SimplePixelWiseOpticalComponentInterface, Serializable, PropertyChang
 
 
 	@Override
-	protected void createEditPanel()
-	{
-		super.createEditPanel();
-		
-		/*
-		 * Edit focal length control
-		 */
-		
-		editPanel.add(UIBitsAndBobs.makeRow("A cylindrical lens of focal length (at <i>r</i> = 1 m) ", focalLengthField, ",", true));
-		editPanel.add(UIBitsAndBobs.makeRow("wound into a ", cylindricalLensSpiralTypeComboBox, " spiral", true));
-		editPanel.add(UIBitsAndBobs.makeRow("where <i>b</i> =", bTextField, " and &theta;<sub>0</sub> =", phi0DegTextField, "&deg;.", true));
-		editPanel.add(UIBitsAndBobs.makeRow("Winding boundary ", windingBoundaryPlacementComboBox, true));
-		editPanel.add(alvarezLohmannWindingFocussingCheckBox);
-		editPanel.add(azimuthalPhaseComponensationCheckBox);
-	}
-	
-	@Override
-	protected void initialiseWidgets()
-	{
-		super.initialiseWidgets();
-		
-		cylindricalLensSpiralTypeComboBox = new JComboBox<CylindricalLensSpiralType>(CylindricalLensSpiralType.values());
-		cylindricalLensSpiralTypeComboBox.setToolTipText("Shape of the spiral the cylindrical lens is wound into");
-		cylindricalLensSpiralTypeComboBox.addActionListener(this);
-		cylindricalLensSpiralTypeComboBox.setSelectedItem(cylindricalLensSpiralType);
-		cylindricalLensSpiralTypeComboBox.setMaximumSize(cylindricalLensSpiralTypeComboBox.getPreferredSize());
-		
-		focalLengthField = new LengthField(this);
-		focalLengthField.setLengthInMetres(f1);
-		
-		bTextField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
-		bTextField.setValue(Double.valueOf(b));
-
-		phi0DegTextField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
-		phi0DegTextField.setValue(Double.valueOf(MyMath.rad2deg(phi0)));
-		
-		windingBoundaryPlacementComboBox = new JComboBox<WindingBoundaryPlacementType>(WindingBoundaryPlacementType.values());
-		windingBoundaryPlacementComboBox.setToolTipText("Placement of the boundary between neighbouring windings");
-		windingBoundaryPlacementComboBox.addActionListener(this);
-		windingBoundaryPlacementComboBox.setSelectedItem(windingBoundaryPlacement);
-		windingBoundaryPlacementComboBox.setMaximumSize(windingBoundaryPlacementComboBox.getPreferredSize());
-		
-		alvarezLohmannWindingFocussingCheckBox = new JCheckBox("Alvarez-Lohmann winding focussing");
-		alvarezLohmannWindingFocussingCheckBox.setToolTipText("Should Alvarez-Lohmann winding focussing be used?");
-		alvarezLohmannWindingFocussingCheckBox.addPropertyChangeListener(this);
-		alvarezLohmannWindingFocussingCheckBox.setSelected(alvarezLohmannWindingFocussing);
-		alvarezLohmannWindingFocussingCheckBox.setAlignmentX(Component.CENTER_ALIGNMENT);
-		
-		azimuthalPhaseComponensationCheckBox = new JCheckBox("Azimuthal phase componensation");
-		azimuthalPhaseComponensationCheckBox.setToolTipText("Should azimuthal phase componensation be used?");
-		azimuthalPhaseComponensationCheckBox.addPropertyChangeListener(this);
-		azimuthalPhaseComponensationCheckBox.setSelected(azimuthalPhaseComponensation);
-		azimuthalPhaseComponensationCheckBox.setAlignmentX(Component.CENTER_ALIGNMENT);
-	}
-	
-	@Override
-	public void readWidgets()
-	{
-		super.readWidgets();
-
-		if(cylindricalLensSpiralTypeComboBox != null) cylindricalLensSpiralType = (CylindricalLensSpiralType)(cylindricalLensSpiralTypeComboBox.getSelectedItem());
-        if(focalLengthField != null) setFocalLength(focalLengthField.getLengthInMetres());
-        if(bTextField != null) setB(((Number)bTextField.getValue()).doubleValue());
-        if(phi0DegTextField != null) setPhi0(MyMath.deg2rad(((Number)phi0DegTextField.getValue()).doubleValue()));
-        if(windingBoundaryPlacementComboBox != null) windingBoundaryPlacement = (WindingBoundaryPlacementType)(windingBoundaryPlacementComboBox.getSelectedItem());
-        if(alvarezLohmannWindingFocussingCheckBox != null) alvarezLohmannWindingFocussing = alvarezLohmannWindingFocussingCheckBox.isSelected();
-        if(azimuthalPhaseComponensationCheckBox != null) azimuthalPhaseComponensation = azimuthalPhaseComponensationCheckBox.isSelected();
-	}
-	
-	@Override
-	public void propertyChange(PropertyChangeEvent e)
-	{
-	    Object source = e.getSource();
-	    
-	    if (source == focalLengthField)
-	    {
-	        setFocalLength(focalLengthField.getLengthInMetres());
-	    }
-	    else if (source == bTextField)
-	    {
-	        setB(((Number)bTextField.getValue()).doubleValue());
-	    }
-	    else if (source == phi0DegTextField)
-	    {
-	        setPhi0(MyMath.deg2rad(((Number)phi0DegTextField.getValue()).doubleValue()));
-	    }
-	    else if (source == alvarezLohmannWindingFocussingCheckBox)
-	    {
-	    	alvarezLohmannWindingFocussing = alvarezLohmannWindingFocussingCheckBox.isSelected();
-	    }
-	    else if(source.equals(azimuthalPhaseComponensationCheckBox))
-	    {
-	    	azimuthalPhaseComponensation = azimuthalPhaseComponensationCheckBox.isSelected();
-	    }
-	    
-		// Fire an edit panel event
-		editListener.editMade();
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent e)
-	{
-		Object source = e.getSource();
-
-		if (source == cylindricalLensSpiralTypeComboBox)
-		{
-			cylindricalLensSpiralType = (CylindricalLensSpiralType)(cylindricalLensSpiralTypeComboBox.getSelectedItem());
-		}
-		else if (source == windingBoundaryPlacementComboBox)
-		{
-			windingBoundaryPlacement = (WindingBoundaryPlacementType)(windingBoundaryPlacementComboBox.getSelectedItem());
-		}
-	    
-		// Fire an edit panel event
-		editListener.editMade();
-	}
-
-	@Override
 	public String getFormattedName()
 	{
-		return "f = " + Double.toString(f1) + "m";
-		// return getName() + " (f = " + Double.toString(focalLength) + "m)";
+		// return "f = " + Double.toString(f1) + "m";
+		return getName();	// + " (f = " + Double.toString(focalLength) + "m)";
 	}
 
 	public CylindricalLensSpiralType getCylindricalLensSpiralType() {
@@ -494,14 +379,21 @@ implements SimplePixelWiseOpticalComponentInterface, Serializable, PropertyChang
 		this.cylindricalLensSpiralType = cylindricalLensSpiralType;
 	}
 
-	public double getFocalLength()
+	public double getP()
 	{
-		return f1;
+		return p;
 	}
 
-	public void setFocalLength(double focalLength)
+	public void setP(double p)
 	{
-		this.f1 = focalLength;
+		this.p = p;
+	}
+	
+	/**
+	 * @return f1, calculated from b and p
+	 */
+	double calculateF1() {
+		return b/p;
 	}
 
 	public double getB() {
@@ -567,5 +459,136 @@ implements SimplePixelWiseOpticalComponentInterface, Serializable, PropertyChang
 	public void setAzimuthalPhaseComponensation(boolean azimuthalPhaseComponensation) {
 		this.azimuthalPhaseComponensation = azimuthalPhaseComponensation;
 	}
+
+	
+	/*
+	 * GUI edit controls
+	 */
+	
+	private transient JComboBox<CylindricalLensSpiralType> cylindricalLensSpiralTypeComboBox;
+	private transient JComboBox<WindingBoundaryPlacementType> windingBoundaryPlacementComboBox;
+	private transient JFormattedTextField pDiopterPerDegreeTextField, bTextField, phi0DegTextField;
+	private transient JCheckBox alvarezLohmannWindingFocussingCheckBox, azimuthalPhaseComponensationCheckBox;
+	
+	@Override
+	protected void createEditPanel()
+	{
+		super.createEditPanel();
+		
+		/*
+		 * Edit focal length control
+		 */
+		
+		editPanel.add(UIBitsAndBobs.makeHTMLLabel("A spiral-adaptive-Fresnel-lens component"));
+		editPanel.add(UIBitsAndBobs.makeRow("Spiral shape", cylindricalLensSpiralTypeComboBox, true));
+		editPanel.add(UIBitsAndBobs.makeRow("Ratio of focal power and rotation angle between components, <i>p<i> = <i>P<i> / &Delta;&theta; = ", pDiopterPerDegreeTextField, "diopters / &deg;", true));
+		editPanel.add(UIBitsAndBobs.makeRow("Winding parameter <i>b</i> =", bTextField, true));
+		editPanel.add(UIBitsAndBobs.makeRow("Rotation angle &theta;<sub>0</sub> =", phi0DegTextField, "&deg;.", true));
+		editPanel.add(UIBitsAndBobs.makeRow("Winding boundary ", windingBoundaryPlacementComboBox, true));
+		editPanel.add(alvarezLohmannWindingFocussingCheckBox);
+		editPanel.add(azimuthalPhaseComponensationCheckBox);
+	}
+	
+	@Override
+	protected void initialiseWidgets()
+	{
+		super.initialiseWidgets();
+		
+		cylindricalLensSpiralTypeComboBox = new JComboBox<CylindricalLensSpiralType>(CylindricalLensSpiralType.values());
+		cylindricalLensSpiralTypeComboBox.setToolTipText("Shape of the spiral the cylindrical lens is wound into");
+		cylindricalLensSpiralTypeComboBox.addActionListener(this);
+		cylindricalLensSpiralTypeComboBox.setSelectedItem(cylindricalLensSpiralType);
+		cylindricalLensSpiralTypeComboBox.setMaximumSize(cylindricalLensSpiralTypeComboBox.getPreferredSize());
+		
+		pDiopterPerDegreeTextField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
+		pDiopterPerDegreeTextField.setValue(Double.valueOf(SpiralAdaptiveFresnelLens.diopterPerRad2diopterPerDegree(p)));
+
+		bTextField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
+		bTextField.setValue(Double.valueOf(b));
+
+		phi0DegTextField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
+		phi0DegTextField.setValue(Double.valueOf(MyMath.rad2deg(phi0)));
+		
+		windingBoundaryPlacementComboBox = new JComboBox<WindingBoundaryPlacementType>(WindingBoundaryPlacementType.values());
+		windingBoundaryPlacementComboBox.setToolTipText("Placement of the boundary between neighbouring windings");
+		windingBoundaryPlacementComboBox.addActionListener(this);
+		windingBoundaryPlacementComboBox.setSelectedItem(windingBoundaryPlacement);
+		windingBoundaryPlacementComboBox.setMaximumSize(windingBoundaryPlacementComboBox.getPreferredSize());
+		
+		alvarezLohmannWindingFocussingCheckBox = new JCheckBox("Alvarez-Lohmann winding focussing");
+		alvarezLohmannWindingFocussingCheckBox.setToolTipText("Should Alvarez-Lohmann winding focussing be used?");
+		alvarezLohmannWindingFocussingCheckBox.addPropertyChangeListener(this);
+		alvarezLohmannWindingFocussingCheckBox.setSelected(alvarezLohmannWindingFocussing);
+		alvarezLohmannWindingFocussingCheckBox.setAlignmentX(Component.CENTER_ALIGNMENT);
+		
+		azimuthalPhaseComponensationCheckBox = new JCheckBox("Azimuthal phase componensation");
+		azimuthalPhaseComponensationCheckBox.setToolTipText("Should azimuthal phase componensation be used?");
+		azimuthalPhaseComponensationCheckBox.addPropertyChangeListener(this);
+		azimuthalPhaseComponensationCheckBox.setSelected(azimuthalPhaseComponensation);
+		azimuthalPhaseComponensationCheckBox.setAlignmentX(Component.CENTER_ALIGNMENT);
+	}
+	
+	@Override
+	public void readWidgets()
+	{
+		super.readWidgets();
+
+		if(cylindricalLensSpiralTypeComboBox != null) cylindricalLensSpiralType = (CylindricalLensSpiralType)(cylindricalLensSpiralTypeComboBox.getSelectedItem());
+		if(pDiopterPerDegreeTextField != null) setP(SpiralAdaptiveFresnelLens.diopterPerDegree2diopterPerRad(((Number)pDiopterPerDegreeTextField.getValue()).doubleValue()));
+        if(bTextField != null) setB(((Number)bTextField.getValue()).doubleValue());
+        if(phi0DegTextField != null) setPhi0(MyMath.deg2rad(((Number)phi0DegTextField.getValue()).doubleValue()));
+        if(windingBoundaryPlacementComboBox != null) windingBoundaryPlacement = (WindingBoundaryPlacementType)(windingBoundaryPlacementComboBox.getSelectedItem());
+        if(alvarezLohmannWindingFocussingCheckBox != null) alvarezLohmannWindingFocussing = alvarezLohmannWindingFocussingCheckBox.isSelected();
+        if(azimuthalPhaseComponensationCheckBox != null) azimuthalPhaseComponensation = azimuthalPhaseComponensationCheckBox.isSelected();
+	}
+	
+	@Override
+	public void propertyChange(PropertyChangeEvent e)
+	{
+	    Object source = e.getSource();
+	    
+	    if (source.equals(pDiopterPerDegreeTextField))
+	    {
+	    	setP(SpiralAdaptiveFresnelLens.diopterPerDegree2diopterPerRad(((Number)pDiopterPerDegreeTextField.getValue()).doubleValue()));
+	    }
+	    else if (source == bTextField)
+	    {
+	        setB(((Number)bTextField.getValue()).doubleValue());
+	    }
+	    else if (source == phi0DegTextField)
+	    {
+	        setPhi0(MyMath.deg2rad(((Number)phi0DegTextField.getValue()).doubleValue()));
+	    }
+	    else if (source == alvarezLohmannWindingFocussingCheckBox)
+	    {
+	    	alvarezLohmannWindingFocussing = alvarezLohmannWindingFocussingCheckBox.isSelected();
+	    }
+	    else if(source.equals(azimuthalPhaseComponensationCheckBox))
+	    {
+	    	azimuthalPhaseComponensation = azimuthalPhaseComponensationCheckBox.isSelected();
+	    }
+	    
+		// Fire an edit panel event
+		editListener.editMade();
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e)
+	{
+		Object source = e.getSource();
+
+		if (source == cylindricalLensSpiralTypeComboBox)
+		{
+			cylindricalLensSpiralType = (CylindricalLensSpiralType)(cylindricalLensSpiralTypeComboBox.getSelectedItem());
+		}
+		else if (source == windingBoundaryPlacementComboBox)
+		{
+			windingBoundaryPlacement = (WindingBoundaryPlacementType)(windingBoundaryPlacementComboBox.getSelectedItem());
+		}
+	    
+		// Fire an edit panel event
+		editListener.editMade();
+	}
+
 
 }

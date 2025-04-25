@@ -37,7 +37,7 @@ public class LengthField extends JCPanel implements PropertyChangeListener, Acti
 		
 //		valueTextField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
 //		add(valueTextField);
-        SpinnerNumberModel valueSpinnerModel = new SpinnerNumberModel(0.0, -1000, 1e12, 1); // TODO: is 1e12 high enough for all intents and purposes? This means the maximum is 1e12km
+        SpinnerNumberModel valueSpinnerModel = new SpinnerNumberModel(0.0, -1e20, 1e20, 1); // TODO: is 1e12 high enough for all intents and purposes? This means the maximum is 1e12km
 		valueSpinner = new JSpinner(valueSpinnerModel);
 		((JSpinner.DefaultEditor)valueSpinner.getEditor()).getTextField().setColumns(6);
 		valueSpinner.setMaximumSize(valueSpinner.getPreferredSize());

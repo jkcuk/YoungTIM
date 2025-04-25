@@ -59,7 +59,7 @@ public class OpticalComponentFactory
 			"Clone of component",
 			"Cylindrical lens",
 			"Cylindrical-lens mode converter",
-			"Cylindrical-lens spiral",
+			// "Cylindrical-lens spiral",
 			"Distance",
 			"Dove prism",
 			"Dove-prism array",
@@ -75,6 +75,7 @@ public class OpticalComponentFactory
 			"Phase-conjugating surface",
 			"Plane",
 			"Spiral adaptive Fresnel lens",
+			"Spiral-adaptive-Fresnel-lens component",
 			"Spiral phase plate",
 			"Wedge"
 	};
@@ -115,10 +116,10 @@ public class OpticalComponentFactory
 		{
 			opticalComponent = new LensletArray();
 		}
-		else if(name.equals("Cylindrical-lens spiral"))
-		{
-			opticalComponent = new CylindricalLensSpiral();
-		}
+//		else if(name.equals("Cylindrical-lens spiral"))
+//		{
+//			opticalComponent = new CylindricalLensSpiral();
+//		}
 		else if(name.equals("Wedge"))
 		{
 			opticalComponent = new Wedge();
@@ -146,6 +147,10 @@ public class OpticalComponentFactory
 		else if(name.equals("Spiral adaptive Fresnel lens"))
 		{
 			opticalComponent = new SpiralAdaptiveFresnelLens();
+		}
+		else if(name.equals("Spiral-adaptive-Fresnel-lens component"))
+		{
+			opticalComponent = new SpiralAdaptiveFresnelLensComponent();
 		}
 		else if(name.equals("Spiral phase plate"))
 		{

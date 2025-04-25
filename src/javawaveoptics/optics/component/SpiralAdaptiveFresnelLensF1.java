@@ -30,7 +30,7 @@ import library.maths.MyMath;
  * 
  * @author Johannes
  */
-public class SpiralAdaptiveFresnelLens extends AbstractSimpleOpticalComponent implements ConvertableComponent, Serializable, PropertyChangeListener, ActionListener
+public class SpiralAdaptiveFresnelLensF1 extends AbstractSimpleOpticalComponent implements ConvertableComponent, Serializable, PropertyChangeListener, ActionListener
 {
 	private static final long serialVersionUID = 4201640500868865672L;
 
@@ -53,12 +53,7 @@ public class SpiralAdaptiveFresnelLens extends AbstractSimpleOpticalComponent im
 	/**
 	 * the focal length of the cylindrical lens at r=1 m
 	 */
-	// private double f1;
-	
-	/**
-	 * the ratio of focussing power and rotation angle between the components, in diopters / radians
-	 */
-	private double p;
+	private double f1;
 
 	/**
 	 * relative rotation angle of the two components (in radians);
@@ -103,11 +98,11 @@ public class SpiralAdaptiveFresnelLens extends AbstractSimpleOpticalComponent im
 	
 	
 	
-	public SpiralAdaptiveFresnelLens(
+	public SpiralAdaptiveFresnelLensF1(
 		String name, 
 		CylindricalLensSpiralType cylindricalLensSpiralType, 
 		double b,
-		double p,
+		double f1,
 		double deltaTheta,
 		double deltaZ,
 		double deltaTheta0,
@@ -125,7 +120,7 @@ public class SpiralAdaptiveFresnelLens extends AbstractSimpleOpticalComponent im
 			
 		setCylindricalLensSpiralType(cylindricalLensSpiralType);
 		setB(b);
-		setP(p);
+		setF1(f1);
 		setDeltaTheta(deltaTheta);
 		setDeltaZ(deltaZ);
 		setDeltaTheta0(deltaTheta0);
@@ -143,13 +138,13 @@ public class SpiralAdaptiveFresnelLens extends AbstractSimpleOpticalComponent im
 	 * Null constructor. Creates a lens with default values. This requires no
 	 * parameters.
 	 */
-	public SpiralAdaptiveFresnelLens()
+	public SpiralAdaptiveFresnelLensF1()
 	{
 		this(
 			COMPONENT_TYPE_NAME,	// name
 			CylindricalLensSpiralType.LOGARITHMIC,	// cylindricalLensSpiralType
 			0.01,	// b
-			1. / MyMath.deg2rad(10.),	// p
+			1e-3,	// f1
 			MyMath.deg2rad(10),	// deltaTheta
 			0.0,	// deltaZ
 			MyMath.deg2rad(10),	// deltaTheta0
@@ -165,13 +160,13 @@ public class SpiralAdaptiveFresnelLens extends AbstractSimpleOpticalComponent im
 	}
 	
 	@Override
-	public SpiralAdaptiveFresnelLens clone()
+	public SpiralAdaptiveFresnelLensF1 clone()
 	{
-		return new SpiralAdaptiveFresnelLens(
+		return new SpiralAdaptiveFresnelLensF1(
 				name, 
 				cylindricalLensSpiralType, 
 				b,
-				p,
+				f1,
 				deltaTheta,
 				deltaZ,
 				deltaTheta0,
@@ -223,14 +218,14 @@ public class SpiralAdaptiveFresnelLens extends AbstractSimpleOpticalComponent im
 		{
 			// calculateBAndF1();
 
-			System.out.println("SpiralAdaptiveFresnelLens::fromInputBeamCalculateOutputBeam: b = "+b+", p = "+p);
-						
+			System.out.println("SpiralAdaptiveFresnelLens::fromInputBeamCalculateOutputBeam: b = "+b+", f1 = "+f1+"m");
+			
 			if(showComponent1)
 			{
 				SpiralAdaptiveFresnelLensComponent cls1 = new SpiralAdaptiveFresnelLensComponent(
 						"Component 1",	// name
 						cylindricalLensSpiralType,
-						p,
+						f1,	// focalLength
 						b, 
 						0.5*deltaTheta,	// phi0
 						windingBoundaryPlacement,
@@ -251,7 +246,7 @@ public class SpiralAdaptiveFresnelLens extends AbstractSimpleOpticalComponent im
 				SpiralAdaptiveFresnelLensComponent cls2 = new SpiralAdaptiveFresnelLensComponent(
 						"Component 2",	// name
 						cylindricalLensSpiralType,
-						-p,
+						-f1,	// focalLength
 						b, 
 						-0.5*deltaTheta,	// phi0
 						windingBoundaryPlacement,
@@ -304,14 +299,14 @@ public class SpiralAdaptiveFresnelLens extends AbstractSimpleOpticalComponent im
 				
 		// add the new components
 		// (from ExtensiveWorkbench.WorkbenchFlowArrowPopupMenuActionListener.actionPerformed)
-		
+
 		// component 1
 		ExtensiveWorkbenchOpticalComponent component1 = workbench.insertComponent(
 				opticalTrainIndex,	// index
 				new SpiralAdaptiveFresnelLensComponent(
 						"Component 1",	// name
 						cylindricalLensSpiralType,
-						p,
+						f1,	// focalLength
 						b, 
 						0.5*deltaTheta,	// phi0
 						windingBoundaryPlacement,
@@ -335,7 +330,7 @@ public class SpiralAdaptiveFresnelLens extends AbstractSimpleOpticalComponent im
 				new SpiralAdaptiveFresnelLensComponent(
 						"Component 2",	// name
 						cylindricalLensSpiralType,
-						-p,
+						-f1,	// focalLength
 						b, 
 						-0.5*deltaTheta,	// phi0
 						windingBoundaryPlacement,
@@ -365,19 +360,12 @@ public class SpiralAdaptiveFresnelLens extends AbstractSimpleOpticalComponent im
 	
 	private transient JComboBox<CylindricalLensSpiralType> cylindricalLensSpiralTypeComboBox;
 	private transient JComboBox<WindingBoundaryPlacementType> windingBoundaryPlacementComboBox;
-	private transient LengthField deltaZLengthField, focalLength0LengthField, r0LengthField, w0LengthField;
-	private transient JFormattedTextField bTextField, pDiopterPerDegreeTextField, deltaThetaDegTextField, deltaTheta0DegTextField, FTextField;
+	private transient LengthField f1LengthField, deltaZLengthField, focalLength0LengthField, r0LengthField, w0LengthField;
+	private transient JFormattedTextField bTextField, deltaThetaDegTextField, deltaTheta0DegTextField, FTextField;
 	private transient JCheckBox alvarezLohmannWindingFocussingCheckBox, azimuthalPhaseComponensationCheckBox, showComponent1CheckBox, showComponent2CheckBox;
 	private transient JTextPane infoTextPane;
-	private transient JButton setBButton, setPButton, setDeltaZButton;
+	private transient JButton setBButton, setF1Button, setDeltaZButton;
 	
-	public static double diopterPerRad2diopterPerDegree(double diopterPerRad) {
-		return diopterPerRad*(Math.PI/180.);
-	}
-
-	public static double diopterPerDegree2diopterPerRad(double diopterPerDegree) {
-		return diopterPerDegree/(Math.PI/180.);
-	}
 
 	@Override
 	protected void createEditPanel()
@@ -389,7 +377,7 @@ public class SpiralAdaptiveFresnelLens extends AbstractSimpleOpticalComponent im
 		editPanel.add(UIBitsAndBobs.makeRow("Rotation angle between components, &Delta;&theta; = ", deltaThetaDegTextField, "&deg;", true));
 		editPanel.add(UIBitsAndBobs.makeRow("Separation between components, &Delta;<i>z</i> = ", deltaZLengthField, setDeltaZButton, true));
 		editPanel.add(UIBitsAndBobs.makeRow("Winding parameter, <i>b</i> = ", bTextField, true));
-		editPanel.add(UIBitsAndBobs.makeRow("Ratio of focal power and rotation angle between components, <i>p<i> = <i>P<i> / &Delta;&theta; = ", pDiopterPerDegreeTextField, "diopters / &deg;", true));
+		editPanel.add(UIBitsAndBobs.makeRow("Cylindrical-lens focal length at <i>r</i> = 1 m, <i>f</i><sub>1</sub> = ", f1LengthField, true));
 		editPanel.add(alvarezLohmannWindingFocussingCheckBox);
 		editPanel.add(azimuthalPhaseComponensationCheckBox);
 		editPanel.add(UIBitsAndBobs.makeRow(showComponent1CheckBox, showComponent2CheckBox, true));
@@ -398,7 +386,7 @@ public class SpiralAdaptiveFresnelLens extends AbstractSimpleOpticalComponent im
 		editPanel.add(UIBitsAndBobs.makeRow("Resulting focal length, <i>F</i> = ", FTextField, "m", true));
 		editPanel.add(new JSeparator(SwingConstants.HORIZONTAL));
 		editPanel.add(UIBitsAndBobs.makeRow(setBButton, "from the winding <i>w</i> &#8773; ", w0LengthField, "at <i>r</i> = ", r0LengthField, "", true));
-		editPanel.add(UIBitsAndBobs.makeRow(setPButton, "from the focal length <i>F</i> = ", focalLength0LengthField, "for &Delta;&theta; = ", deltaTheta0DegTextField, "&deg;", true));
+		editPanel.add(UIBitsAndBobs.makeRow(setF1Button, "from <i>b</i> and the focal length <i>F</i> = ", focalLength0LengthField, "for &Delta;&theta; = ", deltaTheta0DegTextField, "&deg;", true));
 		// editPanel.add(new JSeparator(SwingConstants.HORIZONTAL));
 		// editPanel.add(infoTextPane);
 	}
@@ -426,8 +414,8 @@ public class SpiralAdaptiveFresnelLens extends AbstractSimpleOpticalComponent im
 		setDeltaZButton.addActionListener(this);
 		enableOrDisableDeltaZButton();
 
-		pDiopterPerDegreeTextField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
-		pDiopterPerDegreeTextField.setValue(Double.valueOf(diopterPerRad2diopterPerDegree(p)));
+		f1LengthField = new LengthField(this);
+		f1LengthField.setLengthInMetres(f1);
 
 		r0LengthField = new LengthField(this);
 		r0LengthField.setLengthInMetres(r0);
@@ -438,8 +426,8 @@ public class SpiralAdaptiveFresnelLens extends AbstractSimpleOpticalComponent im
 		setBButton = new JButton("<html>Set <i>b</i></html>");
 		setBButton.addActionListener(this);
 		
-		setPButton = new JButton("<html>Set <i>p</i></html>");
-		setPButton.addActionListener(this);
+		setF1Button = new JButton("<html>Set <i>f</i><sub>1</sub></html>");
+		setF1Button.addActionListener(this);
 		
 		deltaThetaDegTextField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
 		deltaThetaDegTextField.setValue(Double.valueOf(MyMath.rad2deg(deltaTheta)));
@@ -503,7 +491,7 @@ public class SpiralAdaptiveFresnelLens extends AbstractSimpleOpticalComponent im
 				// (double)bTextField.getValue()
 			);
 		if(deltaZLengthField != null) setDeltaZ(deltaZLengthField.getLengthInMetres());
-		if(pDiopterPerDegreeTextField != null) setP(diopterPerDegree2diopterPerRad(((Number)pDiopterPerDegreeTextField.getValue()).doubleValue()));
+		if(f1LengthField != null) setF1(f1LengthField.getLengthInMetres());
         if(r0LengthField != null) setR0(r0LengthField.getLengthInMetres());
         if(w0LengthField != null) setW0(w0LengthField.getLengthInMetres());
                // if(bTextField != null) setB(((Number)bTextField.getValue()).doubleValue());
@@ -519,14 +507,14 @@ public class SpiralAdaptiveFresnelLens extends AbstractSimpleOpticalComponent im
 	
 	public void recalculateF()
 	{
-		if(FTextField != null) FTextField.setValue(Double.valueOf(1/(p*deltaTheta)));
+		if(FTextField != null) FTextField.setValue(Double.valueOf(f1/(b*deltaTheta)));
 	}
 	
 	public void updateInfo()
 	{
 		String s = "<html>Parameters: <i>b</i> = " + String.format("%3.2e", b)
-				+ ", <i>p</i> = " + String.format("%3.2e", p)
-				+ ", <i>F</i> = " + LengthUnitsComboBox.length2NiceString(1/(p*deltaTheta))
+				+ ", <i>f</i><sub>1</sub> = " + LengthUnitsComboBox.length2NiceString(f1)
+				+ ", <i>F</i> = " + LengthUnitsComboBox.length2NiceString(f1/(b*deltaTheta))
 				+ "</html>";
 		
 		// System.out.println("SpiralAdaptiveFresnelLens::updateInfo: "+s);
@@ -579,10 +567,9 @@ public class SpiralAdaptiveFresnelLens extends AbstractSimpleOpticalComponent im
 	        setB(((Number)bTextField.getValue()).doubleValue());
 	        recalculateF();
 	    }
-	    else if (source.equals(pDiopterPerDegreeTextField))
+	    else if (source.equals(f1LengthField))
 	    {
-	    	setP(diopterPerDegree2diopterPerRad(((Number)pDiopterPerDegreeTextField.getValue()).doubleValue()));
-	    	// setP(((Number)pTextField.getValue()).doubleValue());
+	    	setF1(f1LengthField.getLengthInMetres());
 	    	recalculateF();
 	    }
 	    else if (source.equals(deltaThetaDegTextField))
@@ -608,7 +595,7 @@ public class SpiralAdaptiveFresnelLens extends AbstractSimpleOpticalComponent im
 		}
 		else if(source.equals(setDeltaZButton))
 		{
-			deltaZ = b/p*b*deltaTheta;	// f1*b*deltaTheta
+			deltaZ = f1*b*deltaTheta;
 			deltaZLengthField.setLengthInMetres(deltaZ);
 		}
 	    else if (source.equals(alvarezLohmannWindingFocussingCheckBox))
@@ -634,12 +621,11 @@ public class SpiralAdaptiveFresnelLens extends AbstractSimpleOpticalComponent im
 			bTextField.setValue(Double.valueOf(b));
 			recalculateF();
 		}
-		else if(source.equals(setPButton))
+		else if(source.equals(setF1Button))
 		{
 			readWidgets();
-			p = 1/focalLength0/deltaTheta0;
-			pDiopterPerDegreeTextField.setValue(Double.valueOf(diopterPerRad2diopterPerDegree(p)));
-			// pTextField.setValue(Double.valueOf(p));
+			f1 = focalLength0*b*deltaTheta0;
+			f1LengthField.setLengthInMetres(f1);
 			recalculateF();
 		}
 	    else if (source.equals(showComponent1CheckBox))
@@ -668,26 +654,19 @@ public class SpiralAdaptiveFresnelLens extends AbstractSimpleOpticalComponent im
 	public void setB(double b) {
 		this.b = b;
 	}
-	
+
 	/**
-	 * @return the p
+	 * @return the f1
 	 */
-	public double getP() {
-		return p;
+	public double getF1() {
+		return f1;
 	}
 
 	/**
-	 * @param p the p to set
+	 * @param f1 the f1 to set
 	 */
-	public void setP(double p) {
-		this.p = p;
-	}
-
-	/**
-	 * @return f1, calculated from b and p
-	 */
-	double calculateF1() {
-		return b/p;
+	public void setF1(double f1) {
+		this.f1 = f1;
 	}
 
 	/**

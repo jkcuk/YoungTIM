@@ -3,8 +3,8 @@ package javawaveoptics.optics.environment;
 import java.io.Serializable;
 
 import javawaveoptics.optics.component.*;
-import javawaveoptics.optics.component.CylindricalLensSpiral.CylindricalLensSpiralType;
-import javawaveoptics.optics.component.CylindricalLensSpiral.WindingBoundaryPlacementType;
+import javawaveoptics.optics.component.SpiralAdaptiveFresnelLensComponent.CylindricalLensSpiralType;
+import javawaveoptics.optics.component.SpiralAdaptiveFresnelLensComponent.WindingBoundaryPlacementType;
 import javawaveoptics.optics.lightsource.GaussianBeam;
 import javawaveoptics.ui.workbench.WorkbenchFactory;
 import library.maths.MyMath;
@@ -42,13 +42,13 @@ public class AdaptiveSpiralFresnelLensOpticalEnvironment extends AbstractOptical
 		// calculate f1 such that, for deltaPhi = deltaPhi0, the focal length is focalLength0
 		double focalLength0 = 1;
 		double deltaPhi0 = MyMath.deg2rad(30);
-		double f1 = SpiralAdaptiveFresnelLens.focalLenth0DeltaTheta0b2f1(focalLength0, deltaPhi0, b);
+		double p = 1/focalLength0/deltaPhi0;
 		
 		SpiralAdaptiveFresnelLens adaptiveFresnelLens = new SpiralAdaptiveFresnelLens(
 				"Adaptive lens",	// name
 				cylindricalLensSpiralType, 
 				b,	// b
-				f1,	// f1
+				p,	// p
 				deltaPhi0,	// deltaPhi
 				0.0,	// deltaZ
 				deltaPhi0,	// deltaPhi0

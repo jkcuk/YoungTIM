@@ -1,6 +1,6 @@
 package javawaveoptics.optics.environment;
 
-import javawaveoptics.optics.component.CylindricalLensSpiral.CylindricalLensSpiralType;
+import javawaveoptics.optics.component.SpiralAdaptiveFresnelLensComponent.CylindricalLensSpiralType;
 import javawaveoptics.optics.environment.FractalLaserOpticalEnvironment.FractalLaserType;
 
 public class OpticalEnvironmentFactory

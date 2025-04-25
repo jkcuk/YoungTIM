@@ -23,7 +23,7 @@ public class UIBitsAndBobs
 		
 		// see http://www.exampledepot.com/egs/java.text/FormatNumExp.html
 		NumberFormat formatter = NumberFormat.getNumberInstance();
-		formatter.setMaximumFractionDigits(6);
+		formatter.setMaximumFractionDigits(8);
 		formattedTextField = new MyFormattedTextField(formatter);
 		formattedTextField.setColumns(6);
 		// formattedTextField.setFocusLostBehavior(JFormattedTextField.COMMIT);
@@ -45,7 +45,10 @@ public class UIBitsAndBobs
 		JFormattedTextField formattedTextField;
 		
 		// see http://www.exampledepot.com/egs/java.text/FormatNumExp.html
-		formattedTextField = new MyFormattedTextField(new DecimalFormat("###E0"));	// NumberFormat.getNumberInstance());
+		NumberFormat formatter = new DecimalFormat("###E0");
+		formatter.setMaximumFractionDigits(2);
+
+		formattedTextField = new MyFormattedTextField(formatter);	// NumberFormat.getNumberInstance());
 		formattedTextField.setColumns(6);
 		if(propertyChangeListener != null) formattedTextField.addPropertyChangeListener("value", propertyChangeListener);
 		
