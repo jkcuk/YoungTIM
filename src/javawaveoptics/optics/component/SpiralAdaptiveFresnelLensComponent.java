@@ -69,7 +69,7 @@ implements SimplePixelWiseOpticalComponentInterface, Serializable, PropertyChang
 	/**
 	 * the ratio of focussing power and rotation angle between the components, in diopters / radians
 	 */
-	private double p;
+	private double q;
 
 	/**
 	 * the centre of the cylindrical lens follows either the logarithmic spiral r = exp(b (phi-phi0)), or the Archimedean spiral r = b (phi-phi0);
@@ -164,7 +164,7 @@ implements SimplePixelWiseOpticalComponentInterface, Serializable, PropertyChang
 		return new SpiralAdaptiveFresnelLensComponent(
 				name, 
 				cylindricalLensSpiralType, 
-				p, 
+				q, 
 				b, 
 				phi0,
 				windingBoundaryPlacement,
@@ -381,19 +381,19 @@ implements SimplePixelWiseOpticalComponentInterface, Serializable, PropertyChang
 
 	public double getP()
 	{
-		return p;
+		return q;
 	}
 
 	public void setP(double p)
 	{
-		this.p = p;
+		this.q = p;
 	}
 	
 	/**
 	 * @return f1, calculated from b and p
 	 */
 	double calculateF1() {
-		return b/p;
+		return b/q;
 	}
 
 	public double getB() {
@@ -467,7 +467,7 @@ implements SimplePixelWiseOpticalComponentInterface, Serializable, PropertyChang
 	
 	private transient JComboBox<CylindricalLensSpiralType> cylindricalLensSpiralTypeComboBox;
 	private transient JComboBox<WindingBoundaryPlacementType> windingBoundaryPlacementComboBox;
-	private transient JFormattedTextField pDiopterPerDegreeTextField, bTextField, phi0DegTextField;
+	private transient JFormattedTextField qDiopterPerDegreeTextField, bTextField, phi0DegTextField;
 	private transient JCheckBox alvarezLohmannWindingFocussingCheckBox, azimuthalPhaseComponensationCheckBox;
 	
 	@Override
@@ -481,7 +481,7 @@ implements SimplePixelWiseOpticalComponentInterface, Serializable, PropertyChang
 		
 		editPanel.add(UIBitsAndBobs.makeHTMLLabel("A spiral-adaptive-Fresnel-lens component"));
 		editPanel.add(UIBitsAndBobs.makeRow("Spiral shape", cylindricalLensSpiralTypeComboBox, true));
-		editPanel.add(UIBitsAndBobs.makeRow("Ratio of focal power and rotation angle between components, <i>p<i> = <i>P<i> / &Delta;&theta; = ", pDiopterPerDegreeTextField, "diopters / &deg;", true));
+		editPanel.add(UIBitsAndBobs.makeRow("Ratio of focussing power and rotation angle between components, <i>q<i> = <i>P<i> / &Delta;&theta; = ", qDiopterPerDegreeTextField, "diopters / &deg;", true));
 		editPanel.add(UIBitsAndBobs.makeRow("Winding parameter <i>b</i> =", bTextField, true));
 		editPanel.add(UIBitsAndBobs.makeRow("Rotation angle &theta;<sub>0</sub> =", phi0DegTextField, "&deg;.", true));
 		editPanel.add(UIBitsAndBobs.makeRow("Winding boundary ", windingBoundaryPlacementComboBox, true));
@@ -500,8 +500,8 @@ implements SimplePixelWiseOpticalComponentInterface, Serializable, PropertyChang
 		cylindricalLensSpiralTypeComboBox.setSelectedItem(cylindricalLensSpiralType);
 		cylindricalLensSpiralTypeComboBox.setMaximumSize(cylindricalLensSpiralTypeComboBox.getPreferredSize());
 		
-		pDiopterPerDegreeTextField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
-		pDiopterPerDegreeTextField.setValue(Double.valueOf(SpiralAdaptiveFresnelLens.diopterPerRad2diopterPerDegree(p)));
+		qDiopterPerDegreeTextField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
+		qDiopterPerDegreeTextField.setValue(Double.valueOf(SpiralAdaptiveFresnelLens.diopterPerRad2diopterPerDegree(q)));
 
 		bTextField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
 		bTextField.setValue(Double.valueOf(b));
@@ -534,7 +534,7 @@ implements SimplePixelWiseOpticalComponentInterface, Serializable, PropertyChang
 		super.readWidgets();
 
 		if(cylindricalLensSpiralTypeComboBox != null) cylindricalLensSpiralType = (CylindricalLensSpiralType)(cylindricalLensSpiralTypeComboBox.getSelectedItem());
-		if(pDiopterPerDegreeTextField != null) setP(SpiralAdaptiveFresnelLens.diopterPerDegree2diopterPerRad(((Number)pDiopterPerDegreeTextField.getValue()).doubleValue()));
+		if(qDiopterPerDegreeTextField != null) setP(SpiralAdaptiveFresnelLens.diopterPerDegree2diopterPerRad(((Number)qDiopterPerDegreeTextField.getValue()).doubleValue()));
         if(bTextField != null) setB(((Number)bTextField.getValue()).doubleValue());
         if(phi0DegTextField != null) setPhi0(MyMath.deg2rad(((Number)phi0DegTextField.getValue()).doubleValue()));
         if(windingBoundaryPlacementComboBox != null) windingBoundaryPlacement = (WindingBoundaryPlacementType)(windingBoundaryPlacementComboBox.getSelectedItem());
@@ -547,9 +547,9 @@ implements SimplePixelWiseOpticalComponentInterface, Serializable, PropertyChang
 	{
 	    Object source = e.getSource();
 	    
-	    if (source.equals(pDiopterPerDegreeTextField))
+	    if (source.equals(qDiopterPerDegreeTextField))
 	    {
-	    	setP(SpiralAdaptiveFresnelLens.diopterPerDegree2diopterPerRad(((Number)pDiopterPerDegreeTextField.getValue()).doubleValue()));
+	    	setP(SpiralAdaptiveFresnelLens.diopterPerDegree2diopterPerRad(((Number)qDiopterPerDegreeTextField.getValue()).doubleValue()));
 	    }
 	    else if (source == bTextField)
 	    {
