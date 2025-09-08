@@ -438,7 +438,7 @@ public class SpiralAdaptiveFresnelLens extends AbstractSimpleOpticalComponent im
 		setBButton = new JButton("<html>Set <i>b</i></html>");
 		setBButton.addActionListener(this);
 		
-		setPButton = new JButton("<html>Set <i>p</i></html>");
+		setPButton = new JButton("<html>Set <i>q</i></html>");
 		setPButton.addActionListener(this);
 		
 		deltaThetaDegTextField = UIBitsAndBobs.makeDoubleFormattedTextField(this);
