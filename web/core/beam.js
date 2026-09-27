@@ -8,6 +8,7 @@ export class Beam {
     this.physicalWidth = physicalWidth;
     this.physicalHeight = physicalHeight;
     this.wavelength = wavelength;
+    // create space for data, and initialise with zeroes
     this.real = new Float64Array(width * height);
     this.imaginary = new Float64Array(width * height);
   }

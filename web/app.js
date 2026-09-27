@@ -662,7 +662,7 @@ function phaseIntensityColour(phase, intensity) {
   // Clamp intensity to [0,1]
   const v = Math.max(0, Math.min(1, intensity));
 
-  // Wrap phase into [0,1)
+  // Wrap phase into [0,1); note that the "+ 1 % 1" makes it work for negative values also
   const h = ((phase % 1) + 1) % 1;
 
   const s = 1;
