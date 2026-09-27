@@ -496,145 +496,295 @@ function makeSelectedComponent(type, savedParams = {}) {
   return { component, type, params };
 }
 
+function getComponentDisplayNames(components) {
+  const counts = new Map();
+
+  components.forEach(component => {
+    counts.set(
+      component.type,
+      (counts.get(component.type) ?? 0) + 1
+    );
+  });
+
+  const indices = new Map();
+
+  return components.map(component => {
+    const count = counts.get(component.type) ?? 0;
+
+    if (count <= 1) {
+      return component.label;
+    }
+
+    const number =
+      (indices.get(component.type) ?? 0) + 1;
+
+    indices.set(component.type, number);
+
+    return `${component.label} ${number}`;
+  });
+}
+
 function renderChainList() {
   const list = document.querySelector('#chain-list');
   list.replaceChildren();
+
+  const displayNames =
+    getComponentDisplayNames(extraComponents);
+
   extraComponents.forEach((item, index) => {
+
+    const displayLabel =
+      displayNames[index];
+
     const row = document.createElement('li');
+
     const header = document.createElement('div');
-    header.className = 'component-row-header';
-    const label = document.createElement('span');
-    label.textContent = item.label;
-    const actions = document.createElement('span');
-    const moveUp = document.createElement('button');
+    header.className =
+      'component-row-header';
+
+    const label =
+      document.createElement('span');
+
+    label.textContent =
+      displayLabel;
+
+    const actions =
+      document.createElement('span');
+
+    const moveUp =
+      document.createElement('button');
+
     moveUp.type = 'button';
-    moveUp.title = `Move ${item.label} earlier`;
-    moveUp.setAttribute('aria-label', `Move ${item.label} earlier`);
+    moveUp.title =
+      `Move ${displayLabel} earlier`;
+
+    moveUp.setAttribute(
+      'aria-label',
+      `Move ${displayLabel} earlier`
+    );
+
     moveUp.textContent = '↑';
     moveUp.disabled = index === 0;
-    moveUp.addEventListener('click', () => {
-      [extraComponents[index - 1], extraComponents[index]] = [extraComponents[index], extraComponents[index - 1]];
-      renderChainList();
-      render();
-    });
-    const moveDown = document.createElement('button');
+
+    moveUp.addEventListener(
+      'click',
+      () => {
+        [
+          extraComponents[index - 1],
+          extraComponents[index]
+        ] = [
+          extraComponents[index],
+          extraComponents[index - 1]
+        ];
+
+        renderChainList();
+        render();
+      }
+    );
+
+    const moveDown =
+      document.createElement('button');
+
     moveDown.type = 'button';
-    moveDown.title = `Move ${item.label} later`;
-    moveDown.setAttribute('aria-label', `Move ${item.label} later`);
+
+    moveDown.title =
+      `Move ${displayLabel} later`;
+
+    moveDown.setAttribute(
+      'aria-label',
+      `Move ${displayLabel} later`
+    );
+
     moveDown.textContent = '↓';
-    moveDown.disabled = index === extraComponents.length - 1;
-    moveDown.addEventListener('click', () => {
-      [extraComponents[index], extraComponents[index + 1]] = [extraComponents[index + 1], extraComponents[index]];
-      renderChainList();
-      render();
-    });
-    const remove = document.createElement('button');
+
+    moveDown.disabled =
+      index === extraComponents.length - 1;
+
+    moveDown.addEventListener(
+      'click',
+      () => {
+        [
+          extraComponents[index],
+          extraComponents[index + 1]
+        ] = [
+          extraComponents[index + 1],
+          extraComponents[index]
+        ];
+
+        renderChainList();
+        render();
+      }
+    );
+
+    const remove =
+      document.createElement('button');
+
     remove.type = 'button';
-    remove.title = `Remove ${item.label}`;
-    remove.setAttribute('aria-label', `Remove ${item.label}`);
+
+    remove.title =
+      `Remove ${displayLabel}`;
+
+    remove.setAttribute(
+      'aria-label',
+      `Remove ${displayLabel}`
+    );
+
     remove.textContent = '×';
-    remove.addEventListener('click', () => {
-      extraComponents.splice(index, 1);
-      renderChainList();
-      render();
-    });
-    actions.append(moveUp, moveDown, remove);
-    header.append(label, actions);
-    row.append(header);
-    const schema = componentSchemas[item.type] ?? componentSchemas.transparent;
+
+    remove.addEventListener(
+      'click',
+      () => {
+        extraComponents.splice(index, 1);
+
+        renderChainList();
+        render();
+      }
+    );
+
+    actions.append(
+      moveUp,
+      moveDown,
+      remove
+    );
+
+    header.append(
+      label,
+      actions
+    );
+
+    row.append(
+      header
+    );
+
+    const schema =
+      componentSchemas[item.type]
+      ?? componentSchemas.transparent;
+
     if (schema.fields.length) {
-      const settings = document.createElement('div');
-      settings.className = 'component-settings';
-      schema.fields.filter(field => !(item.type === 'hologrammifier' && item.params.type === 'intensity' && field.key === 'phaseStepHeightFactor')).forEach(field => {
-        const fieldLabel = document.createElement('label');
-        fieldLabel.textContent = field.label;
-        const input = document.createElement(field.input === 'select' ? 'select' : 'input');
-        if (field.input !== 'select') input.type = field.input;
-        if (field.input === 'select') {
-          field.options.forEach(([value, text]) => input.add(new Option(text, value)));
-          input.value = item.params[field.key];
-        } else if (field.input === 'checkbox') {
-          input.checked = Boolean(item.params[field.key]);
-        } else {
-          input.value = item.params[field.key];
-          input.min = field.min;
-          input.max = field.max;
-          input.step = field.step;
-        }
-        input.addEventListener('input', () => {
-          item.params[field.key] = field.input === 'checkbox' ? input.checked : field.input === 'number' ? Number(input.value) : input.value;
-          item.component = makeSelectedComponent(item.type, item.params).component;
-          if (item.type === 'hologrammifier' && field.key === 'type') renderChainList();
-          render();
+
+      const settings =
+        document.createElement('div');
+
+      settings.className =
+        'component-settings';
+
+      schema.fields
+        .filter(field =>
+          !(
+            item.type ===
+              'hologrammifier' &&
+            item.params.type ===
+              'intensity' &&
+            field.key ===
+              'phaseStepHeightFactor'
+          )
+        )
+        .forEach(field => {
+
+          const fieldLabel =
+            document.createElement('label');
+
+          fieldLabel.textContent =
+            field.label;
+
+          const input =
+            document.createElement(
+              field.input === 'select'
+                ? 'select'
+                : 'input'
+            );
+
+          if (field.input !== 'select') {
+            input.type =
+              field.input;
+          }
+
+          if (field.input === 'select') {
+
+            field.options.forEach(
+              ([value, text]) =>
+                input.add(
+                  new Option(
+                    text,
+                    value
+                  )
+                )
+            );
+
+            input.value =
+              item.params[field.key];
+
+          } else if (
+            field.input ===
+            'checkbox'
+          ) {
+
+            input.checked =
+              Boolean(
+                item.params[field.key]
+              );
+
+          } else {
+
+            input.value =
+              item.params[field.key];
+
+            input.min =
+              field.min;
+
+            input.max =
+              field.max;
+
+            input.step =
+              field.step;
+          }
+
+          input.addEventListener(
+            'input',
+            () => {
+
+              item.params[field.key] =
+                field.input ===
+                'checkbox'
+                  ? input.checked
+                  : field.input ===
+                      'number'
+                    ? Number(
+                        input.value
+                      )
+                    : input.value;
+
+              item.component =
+                makeSelectedComponent(
+                  item.type,
+                  item.params
+                ).component;
+
+              if (
+                item.type ===
+                  'hologrammifier' &&
+                field.key ===
+                  'type'
+              ) {
+                renderChainList();
+              }
+
+              render();
+            }
+          );
+
+          fieldLabel.append(
+            input
+          );
+
+          settings.append(
+            fieldLabel
+          );
         });
-        fieldLabel.append(input);
-        settings.append(fieldLabel);
-      });
+
       row.append(settings);
     }
-    if (item.type === 'hologram-from-bitmap') {
-      const bitmapLabel = document.createElement('label');
-      bitmapLabel.textContent = 'Hologram bitmap';
-      const bitmapInput = document.createElement('input');
-      bitmapInput.type = 'file';
-      bitmapInput.accept = 'image/*';
-      bitmapInput.addEventListener('change', () => {
-        const file = bitmapInput.files?.[0];
-        if (!file) return;
-        const image = new Image();
-        image.onload = () => {
-          hologramBitmapData = imageToHologramData(image);
-          item.component = new HologramFromBitmap(hologramBitmapData);
-          render();
-          URL.revokeObjectURL(image.src);
-        };
-        image.src = URL.createObjectURL(file);
-      });
-      bitmapLabel.append(bitmapInput);
-      row.append(bitmapLabel);
-    }
-    if (item.type === 'either-or') {
-      const bitmapLabel = document.createElement('label');
-      bitmapLabel.textContent = 'Selection mask';
-      const bitmapInput = document.createElement('input');
-      bitmapInput.type = 'file';
-      bitmapInput.accept = 'image/*';
-      bitmapInput.addEventListener('change', () => {
-        const file = bitmapInput.files?.[0];
-        if (!file) return;
-        const image = new Image();
-        image.onload = () => {
-          eitherOrMaskData = imageToBrightnessData(image);
-          item.component = new EitherOrComponent(eitherOrMaskData, item.params.threshold);
-          render();
-          URL.revokeObjectURL(image.src);
-        };
-        image.src = URL.createObjectURL(file);
-      });
-      bitmapLabel.append(bitmapInput);
-      row.append(bitmapLabel);
-    }
-    if (item.type === 'phase-conjugate-surface') {
-      const bitmapLabel = document.createElement('label');
-      bitmapLabel.textContent = 'Conjugation mask';
-      const bitmapInput = document.createElement('input');
-      bitmapInput.type = 'file';
-      bitmapInput.accept = 'image/*';
-      bitmapInput.addEventListener('change', () => {
-        const file = bitmapInput.files?.[0];
-        if (!file) return;
-        const image = new Image();
-        image.onload = () => {
-          phaseConjugateMaskData = imageToBrightnessData(image);
-          item.component = new EitherOrPhaseConjugateSurface(phaseConjugateMaskData, item.params.threshold);
-          render();
-          URL.revokeObjectURL(image.src);
-        };
-        image.src = URL.createObjectURL(file);
-      });
-      bitmapLabel.append(bitmapInput);
-      row.append(bitmapLabel);
-    }
+
     list.append(row);
   });
 }
@@ -811,14 +961,51 @@ function getFourierIntensityBeam(beam) {
 
 function buildInspectionPointOptions() {
   if (!controls.inspectionPoint) return;
-  const current = controls.inspectionPoint.value;
-  const options = [{ value: 'source', label: 'After light source' }];
-  extraComponents.forEach((item, index) => {
-    options.push({ value: `after:${index}`, label: `After ${item.label}` });
-  });
+
+  const current =
+    controls.inspectionPoint.value;
+
+  const displayNames =
+    getComponentDisplayNames(
+      extraComponents
+    );
+
+  const options = [
+    {
+      value: 'source',
+      label: 'After light source'
+    }
+  ];
+
+  extraComponents.forEach(
+    (item, index) => {
+
+      options.push({
+        value: `after:${index}`,
+        label:
+          `After ${displayNames[index]}`
+      });
+
+    }
+  );
+
   controls.inspectionPoint.replaceChildren();
-  options.forEach(({ value, label }) => controls.inspectionPoint.add(new Option(label, value)));
-  controls.inspectionPoint.value = options.some(option => option.value === current) ? current : options.at(-1)?.value ?? 'source';
+
+  options.forEach(
+    ({ value, label }) =>
+      controls.inspectionPoint.add(
+        new Option(label, value)
+      )
+  );
+
+  controls.inspectionPoint.value =
+    options.some(
+      option =>
+        option.value === current
+    )
+      ? current
+      : options.at(-1)?.value
+          ?? 'source';
 }
 
 function getBeamInspectionData(parameters) {
