@@ -247,10 +247,29 @@ const componentSchemas = {
   ] }
 };
 
+const distanceNumber =
+  document.querySelector('#distance-number');
+
+controls.distance.addEventListener('input', () => {
+  distanceNumber.value =
+    controls.distance.value;
+  render();
+});
+
+distanceNumber.addEventListener('input', () => {
+  controls.distance.value =
+    distanceNumber.value;
+  render();
+});
+
+distanceNumber.value =
+  controls.distance.value;
+
 function sinc(value) { return Math.abs(value) < 1e-8 ? 1 : Math.sin(value) / value; }
 
 function updateLabels() {
   outputs.distance.value = Number(controls.distance.value).toFixed(2);
+  distanceNumber.value = Number(controls.distance.value).toFixed(2);
   document.querySelector('#environment-description').textContent = descriptions[controls.environment.value];
 }
 

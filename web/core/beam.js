@@ -320,6 +320,18 @@ export class Beam {
     return this;
   }
 
+  // The following two methods are used to apply a transmission function to the beam. 
+  // The first adds a complex offset to the existing field, while the second multiplies the existing field by a real factor.
+  addTransmission(offsetFunction) {
+    for (let y = 0; y < this.height; y++) for (let x = 0; x < this.width; x++) {
+      const offset = offsetFunction(this.xCoordinate(x), this.yCoordinate(y));
+      const index = this.index(x, y);
+      this.real[index] += offset.real;
+      this.imaginary[index] += offset.imaginary;
+    }
+    return this;
+  }
+
   multiplyTransmission(transmissionFunction) {
     for (let y = 0; y < this.height; y++) for (let x = 0; x < this.width; x++) {
       const factor = transmissionFunction(this.xCoordinate(x), this.yCoordinate(y));
