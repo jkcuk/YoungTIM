@@ -93,7 +93,7 @@
         <div class="control-group">
           <div class="group-heading"><span>Beam inspection</span><span class="unit">stage</span></div>
           <select id="inspection-point" aria-label="Beam inspection point"></select>
-          <label for="distance">Additional propagation distance <output id="distance-value">0.60</output></label>
+          <label for="distance">Additional propagation distance</label>
           <div class="distance-control">
             <input
               id="distance"
@@ -103,7 +103,6 @@
               value="0"
               step="0.01"
             />
-
             <input
               id="distance-number"
               type="number"
@@ -111,7 +110,6 @@
               max="10"
               step="0.01"
             />
-
             <span>m</span>
           </div>
           <select id="plot-mode">
@@ -127,10 +125,14 @@
             <option value="2d-phase-intensity">2D phase + intensity</option>
             <option value="2d-fourier-intensity">2D Fourier transform (intensity)</option>
           </select>
+          <input
+            id="log-scale"
+            type="checkbox"
+            checked>
+          Log intensity
           <label>
             Exposure compensation (EV)
           </label>
-
           <div class="exposure-control">
             <input
               id="exposure-compensation"
@@ -147,6 +149,12 @@
               max="10"
               step="0.1"
               value="0">
+
+            <button
+              id="auto-exposure"
+              type="button">
+              Auto
+            </button>
           </div>
         </div>
 

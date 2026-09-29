@@ -50,16 +50,20 @@ const controls = {
 let bitmapData = null;
 const extraComponents = [];
 const plotMode = document.querySelector('#plot-mode');
+const logScaleControl =
+  document.querySelector('#log-scale');
+logScaleControl?.addEventListener(
+  'input',
+  render
+);
 
 const exposureControl =
   document.querySelector('#exposure-compensation');
-
+const autoExposureButton =
+  document.querySelector('#auto-exposure');
 const exposureValue =
   document.querySelector('#exposure-compensation-value');
 
-const outputs = {
-  distance: document.querySelector('#distance-value')
-};
 const descriptions = {
   'double-slit': 'A uniform plane wave passes through two narrow openings and is focused into the far field.',
   'single-slit': 'A uniform plane wave diffracts through one opening, producing a sinc-squared envelope.',
@@ -275,7 +279,6 @@ distanceNumber.value =
 function sinc(value) { return Math.abs(value) < 1e-8 ? 1 : Math.sin(value) / value; }
 
 function updateLabels() {
-  outputs.distance.value = Number(controls.distance.value).toFixed(2);
   distanceNumber.value = Number(controls.distance.value).toFixed(2);
   document.querySelector('#environment-description').textContent = descriptions[controls.environment.value];
 }
@@ -991,8 +994,18 @@ function renderTwoDimensional(beam, mode) {
           : values[sourceIndex] /
             Math.max(maximum, 1e-12);
 
+      const useLogScale =
+        logScaleControl?.checked ?? false;
+
       if (mode !== 'phase') {
+
         normalized *= exposureFactor();
+
+        if (useLogScale) {
+          normalized =
+            Math.log1p(normalized * 100) /
+            Math.log1p(100);
+        }
       }
       // const [red, green, blue] = heatColour(normalized, mode);
       const [red, green, blue] = mode === 'phase-intensity' ? phaseIntensityColour(
@@ -1084,6 +1097,91 @@ function getBeamInspectionData(parameters) {
   return { beam, entries };
 }
 
+function setExposure(ev) {
+  const clamped =
+    Math.max(-10, Math.min(10, ev));
+
+  exposureControl.value =
+    clamped.toFixed(1);
+
+  exposureValue.value =
+    clamped.toFixed(1);
+}
+
+function calculateAutoExposure(
+  beam,
+  mode
+) {
+
+  const values = [];
+
+  let maximum = 1e-12;
+
+  const pixels =
+    beam.width * beam.height;
+
+  for (
+    let i = 0;
+    i < pixels;
+    i++
+  ) {
+
+    const value =
+      beam.real[i] *
+      beam.real[i] +
+      beam.imaginary[i] *
+      beam.imaginary[i];
+
+    values.push(value);
+
+    if (value > maximum) {
+      maximum = value;
+    }
+  }
+
+  values.sort((a, b) => a - b);
+
+  const percentileValue =
+    values[
+      Math.floor(
+        values.length * 0.995
+      )
+    ];
+
+  const normalized =
+    percentileValue / maximum;
+
+  if (
+    !isFinite(normalized) ||
+    normalized <= 0
+  ) {
+    return 0;
+  }
+
+  return Math.log2(
+    0.95 /
+    normalized
+  );
+}
+
+function plotHeight(
+  value,
+  maximum,
+  useLogScale
+) {
+  let plottedValue =
+    (value / maximum) *
+    exposureFactor();
+
+  if (useLogScale) {
+    plottedValue =
+      Math.log1p(plottedValue * 100) /
+      Math.log1p(100);
+  }
+
+  return Math.min(1, plottedValue);
+}
+
 function render() {
   updateLabels();
   const bounds = canvas.getBoundingClientRect();
@@ -1136,6 +1234,7 @@ function render() {
   const samples = sourceValues.length;
   const values = Array.from(sourceValues);
   const maximum = Math.max(...values, 1e-8);
+  const useLogScale = logScaleControl?.checked ?? false;
   const titles = {
     'double-slit': 'Double-slit interference',
     'single-slit': 'Single-slit diffraction',
@@ -1156,10 +1255,19 @@ function render() {
   context.clearRect(0, 0, width, height);
   context.beginPath();
   values.forEach((value, index) => {
-    const x = index / (samples - 1) * width;
-    // const y = height - (value / maximum) * (height - 24) - 12;
-    const y = height - Math.min(1, (value / maximum) * exposureFactor()) * (height - 24) - 12;
-    if (index === 0) context.moveTo(x, y); else context.lineTo(x, y);
+    const x =
+      index / (samples - 1) * width;
+
+    const y =
+      height -
+      plotHeight(value, maximum, useLogScale) *
+        (height - 24) -
+      12;
+
+    if (index === 0)
+      context.moveTo(x, y);
+    else
+      context.lineTo(x, y);
   });
   context.lineTo(width, height);
   context.lineTo(0, height);
@@ -1168,10 +1276,19 @@ function render() {
   context.fill();
   context.beginPath();
   values.forEach((value, index) => {
-    const x = index / (samples - 1) * width;
-   // const y = height - (value / maximum) * (height - 24) - 12;
-    const y = height - Math.min(1, (value / maximum) * exposureFactor()) * (height - 24) - 12;
-    if (index === 0) context.moveTo(x, y); else context.lineTo(x, y);
+    const x =
+      index / (samples - 1) * width;
+
+    const y =
+      height -
+      plotHeight(value, maximum, useLogScale) *
+        (height - 24) -
+      12;
+
+    if (index === 0)
+      context.moveTo(x, y);
+    else
+      context.lineTo(x, y);
   });
   context.strokeStyle = '#e76f3c';
   context.lineWidth = 2;
@@ -1235,6 +1352,79 @@ document.querySelector('#add-component').addEventListener('click', () => {
   render();
 });
 plotMode.addEventListener('input', render);
+autoExposureButton?.addEventListener(
+  'click',
+  () => {
+
+    const parameters = {
+      environment:
+        controls.environment.value,
+      source:
+        controls.source.value,
+      sourceParameters,
+      distance:
+        Number(controls.distance.value)
+    };
+
+    const inspectionData =
+      getBeamInspectionData(parameters);
+
+    const inspectionKey =
+      controls.inspectionPoint?.value
+      ?? 'source';
+
+    const selectedInspection =
+      inspectionData.entries.find(
+        entry =>
+          entry.key === inspectionKey
+      )
+      ?? inspectionData.entries.at(-1);
+
+    const beam =
+      selectedInspection.beam;
+
+    const plottedBeam =
+      new Distance(
+        parameters.distance
+      ).apply(beam.clone());
+
+    const isFourier =
+      plotMode.value ===
+        'fourier-intensity'
+      ||
+      plotMode.value ===
+        '2d-fourier-intensity';
+
+    const displayBeam =
+      isFourier
+        ? getFourierIntensityBeam(
+            plottedBeam
+          )
+        : plottedBeam;
+
+    const mode =
+      plotMode.value
+        .replace('2d-', '')
+        .replace(
+          'fourier-intensity',
+          'intensity'
+        );
+
+    const ev =
+      calculateAutoExposure(
+        displayBeam,
+        mode
+      );
+
+    setExposure(ev);
+
+    render();
+  }
+);
+autoExposureButton.textContent =
+  `Auto (${Number(
+    exposureControl.value
+  ).toFixed(1)} EV)`;
 controls.inspectionPoint.addEventListener('input', render);
 if (exposureControl && exposureValue) {
   exposureControl.addEventListener(
@@ -1245,7 +1435,75 @@ if (exposureControl && exposureValue) {
       render();
     }
   );
+autoExposureButton?.addEventListener(
+  'click',
+  () => {
 
+    const parameters = {
+      environment:
+        controls.environment.value,
+      source:
+        controls.source.value,
+      sourceParameters,
+      distance:
+        Number(controls.distance.value)
+    };
+
+    const inspectionData =
+      getBeamInspectionData(parameters);
+
+    const inspectionKey =
+      controls.inspectionPoint?.value
+      ?? 'source';
+
+    const selectedInspection =
+      inspectionData.entries.find(
+        entry =>
+          entry.key === inspectionKey
+      )
+      ?? inspectionData.entries.at(-1);
+
+    const beam =
+      selectedInspection.beam;
+
+    const plottedBeam =
+      new Distance(
+        parameters.distance
+      ).apply(beam.clone());
+
+    const isFourier =
+      plotMode.value ===
+        'fourier-intensity'
+      ||
+      plotMode.value ===
+        '2d-fourier-intensity';
+
+    const displayBeam =
+      isFourier
+        ? getFourierIntensityBeam(
+            plottedBeam
+          )
+        : plottedBeam;
+
+    const mode =
+      plotMode.value
+        .replace('2d-', '')
+        .replace(
+          'fourier-intensity',
+          'intensity'
+        );
+
+    const ev =
+      calculateAutoExposure(
+        displayBeam,
+        mode
+      );
+
+    setExposure(ev);
+
+    render();
+  }
+);
   exposureValue.addEventListener(
     'input',
     () => {

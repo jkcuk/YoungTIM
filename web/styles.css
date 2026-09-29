@@ -124,6 +124,20 @@ h2 {
   width: 5rem;
 }
 
+.distance-control {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.distance-control input[type="range"] {
+  flex: 1;
+}
+
+#distance-number {
+  width: 5rem;
+}
+
 /* ============================
    MAIN LAYOUT
    ============================ */
