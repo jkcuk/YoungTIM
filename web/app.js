@@ -50,6 +50,13 @@ const controls = {
 let bitmapData = null;
 const extraComponents = [];
 const plotMode = document.querySelector('#plot-mode');
+
+const exposureControl =
+  document.querySelector('#exposure-compensation');
+
+const exposureValue =
+  document.querySelector('#exposure-compensation-value');
+
 const outputs = {
   distance: document.querySelector('#distance-value')
 };
@@ -310,9 +317,15 @@ function getState() {
     source: controls.source.value,
     sourceParameters: { ...sourceParameters },
     distance: controls.distance.value,
+    exposureCompensation:
+      exposureControl?.value ?? 0,
     plotMode: plotMode.value,
-    inspectionPoint: controls.inspectionPoint?.value ?? 'source',
-    chain: extraComponents.map(item => ({ type: item.type, params: { ...item.params } }))
+    inspectionPoint:
+      controls.inspectionPoint?.value ?? 'source',
+    chain: extraComponents.map(item => ({
+      type: item.type,
+      params: { ...item.params }
+    }))
   };
 }
 
@@ -330,6 +343,17 @@ function applyState(state) {
     const requestedValue = state.inspectionPoint === 'final' ? controls.inspectionPoint.options[controls.inspectionPoint.options.length - 1]?.value ?? 'source' : state.inspectionPoint;
     controls.inspectionPoint.value = controls.inspectionPoint.options.namedItem?.(requestedValue) ? requestedValue : controls.inspectionPoint.options[controls.inspectionPoint.options.length - 1]?.value ?? 'source';
   }
+  if (
+    state.exposureCompensation !== undefined &&
+    exposureControl &&
+    exposureValue
+  ) {
+    exposureControl.value =
+      state.exposureCompensation;
+    exposureValue.value =
+      state.exposureCompensation;
+  }
+
   if (Array.isArray(state.chain)) {
     const restoredComponents = state.chain.map(savedItem => {
       const type = typeof savedItem === 'string' ? savedItem : savedItem.type;
@@ -927,6 +951,13 @@ function positionPlotAxes(bounds) {
   yAxis.style.width = '';
 }
 
+function exposureFactor() {
+  return Math.pow(
+    2,
+    Number(exposureControl?.value ?? 0)
+  );
+}
+
 function renderTwoDimensional(beam, mode) {
   const width = canvas.width;
   const height = canvas.height;
@@ -953,7 +984,16 @@ function renderTwoDimensional(beam, mode) {
     for (let x = 0; x < imageWidth; x++) {
       const sourceX = Math.min(beam.width - 1, Math.floor(x / imageWidth * beam.width));
       const sourceIndex = sourceY * beam.width + sourceX;
-      const normalized = mode === 'phase' ? values[sourceIndex] : values[sourceIndex] / Math.max(maximum, 1e-12);
+      // const normalized = mode === 'phase' ? values[sourceIndex] : values[sourceIndex] / Math.max(maximum, 1e-12);
+      let normalized =
+        mode === 'phase'
+          ? values[sourceIndex]
+          : values[sourceIndex] /
+            Math.max(maximum, 1e-12);
+
+      if (mode !== 'phase') {
+        normalized *= exposureFactor();
+      }
       // const [red, green, blue] = heatColour(normalized, mode);
       const [red, green, blue] = mode === 'phase-intensity' ? phaseIntensityColour(
         Math.atan2(beam.imaginary[sourceIndex], beam.real[sourceIndex]) / (2 * Math.PI), 
@@ -1117,7 +1157,8 @@ function render() {
   context.beginPath();
   values.forEach((value, index) => {
     const x = index / (samples - 1) * width;
-    const y = height - (value / maximum) * (height - 24) - 12;
+    // const y = height - (value / maximum) * (height - 24) - 12;
+    const y = height - Math.min(1, (value / maximum) * exposureFactor()) * (height - 24) - 12;
     if (index === 0) context.moveTo(x, y); else context.lineTo(x, y);
   });
   context.lineTo(width, height);
@@ -1128,7 +1169,8 @@ function render() {
   context.beginPath();
   values.forEach((value, index) => {
     const x = index / (samples - 1) * width;
-    const y = height - (value / maximum) * (height - 24) - 12;
+   // const y = height - (value / maximum) * (height - 24) - 12;
+    const y = height - Math.min(1, (value / maximum) * exposureFactor()) * (height - 24) - 12;
     if (index === 0) context.moveTo(x, y); else context.lineTo(x, y);
   });
   context.strokeStyle = '#e76f3c';
@@ -1194,6 +1236,25 @@ document.querySelector('#add-component').addEventListener('click', () => {
 });
 plotMode.addEventListener('input', render);
 controls.inspectionPoint.addEventListener('input', render);
+if (exposureControl && exposureValue) {
+  exposureControl.addEventListener(
+    'input',
+    () => {
+      exposureValue.value =
+        exposureControl.value;
+      render();
+    }
+  );
+
+  exposureValue.addEventListener(
+    'input',
+    () => {
+      exposureControl.value =
+        exposureValue.value;
+      render();
+    }
+  );
+}
 document.querySelector('#save-state').addEventListener('click', () => {
   const state = getState();
   const url = URL.createObjectURL(new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' }));

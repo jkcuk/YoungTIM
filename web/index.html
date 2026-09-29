@@ -127,6 +127,27 @@
             <option value="2d-phase-intensity">2D phase + intensity</option>
             <option value="2d-fourier-intensity">2D Fourier transform (intensity)</option>
           </select>
+          <label>
+            Exposure compensation (EV)
+          </label>
+
+          <div class="exposure-control">
+            <input
+              id="exposure-compensation"
+              type="range"
+              min="-10"
+              max="10"
+              step="0.1"
+              value="0">
+
+            <input
+              id="exposure-compensation-value"
+              type="number"
+              min="-10"
+              max="10"
+              step="0.1"
+              value="0">
+          </div>
         </div>
 
         <button class="run-button" id="run-button" type="button"><span>Run simulation</span><span aria-hidden="true">&#8594;</span></button>

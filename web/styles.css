@@ -110,6 +110,20 @@ h2 {
   background: #71b85e;
 }
 
+.exposure-control {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+#exposure-compensation {
+  flex: 1;
+}
+
+#exposure-compensation-value {
+  width: 5rem;
+}
+
 /* ============================
    MAIN LAYOUT
    ============================ */
